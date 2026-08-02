@@ -316,7 +316,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v1.8</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v1.9</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -366,7 +366,6 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
       <h2 class="sec" data-i18n="navAcq">Inventario</h2>
       <p class="sec-sub" data-i18n="acqSub">Ogni acquisto è un orologio con la sua acquisizione: prezzi, pagamenti, stato ritiro.</p>
       <div class="toolbar">
-        <button class="btn" id="btnNewAcq">+ <span data-i18n="newAcq">Nuovo acquisto</span></button>
         <input type="text" id="acqSearch" data-i18n-ph="phSearch" placeholder="Cerca referenza, marca, controparte…">
         <select id="acqBrand"></select>
         <select id="acqStat"></select>
@@ -640,7 +639,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v1.8
+   WATCHDESK — GESTIONALE UNIFICATO  v1.9
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -1867,7 +1866,6 @@ function bind(){
   });
 
   /* apertura form */
-  $('btnNewAcq').addEventListener('click',function(){ openAcqModal(null); });
   $('btnNewAcq2').addEventListener('click',function(){ openAcqModal(null); });
   $('acqList').addEventListener('click',function(ev){
     var el=ev.target.closest('[data-acq]'); if(el) openAcqModal(el.getAttribute('data-acq'));
