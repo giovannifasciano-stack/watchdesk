@@ -316,7 +316,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v1.5</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v1.6</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -330,6 +330,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
     <button class="navbtn on" data-view="home" data-i18n="navHome">Home</button>
     <span class="navsep"></span>
     <button class="navbtn" data-view="acq" data-i18n="navAcq">Inventario</button>
+    <button class="navbtn" data-view="pur" data-i18n="navPur">Acquisti</button>
     <button class="navbtn" data-view="sales" data-i18n="navSales">Vendite</button>
     <span class="navsep"></span>
     <button class="navbtn" data-view="cp" data-i18n="navCp">Clienti-Fornitori</button>
@@ -374,6 +375,15 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
     </section>
 
     <!-- MAGAZZINO -->
+    <section class="view" id="view-pur">
+      <h2 class="sec" data-i18n="navPur">Acquisti</h2>
+      <p class="sec-sub" data-i18n="purSub">Registro completo degli acquisti, venduti inclusi.</p>
+      <div class="toolbar">
+        <input type="text" id="purSearch" data-i18n-ph="phSearchAcq" placeholder="Cerca marca, referenza, fornitore…">
+      </div>
+      <div id="purList"></div>
+    </section>
+
     <section class="view" id="view-mag">
       <h2 class="sec" data-i18n="navMag">Magazzino</h2>
       <p class="sec-sub" data-i18n="magSub">Orologi ritirati e non ancora venduti — quello che hai in casa.</p>
@@ -628,7 +638,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v1.5
+   WATCHDESK — GESTIONALE UNIFICATO  v1.6
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -657,11 +667,11 @@ var I18N = {
     authSub:'Gestionale orologi', login:'Entra', goSignup:'Crea un account', goReset:'Password dimenticata',
     signupCode:'Codice di registrazione', signupBtn:'Registrati', backLogin:'Torna al login',
     recoveryCode:'Codice di recupero', newPass:'Nuova password', resetBtn:'Reimposta password',
-    navHome:'Home', navAcq:'Inventario', navMag:'Magazzino', navSales:'Vendite', navCp:'Clienti-Fornitori', navRep:'Reports',
+    navHome:'Home', navAcq:'Inventario', navPur:'Acquisti', navMag:'Magazzino', navSales:'Vendite', navCp:'Clienti-Fornitori', navRep:'Reports',
     heroHi:'Bentornato', tOpen:'Acquisti aperti', tOpenN:'ordinati o in arrivo', tStock:'In magazzino',
     tStockN:'ritirati, non venduti', tSold:'Vendite anno', tMargin:'Margine anno', tMarginN:'netto vendite − costi netti',
     pCur:'Impegni aperti per valuta — costo netto', pLast:'Ultimi movimenti',
-    acqSub:'Ogni pezzo in inventario è un orologio con la sua acquisizione: prezzi, pagamenti, stato ritiro.',
+    purSub:'Registro completo degli acquisti, venduti inclusi.', acqSub:'Ogni pezzo in inventario è un orologio con la sua acquisizione: prezzi, pagamenti, stato ritiro.',
     magSub:'Orologi ritirati e non ancora venduti — quello che hai in casa.',
     salesSub:'Vendite registrate sugli orologi in archivio, con regime IVA e permuta.',
     cpSub:'Fornitori e clienti, divisi: chi \u201centrambi\u201d compare nelle due liste.',
@@ -727,11 +737,11 @@ var I18N = {
     authSub:'Watch management', login:'Sign in', goSignup:'Create an account', goReset:'Forgot password',
     signupCode:'Registration code', signupBtn:'Sign up', backLogin:'Back to login',
     recoveryCode:'Recovery code', newPass:'New password', resetBtn:'Reset password',
-    navHome:'Home', navAcq:'Inventory', navMag:'Stock', navSales:'Sales', navCp:'Clients-Suppliers', navRep:'Reports',
+    navHome:'Home', navAcq:'Inventory', navPur:'Purchases', navMag:'Stock', navSales:'Sales', navCp:'Clients-Suppliers', navRep:'Reports',
     heroHi:'Welcome back', tOpen:'Open purchases', tOpenN:'ordered or incoming', tStock:'In stock',
     tStockN:'collected, not sold', tSold:'Sales this year', tMargin:'Margin this year', tMarginN:'net sales − net costs',
     pCur:'Open commitments by currency — net cost', pLast:'Latest activity',
-    acqSub:'Every piece in inventory is a watch with its acquisition: prices, payments, collection status.',
+    purSub:'Full purchase register, sold pieces included.', acqSub:'Every piece in inventory is a watch with its acquisition: prices, payments, collection status.',
     magSub:'Watches collected and not yet sold — what you have at home.',
     salesSub:'Sales recorded on archived watches, with VAT regime and trade-ins.',
     cpSub:'Suppliers and clients, split: \u201cboth\u201d appears in both lists.',
@@ -992,7 +1002,7 @@ function gotoView(v){
 /* ================================================================
    RENDER
    ================================================================ */
-function renderAll(){ renderHome(); renderAcq(); renderMag(); renderSales(); renderCp(); }
+function renderAll(){ renderHome(); renderAcq(); renderPur(); renderMag(); renderSales(); renderCp(); }
 
 function renderHome(){
   var open=0, stock=0;
@@ -1080,6 +1090,40 @@ function renderAcq(){
     '</div>';
   });
   $('acqList').innerHTML = html || '<div class="empty">'+T('noResults')+'</div>';
+}
+
+function renderPur(){
+  var q=$('purSearch').value.trim().toLowerCase();
+  var rows = S.acquisitions.slice();
+  if(q){
+    rows = rows.filter(function(a){
+      var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
+      var hay=((w.brand||'')+' '+(w.ref||'')+' '+(w.model||'')+' '+(w.serial||'')+' '+(cp?cp.name:'')).toLowerCase();
+      return hay.indexOf(q)>-1;
+    });
+  }
+  rows.sort(function(x,y){ return String(y.d_ord||'').localeCompare(String(x.d_ord||'')); });
+  var html='';
+  rows.forEach(function(a){
+    var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
+    var sold=!!saleByWatch(a.watch_id);
+    var net=netCost(a);
+    html += '<div class="rowcard" data-acq="'+esc(a.id)+'">'+
+      '<div class="thumb">'+(w.photo?'<img src="'+w.photo+'" alt="">':'\u231a')+'</div>'+
+      '<div class="rc-main">'+
+        '<div class="rc-title">'+esc(w.brand||'')+' <span class="ref">'+esc(w.ref||'')+'</span>'+(w.model?' \u00b7 '+esc(w.model):'')+'</div>'+
+        '<div class="rc-sub">'+(cp?esc(cp.name):T('noCp'))+(a.d_ord?' \u00b7 '+fmtDate(a.d_ord):'')+'</div>'+
+      '</div>'+
+      '<div class="rc-right">'+
+        '<div class="rc-amt mono"><span class="cur">'+esc(a.cur||'CHF')+'</span>'+fmtN(net,a.cur||'CHF')+'</div>'+
+        '<div class="rc-chips">'+
+          (sold?'<span class="st venduto">'+T('venduto')+'</span>':'<span class="st '+esc(a.stat||'')+'">'+esc(statLabel(a.stat))+'</span>')+
+          '<span class="st '+esc(a.pay||'')+'">'+esc(payLabel(a.pay))+'</span>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  });
+  $('purList').innerHTML = html || '<div class="empty">'+T('noResults')+'</div>';
 }
 
 function renderMag(){
@@ -1822,6 +1866,10 @@ function bind(){
   /* apertura form */
   $('btnNewAcq').addEventListener('click',function(){ openAcqModal(null); });
   $('acqList').addEventListener('click',function(ev){
+    var el=ev.target.closest('[data-acq]'); if(el) openAcqModal(el.getAttribute('data-acq'));
+  });
+  $('purSearch').addEventListener('input', renderPur);
+  $('purList').addEventListener('click',function(ev){
     var el=ev.target.closest('[data-acq]'); if(el) openAcqModal(el.getAttribute('data-acq'));
   });
   $('btnNewSale').addEventListener('click',function(){ openSaleModal(null); });
