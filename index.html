@@ -319,7 +319,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v2.1</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v2.2</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -642,7 +642,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v2.1
+   WATCHDESK — GESTIONALE UNIFICATO  v2.2
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -1865,10 +1865,16 @@ function bind(){
   $('magSearch').addEventListener('input', renderMag);
   $('salesSearch').addEventListener('input', renderSales);
   $('cpSearch').addEventListener('input', renderCp);
+  function syncCpButtons(){
+    $('btnNewCli').style.display = CP_ROLE_FILTER==='clienti' ? 'inline-flex' : 'none';
+    $('btnNewSup').style.display = CP_ROLE_FILTER==='fornitori' ? 'inline-flex' : 'none';
+  }
+  syncCpButtons();
   $('cpRoleChips').addEventListener('click',function(ev){
     var el=ev.target.closest('.chip'); if(!el) return;
     CP_ROLE_FILTER=el.getAttribute('data-role')||'';
     document.querySelectorAll('#cpRoleChips .chip').forEach(function(c){ c.classList.toggle('on',c===el); });
+    syncCpButtons();
     renderCp();
   });
 
