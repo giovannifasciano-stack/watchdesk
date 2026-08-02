@@ -319,7 +319,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v2.0</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v2.1</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -642,7 +642,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v2.0
+   WATCHDESK — GESTIONALE UNIFICATO  v2.1
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -1404,9 +1404,13 @@ function openSaleModal(saleId, presetWatchId){
     var tag = a && a.stat==='ritirato' ? ' ✓' : '';
     return optHtml(w.id, watchTitle(w)+tag);
   }).join('');
-  var cps = S.counterparts.filter(function(c){ return c.role!=='buy'; });
-  var cpsAll = cps.length ? cps : S.counterparts;
-  $('sCp').innerHTML = optHtml('', T('selCp')) + cpsAll.map(function(c){ return optHtml(c.id, c.name); }).join('');
+  /* solo clienti (sell/entrambi): mai i fornitori. Unica eccezione: una vendita
+     gia' registrata su una controparte che nel frattempo e' diventata solo-fornitore */
+  var cps = S.counterparts.filter(function(c){
+    if(EDIT.sale && c.id===EDIT.sale.counterpart_id) return true;
+    return c.role!=='buy';
+  });
+  $('sCp').innerHTML = optHtml('', T('selCp')) + cps.map(function(c){ return optHtml(c.id, c.name); }).join('');
   var s = EDIT.sale||{};
   $('sWatch').value = s.watch_id || presetWatchId || '';
   $('sCp').value = s.counterpart_id||'';
