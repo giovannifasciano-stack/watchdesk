@@ -240,6 +240,16 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 }
 .sheet td{border-bottom:1px solid #dfe2ea; padding:7px 6px; vertical-align:top; overflow:hidden; text-overflow:ellipsis}
 .sheet .num{text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap}
+.sheet .fxbox{margin-top:16px; border:1.5px solid #a8905f; border-radius:8px; padding:12px 14px; page-break-inside:avoid}
+.sheet .fxbox .fxt{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#666e85; margin-bottom:8px; font-weight:700}
+.sheet .fxrow{display:flex; align-items:baseline; gap:10px; padding:5px 0; border-bottom:1px dashed #dfe2ea; font-size:13px}
+.sheet .fxrow:last-of-type{border-bottom:none}
+.sheet .fxrow .flag{font-size:15px; width:22px}
+.sheet .fxrow .fxmain{font-weight:800; font-variant-numeric:tabular-nums; white-space:nowrap}
+.sheet .fxrow .fxalt{color:#666e85; font-variant-numeric:tabular-nums; font-size:12px}
+.sheet .fxgrand{margin-top:8px; padding-top:8px; border-top:2px solid #a8905f; display:flex; flex-wrap:wrap; gap:6px 18px; font-size:13px; font-weight:800; font-variant-numeric:tabular-nums}
+.sheet .fxgrand .flag{margin-right:4px}
+.sheet .fxnote{margin-top:7px; font-size:10px; color:#8a91a6}
 .sheet .mono2{font-family:'IBM Plex Mono',monospace; font-size:11px}
 .sheet .tot td{border-top:2px solid #14161f; border-bottom:none; font-weight:700; padding-top:9px}
 .sheet .neg{color:#c0392b}
@@ -302,7 +312,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v1.0</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v1.2</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -382,12 +392,10 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
     <!-- CONTROPARTI -->
     <section class="view" id="view-cp">
       <h2 class="sec" data-i18n="navCp">Controparti</h2>
-      <p class="sec-sub" data-i18n="cpSub">Fornitori e clienti in un unico registro, con ruolo compro / vendo / entrambi.</p>
+      <p class="sec-sub" data-i18n="cpSub">Fornitori e clienti, divisi: chi "entrambi" compare nelle due liste.</p>
       <div class="chips" id="cpRoleChips">
-        <button class="chip on" data-role="">Tutte</button>
-        <button class="chip" data-role="buy" data-i18n="roleBuy">Compro</button>
-        <button class="chip" data-role="sell" data-i18n="roleSell">Vendo</button>
-        <button class="chip" data-role="both" data-i18n="roleBoth">Entrambi</button>
+        <button class="chip on" data-role="fornitori" data-i18n="tabSup">Fornitori</button>
+        <button class="chip" data-role="clienti" data-i18n="tabCli">Clienti</button>
       </div>
       <div class="toolbar">
         <input type="text" id="cpSearch" data-i18n-ph="phSearchCp" placeholder="Cerca nome, città…">
@@ -613,7 +621,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v1.0
+   WATCHDESK — GESTIONALE UNIFICATO  v1.2
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -649,7 +657,7 @@ var I18N = {
     acqSub:'Ogni acquisto è un orologio con la sua acquisizione: prezzi, pagamenti, stato ritiro.',
     magSub:'Orologi ritirati e non ancora venduti — quello che hai in casa.',
     salesSub:'Vendite registrate sugli orologi in archivio, con regime IVA e permuta.',
-    cpSub:'Fornitori e clienti in un unico registro, con ruolo compro / vendo / entrambi.',
+    cpSub:'Fornitori e clienti, divisi: chi \u201centrambi\u201d compare nelle due liste.',
     repSub:'Estratti conto, registro vendite, margini. Ogni report si apre in anteprima e poi si stampa.',
     phSearch:'Cerca referenza, marca, controparte…', phSearchMag:'Cerca referenza, marca, seriale…',
     phSearchCp:'Cerca nome, città…', phLookup:'Nome boutique, gioielleria, dealer…', phPhoto:'Tocca per caricare una foto',
@@ -685,7 +693,8 @@ var I18N = {
     cond_nuovo:'Nuovo', cond_comenuovo:'Come nuovo', cond_ottimo:'Ottimo', cond_buono:'Buono', cond_darevisione:'Da revisione',
     set_fullset:'Full set', set_soloscatola:'Solo scatola', set_sologaranzia:'Solo garanzia', set_soloorologio:'Solo orologio',
     vm_ivach:'IVA Svizzera', vm_ivaue:'IVA UE', vm_export:'Export esente', vm_margine:'Regime del margine',
-    role_buy:'Compro', role_sell:'Vendo', role_both:'Entrambi',
+    role_buy:'Fornitore', role_sell:'Cliente', role_both:'Entrambi',
+    tabSup:'Fornitori', tabCli:'Clienti',
     venduto:'Venduto', inStock:'In magazzino', days:'giorni', daysStock:'giacenza',
     noCp:'— nessuna controparte —', selWatch:'— scegli orologio —', selCp:'— scegli controparte —',
     confirmDelAcq:'Eliminare questo acquisto? Verranno rimossi anche l\'orologio e tutta la sua storia (vendite e documenti).',
@@ -697,6 +706,7 @@ var I18N = {
     errConn:'Connessione non riuscita: il Worker watchdesk-api è online?',
     sessionOut:'Sessione scaduta, entra di nuovo',
     genOn:'generato il', period:'Periodo', all:'tutto l\'archivio', totRow:'TOTALE', pieces:'pezzi',
+    fxTitle:'Totali per valuta', fxGrand:'Totale complessivo', fxAbout:'controvalori ai cambi', fxNA:'cambi non disponibili: controvalori omessi',
     thDate:'Data', thBrand:'Marca', thRef:'Referenza', thModel:'Modello', thCp:'Controparte', thCur:'Val.',
     thList:'Listino', thAgreed:'Concordato', thNet:'Netto', thPay:'Pagamento', thStat:'Stato',
     thPrice:'Prezzo', thNetSale:'Netto vendita', thRegime:'Regime', thTrade:'Permuta', thInv:'Fattura',
@@ -717,7 +727,7 @@ var I18N = {
     acqSub:'Every purchase is a watch with its acquisition: prices, payments, collection status.',
     magSub:'Watches collected and not yet sold — what you have at home.',
     salesSub:'Sales recorded on archived watches, with VAT regime and trade-ins.',
-    cpSub:'Suppliers and clients in one register, with role buy / sell / both.',
+    cpSub:'Suppliers and clients, split: \u201cboth\u201d appears in both lists.',
     repSub:'Statements, sales ledger, margins. Every report opens as a preview, then prints.',
     phSearch:'Search reference, brand, counterpart…', phSearchMag:'Search reference, brand, serial…',
     phSearchCp:'Search name, city…', phLookup:'Boutique, jeweller, dealer name…', phPhoto:'Tap to upload a photo',
@@ -753,7 +763,8 @@ var I18N = {
     cond_nuovo:'New', cond_comenuovo:'Like new', cond_ottimo:'Excellent', cond_buono:'Good', cond_darevisione:'Needs service',
     set_fullset:'Full set', set_soloscatola:'Box only', set_sologaranzia:'Papers only', set_soloorologio:'Watch only',
     vm_ivach:'Swiss VAT', vm_ivaue:'EU VAT', vm_export:'Export exempt', vm_margine:'Margin scheme',
-    role_buy:'Buy', role_sell:'Sell', role_both:'Both',
+    role_buy:'Supplier', role_sell:'Client', role_both:'Both',
+    tabSup:'Suppliers', tabCli:'Clients',
     venduto:'Sold', inStock:'In stock', days:'days', daysStock:'in stock',
     noCp:'— no counterpart —', selWatch:'— choose watch —', selCp:'— choose counterpart —',
     confirmDelAcq:'Delete this purchase? The watch and its whole history (sales and documents) will be removed too.',
@@ -765,6 +776,7 @@ var I18N = {
     errConn:'Connection failed: is the watchdesk-api Worker online?',
     sessionOut:'Session expired, sign in again',
     genOn:'generated on', period:'Period', all:'whole archive', totRow:'TOTAL', pieces:'pieces',
+    fxTitle:'Totals by currency', fxGrand:'Grand total', fxAbout:'countervalues at rates of', fxNA:'exchange rates unavailable: countervalues omitted',
     thDate:'Date', thBrand:'Brand', thRef:'Reference', thModel:'Model', thCp:'Counterpart', thCur:'Cur.',
     thList:'List', thAgreed:'Agreed', thNet:'Net', thPay:'Payment', thStat:'Status',
     thPrice:'Price', thNetSale:'Net sale', thRegime:'Regime', thTrade:'Trade-in', thInv:'Invoice',
@@ -781,7 +793,7 @@ var LANG = localStorage.getItem(LANG_KEY) || 'it';
 var TOKEN = localStorage.getItem(TOKEN_KEY) || '';
 var S = { counterparts:[], watches:[], acquisitions:[], sales:[] };
 var CUR_VIEW = 'home';
-var CP_ROLE_FILTER = '';
+var CP_ROLE_FILTER = 'fornitori';
 var EDIT = { acq:null, watch:null, sale:null, cp:null, photo:'' };
 
 /* ---------- utility ---------- */
@@ -913,7 +925,7 @@ function fillStaticSelects(){
   $('acqBrand').innerHTML = optHtml('', T('fBrand')+': '+T('allF')) + Object.keys(brandsInUse).sort().map(function(b){return optHtml(b,b);}).join('');
   if(keep) $('acqBrand').value=keep;
   keep=$('acqStat').value;
-  $('acqStat').innerHTML = optHtml('', T('fStat')+': '+T('allM')) + STATS.map(function(s){return optHtml(s,statLabel(s));}).join('') + optHtml('venduto', T('venduto'));
+  $('acqStat').innerHTML = optHtml('', T('fStat')+': '+T('allM')) + STATS.map(function(s){return optHtml(s,statLabel(s));}).join('');
   if(keep) $('acqStat').value=keep;
   keep=$('repCp').value;
   $('repCp').innerHTML = optHtml('', T('allF')) + S.counterparts.map(function(c){return optHtml(c.id, c.name);}).join('');
@@ -1027,10 +1039,9 @@ function renderHome(){
 
 function acqMatches(a, q, brand, stat){
   var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
+  if(saleByWatch(a.watch_id)) return false; /* i venduti vivono nella sezione Vendite */
   if(brand && w.brand!==brand) return false;
-  var sold=!!saleByWatch(a.watch_id);
-  if(stat==='venduto'){ if(!sold) return false; }
-  else if(stat){ if(a.stat!==stat) return false; }
+  if(stat && a.stat!==stat) return false;
   if(q){
     var hay=((w.brand||'')+' '+(w.ref||'')+' '+(w.model||'')+' '+(w.serial||'')+' '+(cp?cp.name:'')).toLowerCase();
     if(hay.indexOf(q.toLowerCase())===-1) return false;
@@ -1044,7 +1055,7 @@ function renderAcq(){
   rows.sort(function(x,y){ return String(y.d_ord||'').localeCompare(String(x.d_ord||'')); });
   var html='';
   rows.forEach(function(a){
-    var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id), sold=!!saleByWatch(a.watch_id);
+    var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
     var net=netCost(a);
     html += '<div class="rowcard" data-acq="'+esc(a.id)+'">'+
       '<div class="thumb">'+(w.photo?'<img src="'+w.photo+'" alt="">':'⌚')+'</div>'+
@@ -1055,7 +1066,7 @@ function renderAcq(){
       '<div class="rc-right">'+
         '<div class="rc-amt mono"><span class="cur">'+esc(a.cur||'CHF')+'</span>'+fmtN(net,a.cur||'CHF')+'</div>'+
         '<div class="rc-chips">'+
-          (sold?'<span class="st venduto">'+T('venduto')+'</span>':'<span class="st '+esc(a.stat||'')+'">'+esc(statLabel(a.stat))+'</span>')+
+          '<span class="st '+esc(a.stat||'')+'">'+esc(statLabel(a.stat))+'</span>'+
           '<span class="st '+esc(a.pay||'')+'">'+esc(payLabel(a.pay))+'</span>'+
         '</div>'+
       '</div>'+
@@ -1133,7 +1144,9 @@ function renderSales(){
 function renderCp(){
   var q=$('cpSearch').value.trim().toLowerCase();
   var rows = S.counterparts.filter(function(c){
-    if(CP_ROLE_FILTER && c.role!==CP_ROLE_FILTER) return false;
+    var r=c.role||'buy';
+    if(CP_ROLE_FILTER==='fornitori' && r==='sell') return false;
+    if(CP_ROLE_FILTER==='clienti' && r==='buy') return false;
     if(q){
       var hay=((c.name||'')+' '+(c.city||'')+' '+(c.country||'')).toLowerCase();
       if(hay.indexOf(q)===-1) return false;
@@ -1542,6 +1555,74 @@ function totRowsByCur(rows, getCur, getVal, cols, label){
   return out;
 }
 
+
+/* ---------- cambi per i controvalori nei report ---------- */
+var FLAGS = {CHF:'\ud83c\udde8\ud83c\udded', EUR:'\ud83c\uddea\ud83c\uddfa', USD:'\ud83c\uddfa\ud83c\uddf8', GBP:'\ud83c\uddec\ud83c\udde7'};
+var FX = null; /* {rates:{CHF:1,...}, date:'', ts:0} */
+function loadFx(cb){
+  try{
+    var c = JSON.parse(localStorage.getItem('wd_fx')||'null');
+    if(c && c.rates && (Date.now()-c.ts) < 6*3600*1000){ FX=c; cb(); return; }
+  }catch(e){}
+  fetch('https://open.er-api.com/v6/latest/CHF')
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      if(!j || !j.rates) throw 0;
+      FX = {rates:j.rates, date:(j.time_last_update_utc||'').slice(0,16), ts:Date.now()};
+      try{ localStorage.setItem('wd_fx', JSON.stringify(FX)); }catch(e){}
+      cb();
+    })
+    .catch(function(){
+      fetch('https://api.frankfurter.app/latest?from=CHF')
+        .then(function(r){ return r.json(); })
+        .then(function(j){
+          if(!j || !j.rates) throw 0;
+          j.rates.CHF = 1;
+          FX = {rates:j.rates, date:j.date||'', ts:Date.now()};
+          try{ localStorage.setItem('wd_fx', JSON.stringify(FX)); }catch(e){}
+          cb();
+        })
+        .catch(function(){ FX=null; cb(); });
+    });
+}
+function fxConv(v, from, to){
+  if(!FX || !FX.rates || FX.rates[from]==null || FX.rates[to]==null) return null;
+  return v * FX.rates[to] / FX.rates[from];
+}
+function fxTotalsBlock(m){
+  var curs = Object.keys(m);
+  if(!curs.length) return '';
+  var order = CURS.filter(function(c){return m[c]!=null;});
+  var h = '<div class="fxbox"><div class="fxt">'+T('fxTitle')+'</div>';
+  order.forEach(function(c){
+    var alts = '';
+    if(FX){
+      alts = CURS.filter(function(x){return x!==c;}).map(function(x){
+        var v = fxConv(m[c], c, x);
+        return v==null ? '' : '\u2248 '+x+' '+fmtN(Math.round(v), x);
+      }).filter(Boolean).join(' \u00b7 ');
+    }
+    h += '<div class="fxrow"><span class="flag">'+(FLAGS[c]||'')+'</span>'+
+      '<span class="fxmain">'+c+' '+fmtN(m[c], c)+'</span>'+
+      (alts?'<span class="fxalt">'+alts+'</span>':'')+
+      '</div>';
+  });
+  if(FX && order.length){
+    h += '<div class="fxgrand"><span style="letter-spacing:.12em;font-size:11px;color:#666e85">'+T('fxGrand')+':</span>';
+    CURS.forEach(function(x){
+      var tot=0, ok=true;
+      order.forEach(function(c){ var v=fxConv(m[c], c, x); if(v==null) ok=false; else tot+=v; });
+      if(ok) h += '<span><span class="flag">'+(FLAGS[x]||'')+'</span>'+x+' '+fmtN(Math.round(tot), x)+'</span>';
+    });
+    h += '</div>';
+    h += '<div class="fxnote">'+T('fxAbout')+' '+esc(FX.date||'')+' \u00b7 open.er-api.com</div>';
+  } else {
+    h += '<div class="fxnote">'+T('fxNA')+'</div>';
+  }
+  h += '</div>';
+  return h;
+}
+
 function buildRepAcq(){
   var rows=repFilterRows(S.acquisitions,'d_ord');
   rows.sort(function(x,y){ return String(x.d_ord||'').localeCompare(String(y.d_ord||'')); });
@@ -1558,7 +1639,10 @@ function buildRepAcq(){
   });
   h+=totRowsByCur(rows,function(a){return a.cur;},function(a){return netCost(a);},10,T('totRow'));
   h+='</table>';
-  openPrint(T('rAcqT'), h);
+  var m=sumByCur(rows,function(a){return a.cur;},function(a){return netCost(a);});
+  loadFx(function(){
+    openPrint(T('rAcqT'), h + fxTotalsBlock(m));
+  });
 }
 
 function buildRepSales(){
