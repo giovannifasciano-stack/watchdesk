@@ -316,7 +316,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v1.4</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v1.5</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -330,7 +330,6 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
     <button class="navbtn on" data-view="home" data-i18n="navHome">Home</button>
     <span class="navsep"></span>
     <button class="navbtn" data-view="acq" data-i18n="navAcq">Inventario</button>
-    <button class="navbtn" data-view="mag" data-i18n="navMag">Magazzino</button>
     <button class="navbtn" data-view="sales" data-i18n="navSales">Vendite</button>
     <span class="navsep"></span>
     <button class="navbtn" data-view="cp" data-i18n="navCp">Clienti-Fornitori</button>
@@ -347,7 +346,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
       </div>
       <div class="tiles">
         <div class="tile" data-goto="acq"><div class="t-label" data-i18n="tOpen">Acquisti aperti</div><div class="t-value" id="kpiOpen">–</div><div class="t-note" data-i18n="tOpenN">ordinati o in arrivo</div></div>
-        <div class="tile" data-goto="mag"><div class="t-label" data-i18n="tStock">In magazzino</div><div class="t-value" id="kpiStock">–</div><div class="t-note" data-i18n="tStockN">ritirati, non venduti</div></div>
+        <div class="tile" data-goto="acq"><div class="t-label" data-i18n="tStock">In magazzino</div><div class="t-value" id="kpiStock">–</div><div class="t-note" data-i18n="tStockN">ritirati, non venduti</div></div>
         <div class="tile" data-goto="sales"><div class="t-label" data-i18n="tSold">Vendite anno</div><div class="t-value" id="kpiSold">–</div><div class="t-note" id="kpiSoldN"></div></div>
         <div class="tile" data-goto="rep"><div class="t-label" data-i18n="tMargin">Margine anno</div><div class="t-value" id="kpiMargin" style="font-size:1.15rem;line-height:1.5">–</div><div class="t-note" data-i18n="tMarginN">netto vendite − costi netti</div></div>
       </div>
@@ -506,6 +505,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
     <div class="m-actions">
       <button class="btn danger sm" id="btnDelAcq" style="display:none" data-i18n="delete">Elimina</button>
+      <button class="btn sm" id="btnSellAcq" style="display:none">💰 <span data-i18n="sellThis">Vendi questo orologio</span> →</button>
       <div class="spacer"></div>
       <button class="btn ghost" data-close="ovAcq" data-i18n="cancel">Annulla</button>
       <button class="btn" id="btnSaveAcq" data-i18n="save">Salva</button>
@@ -628,7 +628,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v1.4
+   WATCHDESK — GESTIONALE UNIFICATO  v1.5
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -668,7 +668,7 @@ var I18N = {
     repSub:'Estratti conto, registro vendite, margini. Ogni report si apre in anteprima e poi si stampa.',
     phSearch:'Cerca referenza, marca, controparte…', phSearchMag:'Cerca referenza, marca, seriale…',
     phSearchCp:'Cerca nome, città…', phLookup:'Nome boutique, gioielleria, dealer…', phPhoto:'Tocca per caricare una foto',
-    newAcq:'Nuovo acquisto', editAcq:'Modifica acquisto', newSale:'Nuova vendita', editSale:'Modifica vendita',
+    newAcq:'Nuovo acquisto', editAcq:'Modifica acquisto', sellThis:'Vendi questo orologio', newSale:'Nuova vendita', editSale:'Modifica vendita',
     newCp:'Nuova controparte', editCp:'Modifica controparte',
     magEmpty:'Magazzino vuoto: nessun orologio ritirato in attesa di vendita.',
     roleBuy:'Compro', roleSell:'Vendo', roleBoth:'Entrambi', allF:'Tutte', allM:'Tutti',
@@ -738,7 +738,7 @@ var I18N = {
     repSub:'Statements, sales ledger, margins. Every report opens as a preview, then prints.',
     phSearch:'Search reference, brand, counterpart…', phSearchMag:'Search reference, brand, serial…',
     phSearchCp:'Search name, city…', phLookup:'Boutique, jeweller, dealer name…', phPhoto:'Tap to upload a photo',
-    newAcq:'New purchase', editAcq:'Edit purchase', newSale:'New sale', editSale:'Edit sale',
+    newAcq:'New purchase', editAcq:'Edit purchase', sellThis:'Sell this watch', newSale:'New sale', editSale:'Edit sale',
     newCp:'New counterpart', editCp:'Edit counterpart',
     magEmpty:'Inventory is empty: no collected watch awaiting sale.',
     roleBuy:'Buy', roleSell:'Sell', roleBoth:'Both', allF:'All', allM:'All',
@@ -1190,6 +1190,7 @@ function openAcqModal(acqId, presetWatchId){
   hideMsg('acqMsg');
   $('acqModalTitle').textContent = EDIT.acq ? T('editAcq') : T('newAcq');
   $('btnDelAcq').style.display = EDIT.acq ? 'inline-flex' : 'none';
+  $('btnSellAcq').style.display = (EDIT.acq && !saleByWatch(EDIT.acq.watch_id)) ? 'inline-flex' : 'none';
   /* controparti compro/entrambi */
   var cps = S.counterparts.filter(function(c){ return c.role!=='sell'; });
   $('aCp').innerHTML = optHtml('', T('noCp')) + cps.map(function(c){ return optHtml(c.id, c.name); }).join('');
@@ -1854,6 +1855,12 @@ function bind(){
     compressImage(f,function(data){ EDIT.photo=data; $('aPhotoImg').src=data; $('aPhotoImg').style.display='block'; });
   });
   $('btnSaveAcq').addEventListener('click', saveAcq);
+  $('btnSellAcq').addEventListener('click', function(){
+    var wid = EDIT.acq && EDIT.acq.watch_id;
+    if(!wid) return;
+    document.getElementById('ovAcq').classList.remove('on');
+    openSaleModal(null, wid);
+  });
   $('btnDelAcq').addEventListener('click', deleteAcq);
   $('btnAddDocA').addEventListener('click',function(){ $('aDocFile').click(); });
   $('aDocFile').addEventListener('change',function(){
