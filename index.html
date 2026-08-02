@@ -244,6 +244,9 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 }
 .sheet td{border-bottom:1px solid #dfe2ea; padding:7px 6px; vertical-align:top; overflow:hidden; text-overflow:ellipsis}
 .sheet .num{text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap}
+.sheet td.mini{padding:3px 4px}
+.sheet .mini img{width:34px; height:34px; object-fit:cover; border-radius:6px; display:block; border:1px solid #dfe2ea}
+.sheet .mini .noph{width:34px; height:34px; border-radius:6px; background:#eef0f5; color:#a2a8ba; display:flex; align-items:center; justify-content:center; font-size:15px}
 .sheet .fxbox{margin-top:16px; border:1.5px solid #a8905f; border-radius:8px; padding:12px 14px; page-break-inside:avoid}
 .sheet .fxbox .fxt{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#666e85; margin-bottom:8px; font-weight:700}
 .sheet .fxrow{display:flex; align-items:baseline; gap:10px; padding:5px 0; border-bottom:1px dashed #dfe2ea; font-size:13px}
@@ -316,7 +319,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v1.9</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v2.0</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -639,7 +642,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v1.9
+   WATCHDESK — GESTIONALE UNIFICATO  v2.0
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -1681,17 +1684,17 @@ function buildRepAcq(){
   var rows=repFilterRows(S.acquisitions,'d_ord');
   rows.sort(function(x,y){ return String(x.d_ord||'').localeCompare(String(y.d_ord||'')); });
   var h=sheetHead(T('acqTitle'));
-  h+='<table><colgroup><col style="width:7%"><col style="width:12%"><col style="width:13%"><col style="width:14%"><col style="width:18%"><col style="width:9%"><col style="width:9%"><col style="width:6%"><col style="width:5%"><col style="width:7%"></colgroup>';
-  h+='<tr><th>'+T('thDate')+'</th><th>'+T('thBrand')+'</th><th>'+T('thRef')+'</th><th>'+T('thModel')+'</th><th>'+T('thCp')+'</th><th>'+T('thStat')+'</th><th>'+T('thPay')+'</th><th class="num">'+T('thList')+'</th><th>'+T('thCur')+'</th><th class="num">'+T('thNet')+'</th></tr>';
+  h+='<table><colgroup><col style="width:5%"><col style="width:7%"><col style="width:11%"><col style="width:12%"><col style="width:13%"><col style="width:16%"><col style="width:8%"><col style="width:9%"><col style="width:6%"><col style="width:5%"><col style="width:8%"></colgroup>';
+  h+='<tr><th></th><th>'+T('thDate')+'</th><th>'+T('thBrand')+'</th><th>'+T('thRef')+'</th><th>'+T('thModel')+'</th><th>'+T('thCp')+'</th><th>'+T('thStat')+'</th><th>'+T('thPay')+'</th><th class="num">'+T('thList')+'</th><th>'+T('thCur')+'</th><th class="num">'+T('thNet')+'</th></tr>';
   rows.forEach(function(a){
     var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
-    h+='<tr><td>'+fmtDate(a.d_ord)+'</td><td>'+esc(w.brand||'')+'</td><td class="mono2">'+esc(w.ref||'')+'</td>'+
+    h+='<tr>'+'<td class="mini">'+(w.photo?'<img src="'+w.photo+'">':'<div class="noph">\u231a</div>')+'</td>'+'<td>'+fmtDate(a.d_ord)+'</td><td>'+esc(w.brand||'')+'</td><td class="mono2">'+esc(w.ref||'')+'</td>'+
       '<td>'+esc(w.model||'')+'</td><td>'+esc(cp?cp.name:'')+'</td><td>'+esc(statLabel(a.stat))+'</td>'+
       '<td>'+esc(payLabel(a.pay))+(a.pay==='acconto'&&a.dep?' ('+fmtN(a.dep,a.cur)+')':'')+'</td>'+
       '<td class="num mono2">'+fmtN(a.list,a.cur)+'</td><td>'+esc(a.cur||'')+'</td>'+
       '<td class="num mono2">'+fmtN(netCost(a),a.cur)+'</td></tr>';
   });
-  h+=totRowsByCur(rows,function(a){return a.cur;},function(a){return netCost(a);},10,T('totRow'));
+  h+=totRowsByCur(rows,function(a){return a.cur;},function(a){return netCost(a);},11,T('totRow'));
   h+='</table>';
   var m=sumByCur(rows,function(a){return a.cur;},function(a){return netCost(a);});
   loadFx(function(){
@@ -1703,18 +1706,18 @@ function buildRepSales(){
   var rows=repFilterRows(S.sales,'d_sale');
   rows.sort(function(x,y){ return String(x.d_sale||'').localeCompare(String(y.d_sale||'')); });
   var h=sheetHead(T('salesTitle'));
-  h+='<table><colgroup><col style="width:7%"><col style="width:12%"><col style="width:13%"><col style="width:17%"><col style="width:10%"><col style="width:8%"><col style="width:10%"><col style="width:8%"><col style="width:5%"><col style="width:10%"></colgroup>';
-  h+='<tr><th>'+T('thDate')+'</th><th>'+T('thBrand')+' / '+T('thRef')+'</th><th>'+T('thCp')+'</th><th>'+T('thRegime')+' · '+T('thInv')+'</th><th>'+T('thTrade')+'</th><th>'+T('thPay')+'</th><th class="num">'+T('thPrice')+'</th><th class="num">IVA %</th><th>'+T('thCur')+'</th><th class="num">'+T('thNetSale')+'</th></tr>';
+  h+='<table><colgroup><col style="width:5%"><col style="width:7%"><col style="width:12%"><col style="width:12%"><col style="width:15%"><col style="width:9%"><col style="width:8%"><col style="width:9%"><col style="width:8%"><col style="width:5%"><col style="width:10%"></colgroup>';
+  h+='<tr><th></th><th>'+T('thDate')+'</th><th>'+T('thBrand')+' / '+T('thRef')+'</th><th>'+T('thCp')+'</th><th>'+T('thRegime')+' · '+T('thInv')+'</th><th>'+T('thTrade')+'</th><th>'+T('thPay')+'</th><th class="num">'+T('thPrice')+'</th><th class="num">IVA %</th><th>'+T('thCur')+'</th><th class="num">'+T('thNetSale')+'</th></tr>';
   rows.forEach(function(s){
     var w=watchById(s.watch_id)||{}, cp=cpById(s.counterpart_id);
-    h+='<tr><td>'+fmtDate(s.d_sale)+'</td><td>'+esc(w.brand||'')+' <span class="mono2">'+esc(w.ref||'')+'</span></td>'+
+    h+='<tr>'+'<td class="mini">'+(w.photo?'<img src="'+w.photo+'">':'<div class="noph">\u231a</div>')+'</td>'+'<td>'+fmtDate(s.d_sale)+'</td><td>'+esc(w.brand||'')+' <span class="mono2">'+esc(w.ref||'')+'</span></td>'+
       '<td>'+esc(cp?cp.name:'')+'</td><td>'+esc([s.vat_mode?T('vm_'+s.vat_mode):'', s.invoice_no].filter(Boolean).join(' · '))+'</td>'+
       '<td>'+(s.tradein_val?esc(s.tradein_desc||'')+' ('+fmtN(s.tradein_val,s.cur)+')':'')+'</td>'+
       '<td>'+esc(payLabel(s.pay))+'</td><td class="num mono2">'+fmtN(s.price,s.cur)+'</td>'+
       '<td class="num">'+(s.vat!=null?s.vat:'')+'</td><td>'+esc(s.cur||'')+'</td>'+
       '<td class="num mono2">'+fmtN(netSale(s),s.cur)+'</td></tr>';
   });
-  h+=totRowsByCur(rows,function(s){return s.cur;},function(s){return netSale(s);},10,T('totRow'));
+  h+=totRowsByCur(rows,function(s){return s.cur;},function(s){return netSale(s);},11,T('totRow'));
   h+='</table>';
   openPrint(T('rSalesT'), h);
 }
@@ -1723,8 +1726,8 @@ function buildRepMargin(){
   var rows=repFilterRows(S.sales,'d_sale').filter(function(s){ return !!acqByWatch(s.watch_id); });
   rows.sort(function(x,y){ return String(x.d_sale||'').localeCompare(String(y.d_sale||'')); });
   var h=sheetHead(T('marginTitle'));
-  h+='<table><colgroup><col style="width:7%"><col style="width:12%"><col style="width:13%"><col style="width:15%"><col style="width:9%"><col style="width:5%"><col style="width:10%"><col style="width:10%"><col style="width:9%"><col style="width:10%"></colgroup>';
-  h+='<tr><th>'+T('thDate')+'</th><th>'+T('thBrand')+'</th><th>'+T('thRef')+'</th><th>'+T('thCp')+'</th><th>'+T('thPick')+'</th><th class="num">'+T('thDays')+'</th><th class="num">'+T('thCost')+'</th><th class="num">'+T('thNetSale')+'</th><th>'+T('thCur')+'</th><th class="num">'+T('thMargin')+'</th></tr>';
+  h+='<table><colgroup><col style="width:5%"><col style="width:7%"><col style="width:11%"><col style="width:12%"><col style="width:13%"><col style="width:9%"><col style="width:5%"><col style="width:10%"><col style="width:9%"><col style="width:9%"><col style="width:10%"></colgroup>';
+  h+='<tr><th></th><th>'+T('thDate')+'</th><th>'+T('thBrand')+'</th><th>'+T('thRef')+'</th><th>'+T('thCp')+'</th><th>'+T('thPick')+'</th><th class="num">'+T('thDays')+'</th><th class="num">'+T('thCost')+'</th><th class="num">'+T('thNetSale')+'</th><th>'+T('thCur')+'</th><th class="num">'+T('thMargin')+'</th></tr>';
   var margTot={}, byBrand={}, byCp={};
   rows.forEach(function(s){
     var a=acqByWatch(s.watch_id), w=watchById(s.watch_id)||{}, cp=cpById(s.counterpart_id);
@@ -1738,14 +1741,14 @@ function buildRepMargin(){
       var bk=w.brand||'—'; byBrand[bk]=byBrand[bk]||{}; byBrand[bk][c]=(byBrand[bk][c]||0)+mg;
       var ck=cp?cp.name:'—'; byCp[ck]=byCp[ck]||{}; byCp[ck][c]=(byCp[ck][c]||0)+mg;
     }
-    h+='<tr><td>'+fmtDate(s.d_sale)+'</td><td>'+esc(w.brand||'')+'</td><td class="mono2">'+esc(w.ref||'')+'</td>'+
+    h+='<tr>'+'<td class="mini">'+(w.photo?'<img src="'+w.photo+'">':'<div class="noph">\u231a</div>')+'</td>'+'<td>'+fmtDate(s.d_sale)+'</td><td>'+esc(w.brand||'')+'</td><td class="mono2">'+esc(w.ref||'')+'</td>'+
       '<td>'+esc(cp?cp.name:'')+'</td><td>'+fmtDate(a&&a.d_pick)+'</td><td class="num">'+(gg!=null?gg:'')+'</td>'+
       '<td class="num mono2">'+(nc!=null?fmtN(nc,(a&&a.cur)||'')+(same?'':' '+((a&&a.cur)||'')):'')+'</td>'+
       '<td class="num mono2">'+fmtN(ns,s.cur)+'</td><td>'+esc(s.cur||'')+'</td>'+
       '<td class="num mono2 '+(mg!=null?(mg>=0?'pos':'neg'):'')+'">'+(mg!=null?fmtN(mg,s.cur):T('multiCur'))+'</td></tr>';
   });
   Object.keys(margTot).sort().forEach(function(c,i){
-    h+='<tr class="tot"><td colspan="8">'+(i===0?T('totRow')+' — '+rows.length+' '+T('pieces'):'')+'</td>'+
+    h+='<tr class="tot"><td colspan="9">'+(i===0?T('totRow')+' — '+rows.length+' '+T('pieces'):'')+'</td>'+
       '<td>'+c+'</td><td class="num mono2 '+(margTot[c]>=0?'pos':'neg')+'">'+fmtN(margTot[c],c)+'</td></tr>';
   });
   h+='</table>';
@@ -1768,20 +1771,20 @@ function buildRepStock(){
   var h='<h1>WATCH<span class="g">DESK</span></h1>'+
     '<div class="sh-sub">'+esc(T('valueTitle'))+'</div>'+
     '<div class="sh-meta">'+T('stockAt')+' '+fmtDate(today())+'</div>';
-  h+='<table><colgroup><col style="width:13%"><col style="width:15%"><col style="width:17%"><col style="width:12%"><col style="width:18%"><col style="width:9%"><col style="width:5%"><col style="width:6%"><col style="width:5%"></colgroup>';
-  h+='<tr><th>'+T('thBrand')+'</th><th>'+T('thRef')+'</th><th>'+T('thModel')+'</th><th>'+T('thSerial')+'</th><th>'+T('thCp')+'</th><th>'+T('thPick')+'</th><th class="num">'+T('thDays')+'</th><th class="num">'+T('thCost')+'</th><th>'+T('thCur')+'</th></tr>';
+  h+='<table><colgroup><col style="width:5%"><col style="width:12%"><col style="width:14%"><col style="width:16%"><col style="width:11%"><col style="width:17%"><col style="width:9%"><col style="width:5%"><col style="width:6%"><col style="width:5%"></colgroup>';
+  h+='<tr><th></th><th>'+T('thBrand')+'</th><th>'+T('thRef')+'</th><th>'+T('thModel')+'</th><th>'+T('thSerial')+'</th><th>'+T('thCp')+'</th><th>'+T('thPick')+'</th><th class="num">'+T('thDays')+'</th><th class="num">'+T('thCost')+'</th><th>'+T('thCur')+'</th></tr>';
   var accs=[];
   rows.forEach(function(w){
     var a=acqByWatch(w.id), cp=cpById(a&&a.counterpart_id);
     accs.push(a);
-    h+='<tr><td>'+esc(w.brand||'')+'</td><td class="mono2">'+esc(w.ref||'')+'</td><td>'+esc(w.model||'')+'</td>'+
+    h+='<tr>'+'<td class="mini">'+(w.photo?'<img src="'+w.photo+'">':'<div class="noph">\u231a</div>')+'</td>'+'<td>'+esc(w.brand||'')+'</td><td class="mono2">'+esc(w.ref||'')+'</td><td>'+esc(w.model||'')+'</td>'+
       '<td class="mono2">'+esc(w.serial||'')+'</td><td>'+esc(cp?cp.name:'')+'</td><td>'+fmtDate(a&&a.d_pick)+'</td>'+
       '<td class="num">'+(daysBetween(a&&a.d_pick,null)!=null?daysBetween(a&&a.d_pick,null):'')+'</td>'+
       '<td class="num mono2">'+fmtN(netCost(a),(a&&a.cur)||'')+'</td><td>'+esc((a&&a.cur)||'')+'</td></tr>';
   });
   var m=sumByCur(accs.filter(Boolean),function(a){return a.cur;},function(a){return netCost(a);});
   Object.keys(m).sort().forEach(function(c,i){
-    h+='<tr class="tot"><td colspan="7">'+(i===0?T('totRow')+' — '+rows.length+' '+T('pieces'):'')+'</td>'+
+    h+='<tr class="tot"><td colspan="8">'+(i===0?T('totRow')+' — '+rows.length+' '+T('pieces'):'')+'</td>'+
       '<td class="num mono2">'+fmtN(m[c],c)+'</td><td>'+c+'</td></tr>';
   });
   h+='</table>';
