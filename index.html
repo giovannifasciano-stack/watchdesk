@@ -82,10 +82,14 @@ nav.app{
 }
 nav.app::-webkit-scrollbar{display:none}
 .navbtn{
-  padding:9px 16px; border-radius:10px; font-size:.9rem; font-weight:500; color:var(--dim);
-  white-space:nowrap; border:1px solid transparent;
+  padding:9px 15px; border-radius:10px; font-size:.82rem; font-weight:600; color:var(--dim);
+  white-space:nowrap; border:1px solid transparent; letter-spacing:.08em; text-transform:uppercase;
+  position:relative; transition:color .15s, background .15s;
 }
+.navbtn:hover{color:var(--text)}
 .navbtn.on{color:var(--accent); background:var(--card); border-color:var(--line2)}
+.navbtn.on::after{content:''; position:absolute; left:14px; right:14px; bottom:4px; height:2px; background:var(--accent); border-radius:2px}
+.navsep{width:1px; align-self:stretch; margin:6px 6px; background:var(--line2); flex:0 0 1px}
 
 main{max-width:1180px; margin:0 auto; padding:24px 20px 80px}
 .view{display:none}
@@ -312,7 +316,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v1.3</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v1.4</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -324,10 +328,13 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
   <nav class="app">
     <button class="navbtn on" data-view="home" data-i18n="navHome">Home</button>
+    <span class="navsep"></span>
     <button class="navbtn" data-view="acq" data-i18n="navAcq">Inventario</button>
     <button class="navbtn" data-view="mag" data-i18n="navMag">Magazzino</button>
     <button class="navbtn" data-view="sales" data-i18n="navSales">Vendite</button>
-    <button class="navbtn" data-view="cp" data-i18n="navCp">Controparti</button>
+    <span class="navsep"></span>
+    <button class="navbtn" data-view="cp" data-i18n="navCp">Clienti-Fornitori</button>
+    <span class="navsep"></span>
     <button class="navbtn" data-view="rep" data-i18n="navRep">Reports</button>
   </nav>
 
@@ -621,7 +628,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v1.3
+   WATCHDESK — GESTIONALE UNIFICATO  v1.4
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -650,7 +657,7 @@ var I18N = {
     authSub:'Gestionale orologi', login:'Entra', goSignup:'Crea un account', goReset:'Password dimenticata',
     signupCode:'Codice di registrazione', signupBtn:'Registrati', backLogin:'Torna al login',
     recoveryCode:'Codice di recupero', newPass:'Nuova password', resetBtn:'Reimposta password',
-    navHome:'Home', navAcq:'Inventario', navMag:'Magazzino', navSales:'Vendite', navCp:'Controparti', navRep:'Reports',
+    navHome:'Home', navAcq:'Inventario', navMag:'Magazzino', navSales:'Vendite', navCp:'Clienti-Fornitori', navRep:'Reports',
     heroHi:'Bentornato', tOpen:'Acquisti aperti', tOpenN:'ordinati o in arrivo', tStock:'In magazzino',
     tStockN:'ritirati, non venduti', tSold:'Vendite anno', tMargin:'Margine anno', tMarginN:'netto vendite − costi netti',
     pCur:'Impegni aperti per valuta — costo netto', pLast:'Ultimi movimenti',
@@ -720,7 +727,7 @@ var I18N = {
     authSub:'Watch management', login:'Sign in', goSignup:'Create an account', goReset:'Forgot password',
     signupCode:'Registration code', signupBtn:'Sign up', backLogin:'Back to login',
     recoveryCode:'Recovery code', newPass:'New password', resetBtn:'Reset password',
-    navHome:'Home', navAcq:'Inventory', navMag:'Stock', navSales:'Sales', navCp:'Counterparts', navRep:'Reports',
+    navHome:'Home', navAcq:'Inventory', navMag:'Stock', navSales:'Sales', navCp:'Clients-Suppliers', navRep:'Reports',
     heroHi:'Welcome back', tOpen:'Open purchases', tOpenN:'ordered or incoming', tStock:'In stock',
     tStockN:'collected, not sold', tSold:'Sales this year', tMargin:'Margin this year', tMarginN:'net sales − net costs',
     pCur:'Open commitments by currency — net cost', pLast:'Latest activity',
