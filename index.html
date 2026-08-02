@@ -312,7 +312,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v1.2</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v1.3</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -324,7 +324,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
   <nav class="app">
     <button class="navbtn on" data-view="home" data-i18n="navHome">Home</button>
-    <button class="navbtn" data-view="acq" data-i18n="navAcq">Acquisti</button>
+    <button class="navbtn" data-view="acq" data-i18n="navAcq">Inventario</button>
     <button class="navbtn" data-view="mag" data-i18n="navMag">Magazzino</button>
     <button class="navbtn" data-view="sales" data-i18n="navSales">Vendite</button>
     <button class="navbtn" data-view="cp" data-i18n="navCp">Controparti</button>
@@ -356,7 +356,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
     <!-- ACQUISTI -->
     <section class="view" id="view-acq">
-      <h2 class="sec" data-i18n="navAcq">Acquisti</h2>
+      <h2 class="sec" data-i18n="navAcq">Inventario</h2>
       <p class="sec-sub" data-i18n="acqSub">Ogni acquisto è un orologio con la sua acquisizione: prezzi, pagamenti, stato ritiro.</p>
       <div class="toolbar">
         <input type="text" id="acqSearch" data-i18n-ph="phSearch" placeholder="Cerca referenza, marca, controparte…">
@@ -621,7 +621,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v1.2
+   WATCHDESK — GESTIONALE UNIFICATO  v1.3
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -650,11 +650,11 @@ var I18N = {
     authSub:'Gestionale orologi', login:'Entra', goSignup:'Crea un account', goReset:'Password dimenticata',
     signupCode:'Codice di registrazione', signupBtn:'Registrati', backLogin:'Torna al login',
     recoveryCode:'Codice di recupero', newPass:'Nuova password', resetBtn:'Reimposta password',
-    navHome:'Home', navAcq:'Acquisti', navMag:'Magazzino', navSales:'Vendite', navCp:'Controparti', navRep:'Reports',
+    navHome:'Home', navAcq:'Inventario', navMag:'Magazzino', navSales:'Vendite', navCp:'Controparti', navRep:'Reports',
     heroHi:'Bentornato', tOpen:'Acquisti aperti', tOpenN:'ordinati o in arrivo', tStock:'In magazzino',
     tStockN:'ritirati, non venduti', tSold:'Vendite anno', tMargin:'Margine anno', tMarginN:'netto vendite − costi netti',
     pCur:'Impegni aperti per valuta — costo netto', pLast:'Ultimi movimenti',
-    acqSub:'Ogni acquisto è un orologio con la sua acquisizione: prezzi, pagamenti, stato ritiro.',
+    acqSub:'Ogni pezzo in inventario è un orologio con la sua acquisizione: prezzi, pagamenti, stato ritiro.',
     magSub:'Orologi ritirati e non ancora venduti — quello che hai in casa.',
     salesSub:'Vendite registrate sugli orologi in archivio, con regime IVA e permuta.',
     cpSub:'Fornitori e clienti, divisi: chi \u201centrambi\u201d compare nelle due liste.',
@@ -720,11 +720,11 @@ var I18N = {
     authSub:'Watch management', login:'Sign in', goSignup:'Create an account', goReset:'Forgot password',
     signupCode:'Registration code', signupBtn:'Sign up', backLogin:'Back to login',
     recoveryCode:'Recovery code', newPass:'New password', resetBtn:'Reset password',
-    navHome:'Home', navAcq:'Purchases', navMag:'Inventory', navSales:'Sales', navCp:'Counterparts', navRep:'Reports',
+    navHome:'Home', navAcq:'Inventory', navMag:'Stock', navSales:'Sales', navCp:'Counterparts', navRep:'Reports',
     heroHi:'Welcome back', tOpen:'Open purchases', tOpenN:'ordered or incoming', tStock:'In stock',
     tStockN:'collected, not sold', tSold:'Sales this year', tMargin:'Margin this year', tMarginN:'net sales − net costs',
     pCur:'Open commitments by currency — net cost', pLast:'Latest activity',
-    acqSub:'Every purchase is a watch with its acquisition: prices, payments, collection status.',
+    acqSub:'Every piece in inventory is a watch with its acquisition: prices, payments, collection status.',
     magSub:'Watches collected and not yet sold — what you have at home.',
     salesSub:'Sales recorded on archived watches, with VAT regime and trade-ins.',
     cpSub:'Suppliers and clients, split: \u201cboth\u201d appears in both lists.',
