@@ -223,6 +223,11 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 #printLayer{
   display:none; position:fixed; inset:0; background:#20242e; z-index:200; overflow-y:auto;
 }
+@media (max-width:900px){
+  #printLayer{overflow-x:auto; -webkit-overflow-scrolling:touch}
+  .sheet{min-width:980px; margin:16px; font-size:12px}
+  .pl-bar{position:sticky; left:0}
+}
 #printLayer.on{display:block}
 .pl-bar{
   position:sticky; top:0; z-index:5; display:flex; gap:10px; align-items:center;
@@ -320,7 +325,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v2.3</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v2.4</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -643,7 +648,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v2.3
+   WATCHDESK — GESTIONALE UNIFICATO  v2.4
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
