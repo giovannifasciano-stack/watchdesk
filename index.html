@@ -361,7 +361,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v2.8</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v2.9</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -692,7 +692,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v2.8
+   WATCHDESK — GESTIONALE UNIFICATO  v2.9
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -1873,7 +1873,7 @@ function buildRepStock(){
     accs.push(a);
     h+='<tr>'+'<td class="mini">'+(w.photo?'<img src="'+w.photo+'">':'<div class="noph">\u231a</div>')+'</td>'+'<td>'+esc(w.brand||'')+'</td><td class="mono2">'+esc(w.ref||'')+setIcons(w)+'</td><td>'+esc(w.model||'')+'</td>'+
       '<td class="mono2">'+esc(w.serial||'')+'</td><td>'+esc(cp?cp.name:'')+'</td><td>'+fmtDate(a&&a.d_pick)+'</td>'+
-      '<td class="num">'+(daysBetween(a&&a.d_pick,null)!=null?daysBetween(a&&a.d_pick,null):'')+'</td>'+
+      '<td class="num">'+(function(){var g=daysBetween(a&&a.d_pick,null); return (g!=null&&g>=0)?g:'';})()+'</td>'+
       '<td class="num mono2">'+fmtN(netCost(a),(a&&a.cur)||'')+'</td><td>'+esc((a&&a.cur)||'')+'</td></tr>';
   });
   var m=sumByCur(accs.filter(Boolean),function(a){return a.cur;},function(a){return netCost(a);});
