@@ -361,7 +361,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v2.7</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v2.8</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -483,6 +483,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
         <div class="repcard" id="repSales"><div class="ri">📤</div><div class="rt" data-i18n="rSalesT">Registro vendite</div><div class="rd" data-i18n="rSalesD">Le vendite del periodo con regime IVA, permute e incassi.</div></div>
         <div class="repcard" id="repMargin"><div class="ri">📈</div><div class="rt" data-i18n="rMarT">Margini</div><div class="rd" data-i18n="rMarD">Margine per pezzo con giorni di giacenza, più totali per marca e cliente.</div></div>
         <div class="repcard" id="repStock"><div class="ri">🏛</div><div class="rt" data-i18n="rStockT">Valore magazzino</div><div class="rd" data-i18n="rStockD">Gli orologi in casa al costo netto, con giacenza a oggi.</div></div>
+        <div class="repcard" id="repInv"><div class="ri">🗂</div><div class="rt" data-i18n="rInvT">Inventario</div><div class="rd" data-i18n="rInvD">Tutti i pezzi non venduti — ordinati, in arrivo e in casa — con stato e costo netto.</div></div>
         <div class="repcard" id="repCsv"><div class="ri">📄</div><div class="rt" data-i18n="rCsvT">Esporta CSV</div><div class="rd" data-i18n="rCsvD">Acquisti e vendite filtrati, in un file per Excel/Numbers.</div></div>
         <div class="repcard" id="repJson"><div class="ri">💾</div><div class="rt" data-i18n="rJsonT">Backup JSON</div><div class="rd" data-i18n="rJsonD">Copia completa dell'archivio, foto incluse.</div></div>
       </div>
@@ -691,7 +692,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v2.7
+   WATCHDESK — GESTIONALE UNIFICATO  v2.8
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -755,7 +756,7 @@ var I18N = {
     rAcqT:'Estratto conto acquisti', rAcqD:'Tutte le acquisizioni del periodo, con costi netti e stato pagamenti.',
     rSalesT:'Registro vendite', rSalesD:'Le vendite del periodo con regime IVA, permute e incassi.',
     rMarT:'Margini', rMarD:'Margine per pezzo con giorni di giacenza, più totali per marca e cliente.',
-    rStockT:'Valore magazzino', rStockD:'Gli orologi in casa al costo netto, con giacenza a oggi.',
+    rStockT:'Valore magazzino', rStockD:'Gli orologi in casa al costo netto, con giacenza a oggi.', rInvT:'Inventario', rInvD:'Tutti i pezzi non venduti — ordinati, in arrivo e in casa — con stato e costo netto.',
     rCsvT:'Esporta CSV', rCsvD:'Acquisti e vendite filtrati, in un file per Excel/Numbers.',
     rJsonT:'Backup JSON', rJsonD:'Copia completa dell\'archivio, foto incluse.',
     stat_ordinato:'Ordinato', stat_arrivato:'Arrivato dal fornitore', stat_pagatonr:'Pagato, non ritirato', stat_ritirato:'Ritirato',
@@ -825,7 +826,7 @@ var I18N = {
     rAcqT:'Purchases statement', rAcqD:'All acquisitions in the period, with net costs and payment status.',
     rSalesT:'Sales ledger', rSalesD:'Sales in the period with VAT regime, trade-ins and collections.',
     rMarT:'Margins', rMarD:'Margin per piece with days in stock, plus totals by brand and client.',
-    rStockT:'Inventory value', rStockD:'Watches at home at net cost, with days in stock to date.',
+    rStockT:'Stock value', rStockD:'Watches at home at net cost, with days in stock to date.', rInvT:'Inventory', rInvD:'All unsold pieces — ordered, incoming and at home — with status and net cost.',
     rCsvT:'Export CSV', rCsvD:'Filtered purchases and sales, in a file for Excel/Numbers.',
     rJsonT:'JSON backup', rJsonD:'Full copy of the archive, photos included.',
     stat_ordinato:'Ordered', stat_arrivato:'Arrived from supplier', stat_pagatonr:'Paid, not collected', stat_ritirato:'Collected',
@@ -1884,6 +1885,35 @@ function buildRepStock(){
   openPrint(T('rStockT'), h);
 }
 
+function buildRepInv(){
+  var rows=S.acquisitions.filter(function(a){ return !saleByWatch(a.watch_id); });
+  var cpF=$('repCp').value;
+  if(cpF) rows=rows.filter(function(a){ return a.counterpart_id===cpF; });
+  rows.sort(function(x,y){ return String(x.stat||'').localeCompare(String(y.stat||'')) || String(y.d_ord||'').localeCompare(String(x.d_ord||'')); });
+  var h='<h1>WATCH<span class="g">DESK</span></h1>'+
+    '<div class="sh-sub">'+esc(T('rInvT'))+'</div>'+
+    '<div class="sh-meta">'+T('stockAt')+' '+fmtDate(today())+'</div>';
+  h+='<table><colgroup><col style="width:5%"><col style="width:11%"><col style="width:13%"><col style="width:14%"><col style="width:10%"><col style="width:15%"><col style="width:9%"><col style="width:8%"><col style="width:9%"><col style="width:6%"></colgroup>';
+  h+='<tr><th></th><th>'+T('thBrand')+'</th><th>'+T('thRef')+'</th><th>'+T('thModel')+'</th><th>'+T('thSerial')+'</th><th>'+T('thSup')+'</th><th>'+T('thStat')+'</th><th>'+T('thDate')+'</th><th class="num">'+T('thCost')+'</th><th>'+T('thCur')+'</th></tr>';
+  rows.forEach(function(a){
+    var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
+    h+='<tr>'+'<td class="mini">'+(w.photo?'<img src="'+w.photo+'">':'<div class="noph">\u231a</div>')+'</td>'+
+      '<td>'+esc(w.brand||'')+'</td><td class="mono2">'+esc(w.ref||'')+setIcons(w)+'</td><td>'+esc(w.model||'')+'</td>'+
+      '<td class="mono2">'+esc(w.serial||'')+'</td><td>'+esc(cp?cp.name:'')+'</td><td>'+esc(statLabel(a.stat))+'</td>'+
+      '<td>'+fmtDate(a.d_ord)+'</td>'+
+      '<td class="num mono2">'+fmtN(netCost(a),a.cur||'')+'</td><td>'+esc(a.cur||'')+'</td></tr>';
+  });
+  var m=sumByCur(rows,function(a){return a.cur;},function(a){return netCost(a);});
+  Object.keys(m).sort().forEach(function(c,i){
+    h+='<tr class="tot"><td colspan="8">'+(i===0?T('totRow')+' — '+rows.length+' '+T('pieces'):'')+'</td>'+
+      '<td class="num mono2">'+fmtN(m[c],c)+'</td><td>'+c+'</td></tr>';
+  });
+  h+='</table>';
+  loadFx(function(){
+    openPrint(T('rInvT'), h + fxTotalsBlock(m));
+  });
+}
+
 function csvEsc(v){ v=String(v==null?'':v); return /[";\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
 function download(name, mime, content){
   var a=document.createElement('a');
@@ -2093,6 +2123,7 @@ function bind(){
   $('repSales').addEventListener('click', buildRepSales);
   $('repMargin').addEventListener('click', buildRepMargin);
   $('repStock').addEventListener('click', buildRepStock);
+  $('repInv').addEventListener('click', buildRepInv);
   $('repCsv').addEventListener('click', exportCsv);
   $('repJson').addEventListener('click', exportJson);
   $('plClose').addEventListener('click',function(){ $('printLayer').classList.remove('on'); });
