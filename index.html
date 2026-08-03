@@ -278,10 +278,37 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 }
 
 @media(max-width:640px){
-  main{padding:18px 14px 70px}
-  header.app{padding:12px 14px}
-  .hero{padding:20px}
+  main{padding:16px 12px 70px}
+  header.app{padding:10px 12px; gap:8px}
+  header.app .logo{font-size:1.05rem}
+  header.app .logo{font-size:.95rem}
+  header.app .pill{font-size:.55rem; padding:2px 7px; margin-left:8px}
+  .langbtn{padding:5px 8px; font-size:.62rem}
+  .iconbtn{width:34px; height:34px; font-size:.95rem}
+  nav.app{top:56px; padding:8px 10px; gap:2px}
+  .navbtn{padding:8px 10px; font-size:.68rem; letter-spacing:.05em}
+  .navbtn.on::after{left:9px; right:9px}
+  .navsep{margin:5px 3px}
+  .hero{padding:16px 18px; margin-bottom:16px; border-radius:14px}
+  .hero h1{font-size:1.2rem}
+  .hero p{font-size:.8rem}
+  h2.sec{font-size:1.15rem}
+  .sec-sub{font-size:.8rem; margin-bottom:14px}
+  .tiles{grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:16px}
+  .tile{padding:13px 14px}
+  .tile .t-label{font-size:.6rem}
+  .tile .t-value{font-size:1.35rem; margin-top:4px}
+  .tile .t-note{font-size:.68rem}
+  .panel{padding:15px}
+  .toolbar{gap:8px}
+  .toolbar input,.toolbar select{min-width:0; font-size:.85rem}
+  .toolbar .btn{width:100%; justify-content:center}
+  .rowcard{padding:11px 12px; gap:10px}
+  .thumb{width:48px; height:48px}
+  .rc-title{font-size:.88rem}
+  .rc-amt{font-size:.9rem}
   .rc-sub{white-space:normal}
+  .repcard{padding:15px}
 }
 </style>
 </head>
@@ -325,7 +352,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v2.4</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v2.5</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -648,7 +675,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v2.4
+   WATCHDESK — GESTIONALE UNIFICATO  v2.5
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
