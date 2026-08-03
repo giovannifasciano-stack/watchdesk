@@ -220,6 +220,14 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 .repcard .rd{color:var(--dim); font-size:.82rem; line-height:1.45}
 
 /* ---------- print preview ---------- */
+#docPreview{display:none; position:fixed; inset:0; background:rgba(3,6,26,.96); z-index:230; flex-direction:column}
+#docPreview.on{display:flex}
+.dp-bar{display:flex; gap:10px; align-items:center; padding:12px 16px; border-bottom:1px solid var(--line); background:var(--bg2)}
+.dp-bar .t{font-size:.9rem; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.dp-body{flex:1; overflow:auto; display:flex; align-items:flex-start; justify-content:center; padding:16px}
+.dp-body img{max-width:100%; height:auto; border-radius:8px; background:#fff}
+.dp-body iframe{width:100%; height:100%; border:0; background:#fff; border-radius:8px}
+.dp-body .dp-noview{color:var(--dim); margin-top:40px; text-align:center}
 #printLayer{
   display:none; position:fixed; inset:0; background:#20242e; z-index:200; overflow-y:auto;
 }
@@ -353,7 +361,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v2.6</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v2.7</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -664,6 +672,13 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 </div>
 
 <!-- ============ ANTEPRIMA STAMPA ============ -->
+<div id="docPreview">
+  <div class="dp-bar"><span class="t" id="dpName"></span><div class="spacer"></div>
+    <a class="btn dark sm" id="dpDownload" download>⬇ <span data-i18n="download">Scarica</span></a>
+    <button class="btn sm" id="dpClose" data-i18n="close">Chiudi</button></div>
+  <div class="dp-body" id="dpBody"></div>
+</div>
+
 <div id="printLayer">
   <div class="pl-bar">
     <span class="t" id="plTitle"></span>
@@ -676,7 +691,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v2.6
+   WATCHDESK — GESTIONALE UNIFICATO  v2.7
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -725,7 +740,7 @@ var I18N = {
     fYear:'Anno', fCond:'Condizioni', fSet:'Corredo', fPhoto:'Foto', fCp:'Cliente / Fornitore', fSup:'Fornitore', fCpSell:'Cliente',
     fCur:'Valuta', fList:'Prezzo listino', fAgreed:'Prezzo concordato', fVat:'IVA %', fNet:'Prezzo netto detax',
     fPay:'Pagamento', fDep:'Acconto versato', fPayDate:'Data pagamento', fStat:'Stato', fDOrd:'Data ordine',
-    fDRec:'Arrivato dal fornitore il', fDPick:'Data ritiro', fNotes:'Note', fDocs:'Documenti / fatture',
+    fDRec:'Arrivato dal fornitore il', fDPick:'Data ritiro', fNotes:'Note', fDocs:'Documenti / fatture', toUpload:'da caricare al salvataggio', noPreview:'Anteprima non disponibile per questo formato — usa Scarica.', download:'Scarica', close:'Chiudi',
     addDoc:'Aggiungi file', fWatch:'Orologio', fPrice:'Prezzo vendita', fNetSale:'Netto vendita',
     fVatMode:'Regime', fInvoice:'Fattura n.', fTradeDesc:'Permuta — descrizione', fTradeVal:'Permuta — valore',
     fDSale:'Data vendita', fName:'Nome / ragione sociale', fAddr:'Indirizzo', fZip:'CAP', fCity:'Città',
@@ -795,7 +810,7 @@ var I18N = {
     fYear:'Year', fCond:'Condition', fSet:'Set', fPhoto:'Photo', fCp:'Client / Supplier', fSup:'Supplier', fCpSell:'Client',
     fCur:'Currency', fList:'List price', fAgreed:'Agreed price', fVat:'VAT %', fNet:'Net detax price',
     fPay:'Payment', fDep:'Deposit paid', fPayDate:'Payment date', fStat:'Status', fDOrd:'Order date',
-    fDRec:'Arrived from supplier on', fDPick:'Collection date', fNotes:'Notes', fDocs:'Documents / invoices',
+    fDRec:'Arrived from supplier on', fDPick:'Collection date', fNotes:'Notes', fDocs:'Documents / invoices', toUpload:'uploads on save', noPreview:'No preview for this format — use Download.', download:'Download', close:'Close',
     addDoc:'Add files', fWatch:'Watch', fPrice:'Sale price', fNetSale:'Net sale',
     fVatMode:'Regime', fInvoice:'Invoice no.', fTradeDesc:'Trade-in — description', fTradeVal:'Trade-in — value',
     fDSale:'Sale date', fName:'Name / company', fAddr:'Address', fZip:'ZIP', fCity:'City',
@@ -1304,8 +1319,9 @@ function openAcqModal(acqId, presetWatchId){
   $('aDPick').value = a.d_pick||'';
   $('aNotes').value = a.notes||'';
   $('refResults').className='searchres'; $('refStatus').style.display='none';
-  $('aDocsBox').style.display = EDIT.acq ? 'block':'none';
-  if(EDIT.acq) loadDocs('acquisition', EDIT.acq.id, 'aDocList');
+  $('aDocsBox').style.display = 'block';
+  PENDING_DOCS.acq = [];
+  if(EDIT.acq) loadDocs('acquisition', EDIT.acq.id, 'aDocList'); else $('aDocList').innerHTML='';
   $('ovAcq').classList.add('on');
 }
 
@@ -1339,6 +1355,7 @@ function saveAcq(){
   $('btnSaveAcq').textContent=T('saving');
   api('/watches/'+wid, {method:'PUT', body:wBody})
     .then(function(){ return api('/acquisitions/'+aid, {method:'PUT', body:aBody}); })
+    .then(function(){ return pushPendingDocs('acq','acquisition',aid); })
     .then(function(){ $('ovAcq').classList.remove('on'); return loadData(); })
     .catch(function(e){ showMsg('acqMsg', e.message); })
     .then(function(){ $('btnSaveAcq').textContent=T('save'); });
@@ -1460,8 +1477,9 @@ function openSaleModal(saleId, presetWatchId){
   $('sPay').value = s.pay||'nonpagato';
   $('sPayDate').value = s.pay_date||'';
   $('sNotes').value = s.notes||'';
-  $('sDocsBox').style.display = EDIT.sale ? 'block':'none';
-  if(EDIT.sale) loadDocs('sale', EDIT.sale.id, 'sDocList');
+  $('sDocsBox').style.display = 'block';
+  PENDING_DOCS.sale = [];
+  if(EDIT.sale) loadDocs('sale', EDIT.sale.id, 'sDocList'); else $('sDocList').innerHTML='';
   $('ovSale').classList.add('on');
 }
 
@@ -1479,6 +1497,7 @@ function saveSale(){
   };
   $('btnSaveSale').textContent=T('saving');
   api('/sales/'+sid, {method:'PUT', body:body})
+    .then(function(){ return pushPendingDocs('sale','sale',sid); })
     .then(function(){ $('ovSale').classList.remove('on'); return loadData(); })
     .catch(function(e){ showMsg('saleMsg', e.message); })
     .then(function(){ $('btnSaveSale').textContent=T('save'); });
@@ -1561,6 +1580,32 @@ function doLookup(){
 /* ================================================================
    DOCUMENTI
    ================================================================ */
+var PENDING_DOCS = {acq:[], sale:[]};
+function readFiles(fileInput){
+  var files = Array.prototype.slice.call(fileInput.files||[]);
+  return Promise.all(files.map(function(f){
+    return new Promise(function(res){
+      var r=new FileReader();
+      r.onload=function(e){ res({name:f.name, type:f.type, size:f.size, data:e.target.result}); };
+      r.readAsDataURL(f);
+    });
+  }));
+}
+function renderPending(kind, listId){
+  var html='';
+  PENDING_DOCS[kind].forEach(function(f,i){
+    html += '<div class="doc-item"><span class="dn" data-pend="'+kind+':'+i+'">📎 '+esc(f.name)+' <em style="color:var(--dim2);font-size:.75em">('+T('toUpload')+')</em></span>'+
+      '<button class="dx" data-delpend="'+kind+':'+i+'" data-list="'+listId+'">✕</button></div>';
+  });
+  $(listId).innerHTML = html;
+}
+function pushPendingDocs(kind, parentType, parentId){
+  var files = PENDING_DOCS[kind];
+  if(!files || !files.length) return Promise.resolve();
+  return api('/docs', {method:'POST', body:{parentType:parentType, parentId:parentId, files:files}})
+    .catch(function(){ return api('/docs', {method:'POST', body:{parent_type:parentType, parent_id:parentId, files:files}}); })
+    .then(function(){ PENDING_DOCS[kind]=[]; });
+}
 function loadDocs(parentType, parentId, listId){
   $(listId).innerHTML='';
   api('/docs/'+encodeURIComponent(parentType)+'/'+encodeURIComponent(parentId)).then(function(rows){
@@ -1594,18 +1639,23 @@ function uploadDocs(parentType, parentId, fileInput, listId, msgId){
     loadDocs(parentType, parentId, listId);
   }).catch(function(e){ showMsg(msgId, e.message); });
 }
+function showDocPreview(name, type, data){
+  $('dpName').textContent = name || 'documento';
+  var dl=$('dpDownload'); dl.href=data; dl.setAttribute('download', name||'documento');
+  var b=$('dpBody'); b.innerHTML='';
+  if(String(type).indexOf('image/')===0){
+    var im=document.createElement('img'); im.src=data; b.appendChild(im);
+  } else if(String(type)==='application/pdf'){
+    var fr=document.createElement('iframe'); fr.src=data; b.appendChild(fr);
+  } else {
+    b.innerHTML='<div class="dp-noview">📄 '+esc(name||'')+'<br>'+T('noPreview')+'</div>';
+  }
+  $('docPreview').classList.add('on');
+}
 function openDoc(docId){
   api('/docs/file/'+encodeURIComponent(docId)).then(function(d){
     if(!d||!d.data) return;
-    var w=window.open('about:blank');
-    if(!w) return;
-    if(String(d.filetype).indexOf('image/')===0){
-      w.document.write('<img src="'+d.data+'" style="max-width:100%">');
-    } else if(String(d.filetype)==='application/pdf'){
-      w.document.write('<iframe src="'+d.data+'" style="position:fixed;inset:0;width:100%;height:100%;border:0"></iframe>');
-    } else {
-      var a=w.document.createElement('a'); a.href=d.data; a.download=d.filename||'documento'; w.document.body.appendChild(a); a.click();
-    }
+    showDocPreview(d.filename, d.filetype, d.data);
   }).catch(function(){});
 }
 
@@ -1967,7 +2017,12 @@ function bind(){
   $('btnDelAcq').addEventListener('click', deleteAcq);
   $('btnAddDocA').addEventListener('click',function(){ $('aDocFile').click(); });
   $('aDocFile').addEventListener('change',function(){
-    if(EDIT.acq) uploadDocs('acquisition', EDIT.acq.id, $('aDocFile'), 'aDocList', 'acqMsg');
+    if(EDIT.acq){ uploadDocs('acquisition', EDIT.acq.id, $('aDocFile'), 'aDocList', 'acqMsg'); return; }
+    readFiles($('aDocFile')).then(function(fs){
+      PENDING_DOCS.acq = PENDING_DOCS.acq.concat(fs);
+      $('aDocFile').value='';
+      renderPending('acq','aDocList');
+    });
   });
 
   /* form vendita */
@@ -1977,11 +2032,30 @@ function bind(){
   $('btnDelSale').addEventListener('click', deleteSale);
   $('btnAddDocS').addEventListener('click',function(){ $('sDocFile').click(); });
   $('sDocFile').addEventListener('change',function(){
-    if(EDIT.sale) uploadDocs('sale', EDIT.sale.id, $('sDocFile'), 'sDocList', 'saleMsg');
+    if(EDIT.sale){ uploadDocs('sale', EDIT.sale.id, $('sDocFile'), 'sDocList', 'saleMsg'); return; }
+    readFiles($('sDocFile')).then(function(fs){
+      PENDING_DOCS.sale = PENDING_DOCS.sale.concat(fs);
+      $('sDocFile').value='';
+      renderPending('sale','sDocList');
+    });
   });
 
   /* documenti: apertura ed eliminazione (delegata) */
   document.addEventListener('click',function(ev){
+    var pn=ev.target.closest('[data-pend]');
+    if(pn){
+      var pk=pn.getAttribute('data-pend').split(':');
+      var pf=PENDING_DOCS[pk[0]][+pk[1]];
+      if(pf) showDocPreview(pf.name, pf.type, pf.data);
+      return;
+    }
+    var px=ev.target.closest('[data-delpend]');
+    if(px){
+      var xk=px.getAttribute('data-delpend').split(':');
+      PENDING_DOCS[xk[0]].splice(+xk[1],1);
+      renderPending(xk[0], px.getAttribute('data-list'));
+      return;
+    }
     var dn=ev.target.closest('[data-doc]');
     if(dn){ openDoc(dn.getAttribute('data-doc')); return; }
     var dx=ev.target.closest('[data-deldoc]');
@@ -2022,6 +2096,7 @@ function bind(){
   $('repCsv').addEventListener('click', exportCsv);
   $('repJson').addEventListener('click', exportJson);
   $('plClose').addEventListener('click',function(){ $('printLayer').classList.remove('on'); });
+  $('dpClose').addEventListener('click',function(){ $('docPreview').classList.remove('on'); });
   $('plPrint').addEventListener('click',function(){ window.print(); });
 }
 
