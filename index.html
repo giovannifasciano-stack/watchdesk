@@ -68,7 +68,7 @@ header.app{
   position:sticky; top:0; z-index:40;
 }
 header.app .logo{font-size:1.05rem; text-align:left}
-.pill{font-size:.62rem; letter-spacing:.14em; border:1px solid var(--accent-dark); color:var(--accent); border-radius:20px; padding:2px 9px; margin-left:8px; vertical-align:2px}
+.pill{font-size:.62rem; letter-spacing:.14em; border:1px solid var(--accent-dark); color:var(--accent); border-radius:20px; padding:2px 9px; margin-left:8px; vertical-align:2px; white-space:nowrap; display:inline-block}
 .spacer{flex:1}
 .langbox{display:flex; gap:6px}
 .langbtn{font-size:.78rem; padding:5px 10px; border-radius:8px; border:1px solid var(--line); color:var(--dim); display:flex; gap:6px; align-items:center}
@@ -281,8 +281,9 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
   main{padding:16px 12px 70px}
   header.app{padding:10px 12px; gap:8px}
   header.app .logo{font-size:1.05rem}
-  header.app .logo{font-size:.95rem}
-  header.app .pill{font-size:.55rem; padding:2px 7px; margin-left:8px}
+  header.app .logo{font-size:.95rem; white-space:nowrap}
+  header.app .pill{font-size:.6rem; padding:2px 8px; margin-left:6px}
+  header.app .pill .pw{display:none}
   .langbtn{padding:5px 8px; font-size:.62rem}
   .iconbtn{width:34px; height:34px; font-size:.95rem}
   nav.app{top:56px; padding:8px 10px; gap:2px}
@@ -352,7 +353,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill">GESTIONALE · v2.5</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v2.6</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -675,7 +676,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v2.5
+   WATCHDESK — GESTIONALE UNIFICATO  v2.6
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
