@@ -361,7 +361,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v2.9</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v3.0</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -480,7 +480,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
       </div>
       <div class="repgrid">
         <div class="repcard" id="repAcq"><div class="ri">📥</div><div class="rt" data-i18n="rAcqT">Estratto conto acquisti</div><div class="rd" data-i18n="rAcqD">Tutte le acquisizioni del periodo, con costi netti e stato pagamenti.</div></div>
-        <div class="repcard" id="repSales"><div class="ri">📤</div><div class="rt" data-i18n="rSalesT">Registro vendite</div><div class="rd" data-i18n="rSalesD">Le vendite del periodo con regime IVA, permute e incassi.</div></div>
+        <div class="repcard" id="repSales"><div class="ri">📤</div><div class="rt" data-i18n="rSalesT">Estratto conto vendite</div><div class="rd" data-i18n="rSalesD">Le vendite del periodo con regime IVA, permute e incassi.</div></div>
         <div class="repcard" id="repMargin"><div class="ri">📈</div><div class="rt" data-i18n="rMarT">Margini</div><div class="rd" data-i18n="rMarD">Margine per pezzo con giorni di giacenza, più totali per marca e cliente.</div></div>
         <div class="repcard" id="repStock"><div class="ri">🏛</div><div class="rt" data-i18n="rStockT">Valore magazzino</div><div class="rd" data-i18n="rStockD">Gli orologi in casa al costo netto, con giacenza a oggi.</div></div>
         <div class="repcard" id="repInv"><div class="ri">🗂</div><div class="rt" data-i18n="rInvT">Inventario</div><div class="rd" data-i18n="rInvD">Tutti i pezzi non venduti — ordinati, in arrivo e in casa — con stato e costo netto.</div></div>
@@ -692,7 +692,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v2.9
+   WATCHDESK — GESTIONALE UNIFICATO  v3.0
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -754,7 +754,7 @@ var I18N = {
     migBtn:'Importa foto e documenti',
     repFilters:'Filtri', fFrom:'Dal', fTo:'Al',
     rAcqT:'Estratto conto acquisti', rAcqD:'Tutte le acquisizioni del periodo, con costi netti e stato pagamenti.',
-    rSalesT:'Registro vendite', rSalesD:'Le vendite del periodo con regime IVA, permute e incassi.',
+    rSalesT:'Estratto conto vendite', rSalesD:'Le vendite del periodo con regime IVA, permute e incassi.',
     rMarT:'Margini', rMarD:'Margine per pezzo con giorni di giacenza, più totali per marca e cliente.',
     rStockT:'Valore magazzino', rStockD:'Gli orologi in casa al costo netto, con giacenza a oggi.', rInvT:'Inventario', rInvD:'Tutti i pezzi non venduti — ordinati, in arrivo e in casa — con stato e costo netto.',
     rCsvT:'Esporta CSV', rCsvD:'Acquisti e vendite filtrati, in un file per Excel/Numbers.',
@@ -783,6 +783,7 @@ var I18N = {
     thPrice:'Prezzo', thNetSale:'Netto vendita', thRegime:'Regime', thTrade:'Permuta', thInv:'Fattura',
     thCost:'Costo netto', thMargin:'Margine', thDays:'Giac. gg', thSerial:'Seriale', thPick:'Ritirato il',
     byBrand:'Totali per marca', byCp:'Totali per cliente', multiCur:'valute diverse',
+    thProfit:'Utile', thPct:'Utile %', fxOn:'utile convertito ai cambi', fxMissing:'cambi non disponibili: utile solo a valute uguali',
     stockAt:'Magazzino al', marginTitle:'Margini realizzati', valueTitle:'Valore di magazzino',
     acqTitle:'Estratto conto acquisti', salesTitle:'Registro vendite',
     migOk:'Migrazione completata', changed:'Password cambiata', docAdded:'Documenti caricati'
@@ -824,7 +825,7 @@ var I18N = {
     migBtn:'Import photos and documents',
     repFilters:'Filters', fFrom:'From', fTo:'To',
     rAcqT:'Purchases statement', rAcqD:'All acquisitions in the period, with net costs and payment status.',
-    rSalesT:'Sales ledger', rSalesD:'Sales in the period with VAT regime, trade-ins and collections.',
+    rSalesT:'Sales statement', rSalesD:'Sales in the period with VAT regime, trade-ins and collections.',
     rMarT:'Margins', rMarD:'Margin per piece with days in stock, plus totals by brand and client.',
     rStockT:'Stock value', rStockD:'Watches at home at net cost, with days in stock to date.', rInvT:'Inventory', rInvD:'All unsold pieces — ordered, incoming and at home — with status and net cost.',
     rCsvT:'Export CSV', rCsvD:'Filtered purchases and sales, in a file for Excel/Numbers.',
@@ -853,6 +854,7 @@ var I18N = {
     thPrice:'Price', thNetSale:'Net sale', thRegime:'Regime', thTrade:'Trade-in', thInv:'Invoice',
     thCost:'Net cost', thMargin:'Margin', thDays:'Days', thSerial:'Serial', thPick:'Collected on',
     byBrand:'Totals by brand', byCp:'Totals by client', multiCur:'mixed currencies',
+    thProfit:'Profit', thPct:'Profit %', fxOn:'profit converted at rates of', fxMissing:'rates unavailable: profit only when currencies match',
     stockAt:'Inventory as of', marginTitle:'Realised margins', valueTitle:'Inventory value',
     acqTitle:'Purchases statement', salesTitle:'Sales ledger',
     migOk:'Migration completed', changed:'Password changed', docAdded:'Documents uploaded'
@@ -1819,45 +1821,81 @@ function buildRepSales(){
 function buildRepMargin(){
   var rows=repFilterRows(S.sales,'d_sale').filter(function(s){ return !!acqByWatch(s.watch_id); });
   rows.sort(function(x,y){ return String(x.d_sale||'').localeCompare(String(y.d_sale||'')); });
-  var h=sheetHead(T('marginTitle'));
-  h+='<table><colgroup><col style="width:5%"><col style="width:7%"><col style="width:11%"><col style="width:12%"><col style="width:13%"><col style="width:9%"><col style="width:5%"><col style="width:10%"><col style="width:9%"><col style="width:9%"><col style="width:10%"></colgroup>';
-  h+='<tr><th></th><th>'+T('thDate')+'</th><th>'+T('thBrand')+'</th><th>'+T('thRef')+'</th><th>'+T('thCli')+'</th><th>'+T('thPick')+'</th><th class="num">'+T('thDays')+'</th><th class="num">'+T('thCost')+'</th><th class="num">'+T('thNetSale')+'</th><th>'+T('thCur')+'</th><th class="num">'+T('thMargin')+'</th></tr>';
-  var margTot={}, byBrand={}, byCp={};
-  rows.forEach(function(s){
-    var a=acqByWatch(s.watch_id), w=watchById(s.watch_id)||{}, cp=cpById(s.counterpart_id);
-    var ns=netSale(s), nc=netCost(a);
-    var same=(s.cur||'CHF')===((a&&a.cur)||'CHF');
-    var mg=(same&&ns!=null&&nc!=null)?ns-nc:null;
-    var gg=daysBetween(a&&a.d_pick, s.d_sale);
-    if(mg!=null){
-      var c=s.cur||'CHF';
-      margTot[c]=(margTot[c]||0)+mg;
-      var bk=w.brand||'—'; byBrand[bk]=byBrand[bk]||{}; byBrand[bk][c]=(byBrand[bk][c]||0)+mg;
-      var ck=cp?cp.name:'—'; byCp[ck]=byCp[ck]||{}; byCp[ck][c]=(byCp[ck][c]||0)+mg;
-    }
-    h+='<tr>'+'<td class="mini">'+(w.photo?'<img src="'+w.photo+'">':'<div class="noph">\u231a</div>')+'</td>'+'<td>'+fmtDate(s.d_sale)+'</td><td>'+esc(w.brand||'')+'</td><td class="mono2">'+esc(w.ref||'')+setIcons(w)+'</td>'+
-      '<td>'+esc(cp?cp.name:'')+'</td><td>'+fmtDate(a&&a.d_pick)+'</td><td class="num">'+(gg!=null?gg:'')+'</td>'+
-      '<td class="num mono2">'+(nc!=null?fmtN(nc,(a&&a.cur)||'')+(same?'':' '+((a&&a.cur)||'')):'')+'</td>'+
-      '<td class="num mono2">'+fmtN(ns,s.cur)+'</td><td>'+esc(s.cur||'')+'</td>'+
-      '<td class="num mono2 '+(mg!=null?(mg>=0?'pos':'neg'):'')+'">'+(mg!=null?fmtN(mg,s.cur):T('multiCur'))+'</td></tr>';
-  });
-  Object.keys(margTot).sort().forEach(function(c,i){
-    h+='<tr class="tot"><td colspan="9">'+(i===0?T('totRow')+' — '+rows.length+' '+T('pieces'):'')+'</td>'+
-      '<td>'+c+'</td><td class="num mono2 '+(margTot[c]>=0?'pos':'neg')+'">'+fmtN(margTot[c],c)+'</td></tr>';
-  });
-  h+='</table>';
-  function block(title,map){
-    var out='<div class="sect">'+esc(title)+'</div><table><colgroup><col style="width:60%"><col style="width:12%"><col style="width:28%"></colgroup>';
-    Object.keys(map).sort().forEach(function(k){
-      Object.keys(map[k]).sort().forEach(function(c,i){
-        out+='<tr><td>'+(i===0?esc(k):'')+'</td><td>'+c+'</td><td class="num mono2 '+(map[k][c]>=0?'pos':'neg')+'">'+fmtN(map[k][c],c)+'</td></tr>';
+  var OUT=['CHF','EUR','USD'];   /* le tre valute dell'utile */
+
+  loadFx(function(){
+    var h=sheetHead(T('marginTitle'));
+    h+='<table><colgroup><col style="width:4%"><col style="width:6%"><col style="width:9%"><col style="width:11%"><col style="width:12%"><col style="width:4%"><col style="width:11%"><col style="width:11%"><col style="width:10%"><col style="width:10%"><col style="width:10%"><col style="width:6%"></colgroup>';
+    h+='<tr><th></th><th>'+T('thDate')+'</th><th>'+T('thBrand')+'</th><th>'+T('thRef')+'</th><th>'+T('thCli')+'</th>'+
+      '<th class="num">'+T('thDays')+'</th><th class="num">'+T('thCost')+'</th><th class="num">'+T('thNetSale')+'</th>'+
+      OUT.map(function(c){ return '<th class="num">'+T('thProfit')+' '+(FLAGS[c]||'')+' '+c+'</th>'; }).join('')+
+      '<th class="num">'+T('thPct')+'</th></tr>';
+
+    var tot={}, totCostChf=0, byBrand={}, byCp={};
+    OUT.forEach(function(c){ tot[c]=0; });
+
+    rows.forEach(function(s2){
+      var a=acqByWatch(s2.watch_id), w=watchById(s2.watch_id)||{}, cp=cpById(s2.counterpart_id);
+      var ns=netSale(s2), nc=netCost(a);
+      var cs=s2.cur||'CHF', ca=(a&&a.cur)||'CHF';
+      var gg=daysBetween(a&&a.d_pick, s2.d_sale);
+
+      /* utile in CHF: ricavo e costo portati entrambi in CHF, anche a valute diverse */
+      var mgChf=null, pct=null;
+      if(ns!=null && nc!=null){
+        var nsC=fxConv(ns, cs, 'CHF'), ncC=fxConv(nc, ca, 'CHF');
+        if(nsC!=null && ncC!=null){
+          mgChf=nsC-ncC;
+          if(ncC>0) pct=mgChf/ncC*100;
+          totCostChf+=ncC;
+        } else if(cs===ca){
+          mgChf=ns-nc; if(nc>0) pct=mgChf/nc*100; totCostChf+=nc;
+        }
+      }
+      var cells='';
+      OUT.forEach(function(c){
+        var v=(mgChf==null)?null:(c==='CHF'?mgChf:fxConv(mgChf,'CHF',c));
+        if(v!=null) tot[c]+=v;
+        cells+='<td class="num mono2 '+(v!=null?(v>=0?'pos':'neg'):'')+'">'+(v!=null?fmtN(Math.round(v),c):'—')+'</td>';
       });
+      if(mgChf!=null){
+        var bk=w.brand||'\u2014'; byBrand[bk]=(byBrand[bk]||0)+mgChf;
+        var ck=cp?cp.name:'\u2014'; byCp[ck]=(byCp[ck]||0)+mgChf;
+      }
+
+      h+='<tr><td class="mini">'+(w.photo?'<img src="'+w.photo+'">':'<div class="noph">\u231a</div>')+'</td>'+
+        '<td>'+fmtDate(s2.d_sale)+'</td><td>'+esc(w.brand||'')+'</td><td class="mono2">'+esc(w.ref||'')+setIcons(w)+'</td>'+
+        '<td>'+esc(cp?cp.name:'')+'</td><td class="num">'+(gg!=null?gg:'')+'</td>'+
+        '<td class="num mono2">'+(nc!=null?esc(ca)+' '+fmtN(nc,ca):'')+'</td>'+
+        '<td class="num mono2">'+(ns!=null?esc(cs)+' '+fmtN(ns,cs):'')+'</td>'+
+        cells+
+        '<td class="num mono2 '+(pct!=null?(pct>=0?'pos':'neg'):'')+'">'+(pct!=null?(pct>=0?'+':'')+pct.toFixed(1)+'%':'\u2014')+'</td></tr>';
     });
-    return out+'</table>';
-  }
-  if(Object.keys(byBrand).length) h+=block(T('byBrand'),byBrand);
-  if(Object.keys(byCp).length) h+=block(T('byCp'),byCp);
-  openPrint(T('rMarT'), h);
+
+    var pctTot=(totCostChf>0)?tot.CHF/totCostChf*100:null;
+    h+='<tr class="tot"><td colspan="6">'+T('totRow')+' \u2014 '+rows.length+' '+T('pieces')+'</td>'+
+      '<td class="num mono2">CHF '+fmtN(Math.round(totCostChf),'CHF')+'</td><td></td>'+
+      OUT.map(function(c){ return '<td class="num mono2 '+(tot[c]>=0?'pos':'neg')+'">'+fmtN(Math.round(tot[c]),c)+'</td>'; }).join('')+
+      '<td class="num mono2 '+(pctTot!=null&&pctTot>=0?'pos':'neg')+'">'+(pctTot!=null?(pctTot>=0?'+':'')+pctTot.toFixed(1)+'%':'')+'</td></tr>';
+    h+='</table>';
+    h+='<div class="fxnote">'+(FX?(T('fxOn')+' '+esc(FX.date||'')+' \u00b7 open.er-api.com'):T('fxMissing'))+'</div>';
+
+    function block(title,map){
+      var out='<div class="sect">'+esc(title)+'</div><table><colgroup><col style="width:46%">'+
+        OUT.map(function(){ return '<col style="width:18%">'; }).join('')+'</colgroup>';
+      out+='<tr><th></th>'+OUT.map(function(c){ return '<th class="num">'+(FLAGS[c]||'')+' '+c+'</th>'; }).join('')+'</tr>';
+      Object.keys(map).sort().forEach(function(k){
+        out+='<tr><td>'+esc(k)+'</td>'+OUT.map(function(c){
+          var v=(c==='CHF')?map[k]:fxConv(map[k],'CHF',c);
+          return '<td class="num mono2 '+((v||0)>=0?'pos':'neg')+'">'+(v!=null?fmtN(Math.round(v),c):'\u2014')+'</td>';
+        }).join('')+'</tr>';
+      });
+      return out+'</table>';
+    }
+    if(Object.keys(byBrand).length) h+=block(T('byBrand'),byBrand);
+    if(Object.keys(byCp).length) h+=block(T('byCp'),byCp);
+    openPrint(T('rMarT'), h);
+  });
 }
 
 function buildRepStock(){
