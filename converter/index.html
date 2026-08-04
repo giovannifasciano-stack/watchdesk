@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shopping Converter</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Outfit:wght@700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #03061a;
+      --surface: #080e2e;
+      --surface2: #0d1540;
+      --surface3: #121c52;
+      --border: rgba(255,255,255,0.4);
+      --border2: rgba(255,255,255,0.6);
+      --accent: #7eb8f7;
+      --accent-dim: rgba(126,184,247,0.12);
+      --accent-dim2: rgba(126,184,247,0.06);
+      --text: #f0f2f0;
+      --text-muted: #7a8a7e;
+      --text-dim: #4a5a4e;
+      --red: #f5a0a0;
+      --orange: #f5d0a0;
+      --mono: 'DM Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(126,184,247,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(126,184,247,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrapper { position: relative; z-index: 1; width: 100%; max-width: 460px; }
+
+    header { margin-bottom: 2rem; }
+
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.6;
+      margin-bottom: 0.35rem;
+    }
+    .ver-pill {
+      display: inline-block;
+      text-transform: none;
+      letter-spacing: 0.02em;
+      font-size: 9px;
+      color: var(--accent);
+      border: 1px solid rgba(126,184,247,0.4);
+      border-radius: 5px;
+      padding: 1px 5px;
+      margin-left: 6px;
+      vertical-align: middle;
+      opacity: 0.9;
+    }
+
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 17.6px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 1.5rem;
+      margin-bottom: 0.6rem;
+      animation: fadeUp 0.4s ease both;
+    }
+    .head-card { padding: 1.2rem 1.5rem; }
+
+    .currency-row {
+      display: grid;
+      grid-template-columns: 1fr 40px 1fr;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 1.25rem;
+    }
+
+    .cur-select-wrap { display: flex; flex-direction: column; gap: 4px; }
+
+    .cur-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    select {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      padding: 8px 10px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      width: 100%;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237a8a7e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 28px;
+    }
+
+    select:focus { border-color: var(--accent); }
+    select option { background: #1e2221; }
+
+    .swap-btn {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--surface3); border: 1px solid var(--border2);
+      color: var(--text-muted); font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, color 0.2s, transform 0.3s;
+      margin-top: 16px; flex-shrink: 0;
+    }
+    .swap-btn:hover { background: var(--accent-dim); color: var(--accent); }
+    .swap-btn.spinning { transform: rotate(180deg); }
+
+    .input-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .input-group {
+      display: flex; align-items: center;
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 10px; overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .input-group:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(200,245,160,0.07);
+    }
+
+    .cur-tag {
+      font-family: var(--mono); font-size: 11px; color: var(--text-muted);
+      padding: 0 12px; white-space: nowrap; border-right: 1px solid var(--border);
+      line-height: 50px; background: rgba(255,255,255,0.02);
+      min-width: 54px; text-align: center;
+    }
+    .cur-tag.right { border-right: none; border-left: 1px solid var(--border); min-width: auto; }
+
+    input[type="number"] {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: var(--text); font-family: var(--mono); font-size: 22px; font-weight: 300;
+      padding: 12px 14px; width: 100%; -moz-appearance: textfield;
+    }
+    input[type="number"].sm { font-size: 16px; padding: 9px 12px; }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    input[type="number"]::placeholder { color: var(--text-dim); }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--text-dim);
+    }
+
+    .switch-wrap { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .switch-label { font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
+    .switch {
+      width: 36px; height: 20px; background: var(--surface3);
+      border: 1px solid var(--border2); border-radius: 10px;
+      position: relative; transition: background 0.25s, border-color 0.25s; flex-shrink: 0;
+    }
+    .switch.on { background: var(--accent); border-color: var(--accent); }
+    .switch::after {
+      content: ''; position: absolute; width: 14px; height: 14px; border-radius: 50%;
+      background: var(--text-dim); top: 2px; left: 2px;
+      transition: left 0.25s, background 0.25s;
+    }
+    .switch.on::after { left: 18px; background: var(--bg); }
+
+    .collapsible {
+      overflow: hidden; max-height: 0; opacity: 0;
+      transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+    }
+    .collapsible.visible { max-height: 120px; opacity: 1; margin-top: 0.75rem; }
+    #taxControls.visible { max-height: 480px; }
+    #discControls.visible { max-height: 240px; }
+    .fixdisc-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+    .fixdisc-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); white-space: nowrap; }
+    .fixdisc-cur { width: auto !important; flex: 0 0 auto; font-size: 12px; padding: 7px 24px 7px 9px; }
+    .fixdisc-amt { flex: 1; }
+
+    .taxblock { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.3s ease, opacity 0.3s ease; }
+    .taxblock.show { max-height: 720px; opacity: 1; }
+
+    .sub-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 5px; }
+    .note { font-family: var(--mono); font-size: 10px; color: var(--text-dim); white-space: nowrap; }
+    .capnote { font-family: var(--mono); font-size: 10px; color: var(--orange); white-space: nowrap; display: none; }
+    .b-val.blue { color: #7eb8f7; }
+
+    .controls-row { display: flex; align-items: center; gap: 10px; }
+    .small-input-wrap {
+      display: flex; align-items: center; background: var(--surface2);
+      border: 1px solid var(--border2); border-radius: 8px; overflow: hidden;
+      flex: 1; transition: border-color 0.2s;
+    }
+    .small-input-wrap:focus-within { border-color: var(--accent); }
+
+    .presets { display: flex; gap: 6px; flex-wrap: wrap; }
+    .preset-btn {
+      font-family: var(--mono); font-size: 11px; color: var(--text-muted);
+      background: var(--surface3); border: 1px solid var(--border2);
+      border-radius: 6px; padding: 6px 10px; cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s; white-space: nowrap;
+    }
+    .preset-btn:hover, .preset-btn.active { background: var(--accent-dim); color: var(--accent);         border-color: rgba(126,184,247,0.25); }
+
+    .breakdown {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px; overflow: hidden; margin-bottom: 0.6rem;
+      animation: fadeUp 0.4s ease 0.08s both;
+    }
+    .breakdown-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.8rem 1.5rem; border-bottom: 1px solid var(--border);
+    }
+    .breakdown-row:last-child { border-bottom: none; }
+    .b-label { font-size: 12px; color: var(--text-muted); font-family: var(--mono); letter-spacing: 0.03em; }
+    .b-val { font-family: var(--mono); font-size: 13px; color: var(--text); }
+    .b-val.red { color: var(--red); }
+    .b-val.orange { color: var(--orange); }
+
+    .result-card {
+      background: var(--accent-dim2); border: 1px solid rgba(200,245,160,0.13);
+      border-radius: 18px; padding: 1.4rem 1.5rem; margin-bottom: 0.6rem;
+      display: flex; justify-content: space-between; align-items: center;
+      animation: fadeUp 0.4s ease 0.14s both;
+    }
+    .result-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); opacity: 0.6; margin-bottom: 5px; }
+    .result-amount { font-family: var(--mono); font-size: 34px; font-weight: 300; color: #c8f5a0; letter-spacing: -0.02em; }
+    .result-amount.placeholder { opacity: 0.15; }
+    .result-sub { font-family: var(--mono); font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+    .flag-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+
+    .copy-btn {
+      font-family: var(--mono); font-size: 11px; color: var(--text-muted);
+      background: var(--surface3); border: 1px solid var(--border2);
+      border-radius: 8px; padding: 6px 10px; cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      margin-top: 6px; letter-spacing: 0.05em;
+    }
+    .copy-btn:hover { background: var(--accent-dim); color: var(--accent); border-color: rgba(126,184,247,0.25); }
+    .copy-btn.copied { background: var(--accent-dim); color: var(--accent); border-color: rgba(126,184,247,0.25); }
+    .flag { font-size: 26px; line-height: 1; }
+    .to-code { font-family: var(--mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; }
+
+    .rate-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 0; animation: fadeUp 0.4s ease 0.2s both;
+    }
+    .rate-info { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 11px; color: var(--text-dim); }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; flex-shrink: 0; }
+    .live-dot.loading { background: var(--text-dim); animation: none; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+    .refresh-btn { font-family: var(--mono); font-size: 11px; color: var(--text-dim); background: none; border: none; cursor: pointer; padding: 2px 6px; border-radius: 4px; transition: color 0.2s; letter-spacing: 0.05em; }
+    .refresh-btn:hover { color: var(--accent); }
+
+    .action-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 0.6rem;
+      animation: fadeUp 0.4s ease 0.22s both;
+    }
+    .print-btn {
+      flex: 1;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.8);
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 10px;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      text-transform: uppercase;
+    }
+    .print-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+    .print-date { display: none; }
+
+    @media print {
+      @page { size: A4; margin: 10mm; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      html { height: auto !important; }
+      body {
+        background: #fff !important;
+        padding: 0 !important;
+        display: block !important;
+        min-height: 0 !important;
+        height: auto !important;
+        align-items: flex-start !important;
+        justify-content: flex-start !important;
+      }
+      body::before { display: none !important; }
+      .wrapper { max-width: 100% !important; margin: 0 !important; }
+
+      /* Hide interactive / non-essential elements */
+      .action-bar, .rate-bar, .swap-btn,
+      .collapsible, .section-header, .divider,
+      .copy-btn, #copyField { display: none !important; }
+
+      /* No conversion (From == To) → hide the currency boxes up top */
+      body.no-convert .currency-row { display: none !important; }
+
+      /* Keep each card whole, no splitting across pages */
+      .card, .breakdown, .result-card { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Header */
+      .head-card { padding: 8px 11px !important; }
+      h1 { color: #111 !important; font-size: 12px !important; }
+      .eyebrow { color: #888 !important; opacity: 1 !important; font-size: 8px !important; margin-bottom: 2px !important; }
+      .ver-pill { color: #888 !important; border-color: #ccc !important; font-size: 8px !important; }
+      .print-date { display: block; font-family: var(--mono); font-size: 8px; color: #888; margin-top: 2px; }
+
+      /* Cards */
+      .card, .breakdown, .result-card {
+        background: #fff !important;
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+        border-radius: 6px !important;
+        margin-bottom: 6px !important;
+        padding: 9px 12px !important;
+      }
+      .breakdown { padding: 0 !important; }
+
+      /* Currency selectors — show as plain text */
+      .currency-row { display: flex !important; gap: 14px !important; align-items: flex-start !important; margin-bottom: 8px !important; }
+      .cur-select-wrap { flex: 1; }
+      .cur-label { color: #888 !important; font-size: 7.5px !important; }
+      select {
+        background: #f5f5f5 !important;
+        border: 1px solid #ddd !important;
+        color: #111 !important;
+        border-radius: 4px !important;
+        padding: 4px 7px !important;
+        font-size: 10px !important;
+        width: 100% !important;
+        appearance: auto !important;
+        -webkit-appearance: auto !important;
+      }
+
+      /* Amount input */
+      .input-label { color: #888 !important; font-size: 7.5px !important; margin-bottom: 4px !important; }
+      .input-group { background: #f5f5f5 !important; border: 1px solid #ddd !important; border-radius: 5px !important; }
+      .cur-tag { color: #555 !important; border-right-color: #ddd !important; background: #eee !important; font-size: 9px !important; line-height: 30px !important; min-width: 40px !important; padding: 0 9px !important; }
+      input[type="number"] { color: #111 !important; font-size: 14px !important; padding: 5px 9px !important; }
+
+      /* Breakdown */
+      .breakdown { display: block !important; }
+      .breakdown-row { border-bottom-color: #eee !important; padding: 5px 11px !important; }
+      .b-label { color: #555 !important; font-size: 9px !important; }
+      .b-val { color: #111 !important; font-size: 9px !important; }
+      .b-val.red { color: #cc0000 !important; }
+      .b-val.orange { color: #cc6600 !important; }
+      .b-val.blue { color: #1166cc !important; }
+
+      /* Result card */
+      .result-card { background: #f9fff5 !important; border: 1.5px solid #4a9e4a !important; }
+      .result-label { color: #4a9e4a !important; opacity: 1 !important; font-size: 7.5px !important; margin-bottom: 3px !important; }
+      .result-amount { color: #2d7a2d !important; font-size: 20px !important; }
+      .result-amount.placeholder { display: none !important; }
+      .result-sub { color: #666 !important; font-size: 8px !important; }
+      .flag { font-size: 15px !important; }
+      .to-code { color: #555 !important; font-size: 8px !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="card head-card">
+      <p class="eyebrow">Shopping Tool<span class="ver-pill">v1.0</span></p>
+      <h1>Shopping <span style="color:var(--accent)">Converter</span></h1>
+      <p class="print-date" id="printDate"></p>
+    </div>
+
+    <div class="card">
+      <div class="currency-row">
+        <div class="cur-select-wrap">
+          <span class="cur-label">From</span>
+          <select id="fromCur">
+            <option value="EUR">🇪🇺 EUR — Euro</option>
+            <option value="CHF">🇨🇭 CHF — Swiss Franc</option>
+            <option value="USD">🇺🇸 USD — US Dollar</option>
+            <option value="GBP">🇬🇧 GBP — British Pound</option>
+            <option value="JPY">🇯🇵 JPY — Japanese Yen</option>
+            <option value="CAD">🇨🇦 CAD — Canadian Dollar</option>
+            <option value="AUD">🇦🇺 AUD — Australian Dollar</option>
+            <option value="CNY">🇨🇳 CNY — Chinese Yuan</option>
+            <option value="AED">🇦🇪 AED — UAE Dirham</option>
+            <option value="HKD">🇭🇰 HKD — Hong Kong Dollar</option>
+          </select>
+        </div>
+        <button class="swap-btn" id="swapBtn">⇄</button>
+        <div class="cur-select-wrap">
+          <span class="cur-label">To</span>
+          <select id="toCur">
+            <option value="EUR">🇪🇺 EUR — Euro</option>
+            <option value="CHF">🇨🇭 CHF — Swiss Franc</option>
+            <option value="USD">🇺🇸 USD — US Dollar</option>
+            <option value="GBP">🇬🇧 GBP — British Pound</option>
+            <option value="JPY">🇯🇵 JPY — Japanese Yen</option>
+            <option value="CAD">🇨🇦 CAD — Canadian Dollar</option>
+            <option value="AUD">🇦🇺 AUD — Australian Dollar</option>
+            <option value="CNY">🇨🇳 CNY — Chinese Yuan</option>
+            <option value="AED">🇦🇪 AED — UAE Dirham</option>
+            <option value="HKD">🇭🇰 HKD — Hong Kong Dollar</option>
+          </select>
+        </div>
+      </div>
+
+      <span class="input-label">Amount</span>
+      <div class="input-group">
+        <span class="cur-tag" id="fromTag">EUR</span>
+        <input type="number" id="amountInput" placeholder="0.00" min="0" step="0.01" autofocus />
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Discount -->
+      <div class="section-header">
+        <span class="section-title">Discount</span>
+        <div class="switch-wrap" id="discToggle">
+          <span class="switch-label" id="discLabel">off</span>
+          <div class="switch" id="discSwitch"></div>
+        </div>
+      </div>
+      <div class="collapsible" id="discControls">
+        <div class="controls-row">
+          <div class="small-input-wrap">
+            <input type="number" class="sm" id="discRate" placeholder="0" min="0" max="100" step="0.1" />
+            <span class="cur-tag right">%</span>
+          </div>
+          <div class="presets">
+            <button class="preset-btn disc-preset" data-pct="5">5%</button>
+            <button class="preset-btn disc-preset" data-pct="10">10%</button>
+            <button class="preset-btn disc-preset" data-pct="15">15%</button>
+            <button class="preset-btn disc-preset" data-pct="20">20%</button>
+            <button class="preset-btn disc-preset" data-pct="30">30%</button>
+            <button class="preset-btn disc-preset" data-pct="50">50%</button>
+          </div>
+        </div>
+        <div class="fixdisc-row">
+          <span class="fixdisc-label">Fixed</span>
+          <select id="fixDiscCur" class="fixdisc-cur">
+            <option value="EUR">🇪🇺 EUR</option><option value="CHF">🇨🇭 CHF</option><option value="USD">🇺🇸 USD</option><option value="GBP">🇬🇧 GBP</option><option value="JPY">🇯🇵 JPY</option><option value="CAD">🇨🇦 CAD</option><option value="AUD">🇦🇺 AUD</option><option value="CNY">🇨🇳 CNY</option><option value="AED">🇦🇪 AED</option><option value="HKD">🇭🇰 HKD</option>
+          </select>
+          <div class="small-input-wrap fixdisc-amt">
+            <input type="number" class="sm" id="fixDiscVal" placeholder="0.00" min="0" step="0.01" />
+          </div>
+        </div>
+      </div>
+
+      <!-- VAT (hidden when From & To = USD) -->
+      <div id="vatSection">
+        <hr class="divider" />
+        <div class="section-header">
+          <span class="section-title">VAT deduction</span>
+          <div class="switch-wrap" id="vatToggle">
+            <span class="switch-label" id="vatLabel">off</span>
+            <div class="switch" id="vatSwitch"></div>
+          </div>
+        </div>
+        <div class="collapsible" id="vatControls">
+          <div class="controls-row">
+            <div class="small-input-wrap">
+              <input type="number" class="sm" id="vatRate" placeholder="0" min="0" max="100" step="0.1" />
+              <span class="cur-tag right">%</span>
+            </div>
+            <div class="presets">
+              <button class="preset-btn vat-preset" data-pct="8.1">8.1%</button>
+              <button class="preset-btn vat-preset" data-pct="22">22%</button>
+              <button class="preset-btn vat-preset" data-pct="20">20%</button>
+              <button class="preset-btn vat-preset" data-pct="19">19%</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- US Sales Tax (only when From & To = USD) -->
+      <div class="taxblock" id="taxBlock">
+        <hr class="divider" />
+        <div class="section-header">
+          <span class="section-title">🇺🇸 US Sales Tax</span>
+          <div class="switch-wrap" id="taxToggle">
+            <span class="switch-label" id="taxLabel">off</span>
+            <div class="switch" id="taxSwitch"></div>
+          </div>
+        </div>
+        <div class="collapsible" id="taxControls">
+          <div class="sub-label">State</div>
+          <select id="stateSel" style="margin-bottom:10px">
+            <option value="">Select state…</option>
+            <option value="4.0" data-state="AL">Alabama (AL) — 4%</option><option value="0" data-state="AK">Alaska (AK) — 0%</option><option value="5.6" data-state="AZ">Arizona (AZ) — 5.6%</option><option value="6.5" data-state="AR">Arkansas (AR) — 6.5%</option><option value="7.25" data-state="CA">California (CA) — 7.25%</option><option value="2.9" data-state="CO">Colorado (CO) — 2.9%</option><option value="6.35" data-state="CT">Connecticut (CT) — 6.35%</option><option value="0" data-state="DE">Delaware (DE) — 0%</option><option value="6.0" data-state="FL" selected>Florida (FL) — 6%</option><option value="4.0" data-state="GA">Georgia (GA) — 4%</option><option value="4.0" data-state="HI">Hawaii (HI) — 4%</option><option value="5.0" data-state="ID">Idaho (ID) — 5%</option><option value="6.25" data-state="IL">Illinois (IL) — 6.25%</option><option value="7.0" data-state="IN">Indiana (IN) — 7%</option><option value="5.0" data-state="IA">Iowa (IA) — 5%</option><option value="6.5" data-state="KS">Kansas (KS) — 6.5%</option><option value="6.0" data-state="KY">Kentucky (KY) — 6%</option><option value="4.45" data-state="LA">Louisiana (LA) — 4.45%</option><option value="5.0" data-state="ME">Maine (ME) — 5%</option><option value="6.25" data-state="MA">Massachusetts (MA) — 6.25%</option><option value="6.0" data-state="MI">Michigan (MI) — 6%</option><option value="6.875" data-state="MN">Minnesota (MN) — 6.875%</option><option value="7.0" data-state="MS">Mississippi (MS) — 7%</option><option value="4.225" data-state="MO">Missouri (MO) — 4.225%</option><option value="0" data-state="MT">Montana (MT) — 0%</option><option value="5.5" data-state="NE">Nebraska (NE) — 5.5%</option><option value="4.6" data-state="NV">Nevada (NV) — 4.6%</option><option value="0" data-state="NH">New Hampshire (NH) — 0%</option><option value="6.625" data-state="NJ">New Jersey (NJ) — 6.625%</option><option value="5.125" data-state="NM">New Mexico (NM) — 5.125%</option><option value="4.0" data-state="NY">New York (NY) — 4%</option><option value="4.75" data-state="NC">North Carolina (NC) — 4.75%</option><option value="4.85" data-state="ND">North Dakota (ND) — 4.85%</option><option value="5.75" data-state="OH">Ohio (OH) — 5.75%</option><option value="4.5" data-state="OK">Oklahoma (OK) — 4.5%</option><option value="0" data-state="OR">Oregon (OR) — 0%</option><option value="6.0" data-state="PA">Pennsylvania (PA) — 6%</option><option value="7.0" data-state="RI">Rhode Island (RI) — 7%</option><option value="5.5" data-state="SC">South Carolina (SC) — 5.5%</option><option value="4.5" data-state="SD">South Dakota (SD) — 4.5%</option><option value="7.0" data-state="TN">Tennessee (TN) — 7%</option><option value="6.25" data-state="TX">Texas (TX) — 6.25%</option><option value="7.0" data-state="UT">Utah (UT) — 7%</option><option value="6.0" data-state="VT">Vermont (VT) — 6%</option><option value="5.3" data-state="VA">Virginia (VA) — 5.3%</option><option value="6.5" data-state="WA">Washington (WA) — 6.5%</option><option value="6.0" data-state="DC">Washington DC — 6%</option><option value="6.0" data-state="WV">West Virginia (WV) — 6%</option><option value="5.0" data-state="WI">Wisconsin (WI) — 5%</option><option value="4.0" data-state="WY">Wyoming (WY) — 4%</option>
+          </select>
+          <div class="controls-row" style="margin-bottom:10px">
+            <div class="small-input-wrap">
+              <input type="number" class="sm" id="stateRate" placeholder="0" min="0" max="20" step="0.01" />
+              <span class="cur-tag right">%</span>
+            </div>
+            <span class="note">state tax</span>
+          </div>
+          <div id="countyWrap" style="display:none">
+            <div class="sub-label">🏛 County / Local Surtax</div>
+            <select id="countySel" style="margin-bottom:10px"><option value="">Select county…</option></select>
+            <div class="controls-row">
+              <div class="small-input-wrap">
+                <input type="number" class="sm" id="countyRate" placeholder="0" min="0" max="10" step="0.01" readonly />
+                <span class="cur-tag right">%</span>
+              </div>
+              <span class="note">county surtax</span>
+              <span class="capnote" id="capNote">⚠ cap $5,000</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Breakdown -->
+    <div class="breakdown" id="breakdownCard" style="display:none">
+      <div class="breakdown-row" id="row-orig" style="display:none">
+        <span class="b-label">Original price</span>
+        <span class="b-val" id="d-orig">—</span>
+      </div>
+      <div class="breakdown-row" id="row-disc" style="display:none">
+        <span class="b-label">Discount (<span id="d-discpct">0</span>%)</span>
+        <span class="b-val red" id="d-disc">—</span>
+      </div>
+      <div class="breakdown-row" id="row-fixdisc" style="display:none">
+        <span class="b-label">Fixed discount</span>
+        <span class="b-val red" id="d-fixdisc">—</span>
+      </div>
+      <div class="breakdown-row" id="row-saved" style="display:none">
+        <span class="b-label">You save</span>
+        <span class="b-val orange" id="d-saved">—</span>
+      </div>
+      <div class="breakdown-row" id="row-after-disc" style="display:none">
+        <span class="b-label">After discount</span>
+        <span class="b-val" id="d-after">—</span>
+      </div>
+      <div class="breakdown-row" id="row-pretax" style="display:none">
+        <span class="b-label">Price before tax</span>
+        <span class="b-val" id="t-pretax">—</span>
+      </div>
+      <div class="breakdown-row" id="row-state" style="display:none">
+        <span class="b-label">State tax (<span id="t-statepct">0</span>%)</span>
+        <span class="b-val blue" id="t-state">—</span>
+      </div>
+      <div class="breakdown-row" id="row-county" style="display:none">
+        <span class="b-label" id="t-county-label">County surtax</span>
+        <span class="b-val blue" id="t-county">—</span>
+      </div>
+      <div class="breakdown-row" id="row-aftertax" style="display:none">
+        <span class="b-label">After tax</span>
+        <span class="b-val" id="t-aftertax">—</span>
+      </div>
+      <div class="breakdown-row" id="row-gross" style="display:none">
+        <span class="b-label">Gross (incl. VAT)</span>
+        <span class="b-val" id="v-gross">—</span>
+      </div>
+      <div class="breakdown-row" id="row-vat" style="display:none">
+        <span class="b-label">VAT (<span id="v-vatpct">0</span>%)</span>
+        <span class="b-val red" id="v-vat">—</span>
+      </div>
+      <div class="breakdown-row" id="row-net" style="display:none">
+        <span class="b-label">Net ex-VAT</span>
+        <span class="b-val" id="v-net">—</span>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="result-card">
+      <div>
+        <p class="result-label" id="resultLabel">Result</p>
+        <p class="result-amount placeholder" id="resultAmt">0.00</p>
+        <p class="result-sub" id="resultSub" style="display:none"></p>
+      </div>
+      <div class="flag-wrap">
+        <span class="flag" id="toFlag">🇺🇸</span>
+        <span class="to-code" id="toCode">USD</span>
+        <button class="copy-btn" id="copyBtn" onclick="copyResult()">⎘ copy</button>
+        <input type="text" id="copyField" readonly style="position:fixed;top:-9999px;left:-9999px;font-size:16px;" />
+      </div>
+    </div>
+
+    <!-- Action bar -->
+    <div class="action-bar">
+      <button class="print-btn" onclick="window.print()">🖨 Print / Save PDF</button>
+    </div>
+
+    <!-- Rate bar -->
+    <div class="rate-bar">
+      <div class="rate-info">
+        <span class="live-dot loading" id="liveDot"></span>
+        <span id="rateText">Fetching live rate…</span>
+      </div>
+      <button class="refresh-btn" onclick="fetchRate()">↻ refresh</button>
+    </div>
+  </div>
+
+  <script>
+    const FLAGS   = { EUR:'🇪🇺', CHF:'🇨🇭', USD:'🇺🇸', GBP:'🇬🇧', JPY:'🇯🇵', CAD:'🇨🇦', AUD:'🇦🇺', CNY:'🇨🇳', AED:'🇦🇪', HKD:'🇭🇰' };
+    const SYMBOLS = { EUR:'€', CHF:'CHF ', USD:'$', GBP:'£', JPY:'¥', CAD:'CA$', AUD:'A$', CNY:'¥', AED:'AED ', HKD:'HK$' };
+    const FALLBACK= { EUR:1, CHF:0.9276, USD:1.1478, GBP:0.8418, JPY:162.5, CAD:1.5590, AUD:1.7640, CNY:8.315, AED:4.214, HKD:8.951 };
+
+    let rates = {}, vatOn = false, discOn = false, taxOn = false;
+
+    const COUNTIES = {
+      FL:{cap:5000,list:{'Alachua':1,'Baker':1,'Bay':1,'Bradford':1,'Brevard':1,'Broward':1,'Calhoun':1.5,'Charlotte':1,'Citrus':1,'Clay':1,'Collier':1,'Columbia':1,'DeSoto':1,'Dixie':1,'Duval':1,'Escambia':1.5,'Flagler':1,'Franklin':1.5,'Gadsden':1.5,'Gilchrist':1,'Glades':1,'Gulf':1,'Hamilton':1,'Hardee':1,'Hendry':1,'Hernando':1.5,'Highlands':1,'Hillsborough':1.5,'Holmes':1,'Indian River':1,'Jackson':1.5,'Jefferson':1.5,'Lafayette':1,'Lake':1,'Lee':1,'Leon':1.5,'Levy':1,'Liberty':2,'Madison':1.5,'Manatee':1,'Marion':1,'Martin':1,'Miami-Dade':1,'Monroe':1.5,'Nassau':1,'Okaloosa':1,'Okeechobee':1,'Orange':0.5,'Osceola':1.5,'Palm Beach':1,'Pasco':1,'Pinellas':1,'Polk':1,'Putnam':1,'Santa Rosa':1,'Sarasota':1,'Seminole':1,'St. Johns':0.5,'St. Lucie':1,'Sumter':1,'Suwannee':1,'Taylor':1,'Union':0.5,'Volusia':1.5,'Wakulla':1.5,'Walton':1,'Washington':1.5}},
+      NY:{cap:null,list:{'Albany County':4,'Bronx (NYC)':4.5,'Brooklyn / Kings (NYC)':4.5,'Buffalo / Erie':4.75,'Manhattan / New York (NYC)':4.5,'Nassau':4.25,'New York City (all boroughs)':4.5,'Queens (NYC)':4.5,'Richmond / Staten Island (NYC)':4.5,'Rockland':4,'Suffolk':4.25,'Westchester':3}},
+      CA:{cap:null,list:{'Alameda':3,'Los Angeles':2.25,'Orange':0.5,'Riverside':1.5,'Sacramento':1,'San Bernardino':1,'San Diego':0.75,'San Francisco':1.25,'San Jose / Santa Clara':2.25,'Ventura':0.25}},
+      TX:{cap:null,list:{'Austin / Travis':2,'Dallas':2,'El Paso':2,'Fort Worth / Tarrant':2,'Houston / Harris':2,'San Antonio / Bexar':2}},
+      NJ:{cap:null,list:{'All counties (uniform rate)':0}}
+    };
+
+    const fromCur      = document.getElementById('fromCur');
+    const toCur        = document.getElementById('toCur');
+    const amountInput  = document.getElementById('amountInput');
+    const fromTag      = document.getElementById('fromTag');
+    const vatRateInput = document.getElementById('vatRate');
+    const discRateInput= document.getElementById('discRate');
+    const fixDiscCur   = document.getElementById('fixDiscCur');
+    const fixDiscVal   = document.getElementById('fixDiscVal');
+
+    // Convert an amount given in currency `cur` into the current FROM currency
+    function toFrom(amount, cur) {
+      if (!amount || isNaN(amount) || amount === 0) return 0;
+      const from = fromCur.value;
+      if (cur === from) return amount;
+      const rCur = rates[cur];
+      if (!rCur) return amount;
+      return amount / rCur;
+    }
+
+    function fmt(n, cur) {
+      if (cur === 'JPY') return (SYMBOLS[cur]||'') + Math.round(n).toLocaleString('en-US');
+      return (SYMBOLS[cur]||'') + n.toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+    }
+    function pctLabel(v) { return v % 1 === 0 ? v : parseFloat(v).toFixed(1); }
+
+    function show(id, visible) {
+      document.getElementById(id).style.display = visible ? 'flex' : 'none';
+    }
+
+    const stateRateInput = document.getElementById('stateRate');
+    const countyRateInput = document.getElementById('countyRate');
+
+    function updateTaxVisibility() {
+      const isUSDUSD = fromCur.value === 'USD' && toCur.value === 'USD';
+      document.getElementById('taxBlock').classList.toggle('show', isUSDUSD);
+      document.getElementById('vatSection').style.display = isUSDUSD ? 'none' : 'block';
+
+      // Same currency on both sides → preset the Fixed-discount currency to match
+      if (fromCur.value === toCur.value) { fixDiscCur.value = fromCur.value; }
+
+      if (isUSDUSD && vatOn) {
+        vatOn = false;
+        document.getElementById('vatSwitch').classList.remove('on');
+        document.getElementById('vatLabel').textContent = 'off';
+        document.getElementById('vatControls').classList.remove('visible');
+      }
+      if (!isUSDUSD && taxOn) {
+        taxOn = false;
+        document.getElementById('taxSwitch').classList.remove('on');
+        document.getElementById('taxLabel').textContent = 'off';
+        document.getElementById('taxControls').classList.remove('visible');
+      }
+    }
+
+    // US Sales Tax — toggle
+    document.getElementById('taxToggle').addEventListener('click', () => {
+      taxOn = !taxOn;
+      document.getElementById('taxSwitch').classList.toggle('on', taxOn);
+      document.getElementById('taxLabel').textContent = taxOn ? 'on' : 'off';
+      document.getElementById('taxControls').classList.toggle('visible', taxOn);
+      calculate();
+    });
+
+    document.getElementById('stateSel').addEventListener('change', () => {
+      const opt = document.getElementById('stateSel').selectedOptions[0];
+      stateRateInput.value = opt ? opt.value : '';
+      const code = opt ? opt.dataset.state : '';
+      const cd = COUNTIES[code] || null;
+      const cs = document.getElementById('countySel');
+      cs.innerHTML = '<option value="">Select county…</option>';
+      countyRateInput.value = '';
+      document.getElementById('capNote').style.display = 'none';
+      if (cd && Object.keys(cd.list).length) {
+        Object.entries(cd.list).forEach(([n, r]) => { const o = document.createElement('option'); o.value = r; o.textContent = `${n}  (+${r}%)`; cs.appendChild(o); });
+        document.getElementById('countyWrap').style.display = 'block';
+      } else {
+        document.getElementById('countyWrap').style.display = 'none';
+      }
+      calculate();
+    });
+    document.getElementById('countySel').addEventListener('change', () => {
+      const v = document.getElementById('countySel').value;
+      countyRateInput.value = v;
+      const code = (document.getElementById('stateSel').selectedOptions[0] && document.getElementById('stateSel').selectedOptions[0].dataset.state) || '';
+      document.getElementById('capNote').style.display = (v && COUNTIES[code] && COUNTIES[code].cap) ? 'inline' : 'none';
+      calculate();
+    });
+    stateRateInput.addEventListener('input', calculate);
+    countyRateInput.addEventListener('input', calculate);
+
+    function calculate() {
+      const raw  = parseFloat(amountInput.value);
+      const from = fromCur.value, to = toCur.value;
+      const r    = rates[to];
+      const vatPct  = vatOn  ? (parseFloat(vatRateInput.value)  || 0) : 0;
+      const discPct = discOn ? (parseFloat(discRateInput.value) || 0) : 0;
+
+      fromTag.textContent = from;
+      document.getElementById('toFlag').textContent = FLAGS[to] || '💱';
+      document.getElementById('toCode').textContent = to;
+
+      const hasInput   = !isNaN(raw) && amountInput.value !== '';
+      const isUSDUSD   = from === 'USD' && to === 'USD';
+      const statePct   = taxOn ? (parseFloat(stateRateInput.value)  || 0) : 0;
+      const ctyPct     = taxOn ? (parseFloat(countyRateInput.value) || 0) : 0;
+      const fixDiscAmt = discOn ? toFrom(parseFloat(fixDiscVal.value) || 0, fixDiscCur.value) : 0;
+      const showDisc   = discOn && (discPct > 0 || fixDiscAmt > 0) && hasInput;
+      const showTax    = taxOn  && isUSDUSD && (statePct > 0 || ctyPct > 0) && hasInput;
+      const showVat    = vatOn  && !isUSDUSD && vatPct > 0 && hasInput;
+      const showBd     = showDisc || showTax || showVat;
+
+      document.getElementById('breakdownCard').style.display = showBd ? 'block' : 'none';
+
+      let base = hasInput ? raw : 0;
+
+      // Discount first (percentage + fixed amount)
+      let afterDisc = base;
+      if (showDisc) {
+        const pctAmt = base * discPct / 100;
+        afterDisc = base - pctAmt - fixDiscAmt;
+        document.getElementById('d-orig').textContent    = fmt(base, from);
+        document.getElementById('d-discpct').textContent = pctLabel(discPct);
+        document.getElementById('d-disc').textContent    = '− ' + fmt(pctAmt, from);
+        document.getElementById('d-fixdisc').textContent = '− ' + fmt(fixDiscAmt, from);
+        document.getElementById('d-saved').textContent   = fmt(pctAmt + fixDiscAmt, from);
+        document.getElementById('d-after').textContent   = fmt(afterDisc, from);
+      }
+      show('row-orig',      showDisc);
+      show('row-disc',      showDisc && discPct > 0);
+      show('row-fixdisc',   showDisc && fixDiscAmt > 0);
+      show('row-saved',     showDisc);
+      show('row-after-disc',showDisc);
+
+      // US Sales Tax (additive, after discount) — only when From & To = USD
+      let afterTax = afterDisc;
+      if (showTax) {
+        const stateAmt = afterDisc * statePct / 100;
+        const code = (document.getElementById('stateSel').selectedOptions[0] && document.getElementById('stateSel').selectedOptions[0].dataset.state) || '';
+        const cap = (COUNTIES[code] && COUNTIES[code].cap) || null;
+        const ctyAmt = (cap ? Math.min(afterDisc, cap) : afterDisc) * ctyPct / 100;
+        afterTax = afterDisc + stateAmt + ctyAmt;
+        document.getElementById('t-pretax').textContent   = fmt(afterDisc, from);
+        document.getElementById('t-statepct').textContent = pctLabel(statePct);
+        document.getElementById('t-state').textContent    = '+ ' + fmt(stateAmt, from);
+        document.getElementById('t-county-label').textContent = cap
+          ? `County surtax (${pctLabel(ctyPct)}% on first ${fmt(cap, 'USD')})`
+          : `County surtax (${pctLabel(ctyPct)}%)`;
+        document.getElementById('t-county').textContent   = '+ ' + fmt(ctyAmt, from);
+        document.getElementById('t-aftertax').textContent = fmt(afterTax, from);
+      }
+      show('row-pretax',   showTax);
+      show('row-state',    showTax && statePct > 0);
+      show('row-county',   showTax && ctyPct > 0);
+      show('row-aftertax', showTax);
+
+      // VAT deduction on post-discount amount — only when NOT USD/USD
+      let finalAmount = afterTax;
+      if (showVat) {
+        const vatAmt = afterTax * vatPct / 100 / (1 + vatPct / 100);
+        finalAmount  = afterTax - vatAmt;
+        document.getElementById('v-gross').textContent   = fmt(afterTax, from);
+        document.getElementById('v-vatpct').textContent  = pctLabel(vatPct);
+        document.getElementById('v-vat').textContent     = '− ' + fmt(vatAmt, from);
+        document.getElementById('v-net').textContent     = fmt(finalAmount, from);
+      }
+      show('row-gross', showVat);
+      show('row-vat',   showVat);
+      show('row-net',   showVat);
+
+      // Result
+      const resultEl  = document.getElementById('resultAmt');
+      const resultSub = document.getElementById('resultSub');
+
+      if (!hasInput) {
+        resultEl.textContent = '0.00';
+        resultEl.classList.add('placeholder');
+        resultSub.style.display = 'none';
+        document.getElementById('resultLabel').textContent = 'Result';
+        return;
+      }
+
+      resultEl.classList.remove('placeholder');
+      resultEl.textContent = r ? fmt(finalAmount * r, to) : '—';
+
+      if (isUSDUSD) {
+        document.getElementById('resultLabel').textContent = showTax ? 'Total incl. tax' : 'Result';
+        resultSub.style.display = 'none';
+      } else if (showDisc || showVat) {
+        document.getElementById('resultLabel').textContent = 'Converted result';
+        resultSub.textContent = `Base: ${fmt(finalAmount, from)}`;
+        resultSub.style.display = 'block';
+      } else {
+        document.getElementById('resultLabel').textContent = 'Result';
+        resultSub.style.display = 'none';
+      }
+    }
+
+    async function fetchRate() {
+      updateTaxVisibility();
+      document.getElementById('liveDot').classList.add('loading');
+      document.getElementById('rateText').textContent = 'Fetching live rates…';
+      const from = fromCur.value;
+      let ok = false, source = '';
+
+      const tryFetch = async (url) => {
+        const res = await fetch(url, { mode:'cors' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      };
+
+      if (!ok) try {
+        const data = await tryFetch(`https://open.er-api.com/v6/latest/${from}`);
+        if (data.result === 'success') {
+          rates = { ...data.rates, [from]:1 };
+          source = 'er-api · hourly'; ok = true;
+        }
+      } catch(e) { }
+
+      if (!ok) try {
+        const data = await tryFetch(`https://api.frankfurter.app/latest?from=${from}`);
+        rates = { [from]:1, ...data.rates };
+        source = 'ECB · daily'; ok = true;
+      } catch(e) { }
+
+      if (!ok) {
+        const base = FALLBACK[from] || 1;
+        rates = {};
+        Object.keys(FALLBACK).forEach(k => rates[k] = FALLBACK[k] / base);
+        rates[from] = 1;
+        source = 'offline · fallback';
+      }
+
+      if (ok) document.getElementById('liveDot').classList.remove('loading');
+
+      const to = toCur.value, r = rates[to];
+      const t = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+      const d = new Date().toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'numeric' });
+      document.getElementById('rateText').textContent = r
+        ? `1 ${from} = ${fmt(r, to)} ${to}  ·  ${d} ${t}  ·  ${source}`
+        : `Rate unavailable · ${source}`;
+      calculate();
+    }
+
+    document.getElementById('swapBtn').addEventListener('click', () => {
+      const b = document.getElementById('swapBtn');
+      b.classList.add('spinning'); setTimeout(() => b.classList.remove('spinning'), 300);
+      const tmp = fromCur.value; fromCur.value = toCur.value; toCur.value = tmp;
+      fetchRate();
+    });
+
+    function copyResult() {
+      const txt = document.getElementById('resultAmt').textContent;
+      if (!txt || txt === '0.00' || txt === '—') return;
+      const btn = document.getElementById('copyBtn');
+      const field = document.getElementById('copyField');
+
+      field.value = txt;
+      field.style.position = 'fixed';
+      field.style.top = '50%';
+      field.style.left = '50%';
+      field.style.transform = 'translate(-50%,-50%)';
+      field.style.opacity = '1';
+      field.style.zIndex = '9999';
+      field.focus();
+      field.setSelectionRange(0, 99999);
+
+      let copied = false;
+      try { copied = document.execCommand('copy'); } catch(e) {}
+
+      field.style.position = 'fixed';
+      field.style.top = '-9999px';
+      field.style.left = '-9999px';
+      field.style.opacity = '0';
+      field.style.zIndex = '';
+      field.style.transform = '';
+
+      if (copied) {
+        btn.textContent = '✓ copied';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = '⎘ copy'; btn.classList.remove('copied'); }, 1500);
+      } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(txt).then(() => {
+          btn.textContent = '✓ copied';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = '⎘ copy'; btn.classList.remove('copied'); }, 1500);
+        }).catch(() => { window.prompt('Copia questo importo:', txt); });
+      } else {
+        window.prompt('Copia questo importo:', txt);
+      }
+    }
+
+    fromCur.addEventListener('change', fetchRate);
+    toCur.addEventListener('change', fetchRate);
+    amountInput.addEventListener('input', calculate);
+    amountInput.addEventListener('change', fetchRate);
+
+    // VAT toggle
+    document.getElementById('vatToggle').addEventListener('click', () => {
+      vatOn = !vatOn;
+      document.getElementById('vatSwitch').classList.toggle('on', vatOn);
+      document.getElementById('vatLabel').textContent = vatOn ? 'on' : 'off';
+      document.getElementById('vatControls').classList.toggle('visible', vatOn);
+      calculate();
+    });
+    vatRateInput.addEventListener('input', () => {
+      document.querySelectorAll('.vat-preset').forEach(b => b.classList.toggle('active', parseFloat(b.dataset.pct) === parseFloat(vatRateInput.value)));
+      calculate();
+    });
+    document.querySelectorAll('.vat-preset').forEach(btn => btn.addEventListener('click', () => {
+      if (btn.classList.contains('active')) {
+        vatRateInput.value = '';
+        document.querySelectorAll('.vat-preset').forEach(b => b.classList.remove('active'));
+      } else {
+        vatRateInput.value = btn.dataset.pct;
+        document.querySelectorAll('.vat-preset').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      calculate();
+    }));
+
+    // Discount toggle
+    document.getElementById('discToggle').addEventListener('click', () => {
+      discOn = !discOn;
+      document.getElementById('discSwitch').classList.toggle('on', discOn);
+      document.getElementById('discLabel').textContent = discOn ? 'on' : 'off';
+      document.getElementById('discControls').classList.toggle('visible', discOn);
+      calculate();
+    });
+    discRateInput.addEventListener('input', () => {
+      document.querySelectorAll('.disc-preset').forEach(b => b.classList.toggle('active', parseFloat(b.dataset.pct) === parseFloat(discRateInput.value)));
+      calculate();
+    });
+    fixDiscCur.addEventListener('change', calculate);
+    fixDiscVal.addEventListener('input', calculate);
+    document.querySelectorAll('.disc-preset').forEach(btn => btn.addEventListener('click', () => {
+      if (btn.classList.contains('active')) {
+        discRateInput.value = '';
+        document.querySelectorAll('.disc-preset').forEach(b => b.classList.remove('active'));
+      } else {
+        discRateInput.value = btn.dataset.pct;
+        document.querySelectorAll('.disc-preset').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      calculate();
+    }));
+
+    // Hide top currency boxes in print when there is no conversion (From == To)
+    window.addEventListener('beforeprint', () => {
+      document.body.classList.toggle('no-convert', fromCur.value === toCur.value);
+    });
+
+    // Set print date
+    document.getElementById('printDate').textContent =
+      'Printed: ' + new Date().toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'numeric' });
+
+    // Default US tax selection: Florida + Miami-Dade (ready when USD/USD tax is turned on)
+    (function initTaxDefaults() {
+      const sel = document.getElementById('stateSel');
+      const fl = [...sel.options].find(o => o.dataset && o.dataset.state === 'FL');
+      if (fl) { fl.selected = true; sel.dispatchEvent(new Event('change')); }
+      const cs = document.getElementById('countySel');
+      const md = [...cs.options].find(o => o.textContent.trim().startsWith('Miami-Dade'));
+      if (md) { md.selected = true; cs.dispatchEvent(new Event('change')); }
+    })();
+
+    fetchRate();
+    setInterval(fetchRate, 60000);
+  </script>
+
+<a href="../" id="wdHomeLink" title="WatchDesk" style="position:fixed;left:12px;bottom:12px;z-index:9999;display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:11px;background:rgba(11,18,48,.94);border:1px solid #2a3768;color:#d4b982;text-decoration:none;font-family:'Outfit',-apple-system,sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;backdrop-filter:blur(6px);box-shadow:0 4px 18px rgba(0,0,0,.35)">&#8592; Home</a>
+<style>@media print{#wdHomeLink{display:none!important}}</style>
+</body>
+</html>
