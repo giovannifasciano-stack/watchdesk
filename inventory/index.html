@@ -382,7 +382,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v4.6</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v4.7</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -418,7 +418,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
         <div class="tile" data-goto="rep"><div class="t-label" data-i18n="tMargin">Margine anno</div><div class="t-value" id="kpiMargin" style="font-size:1.15rem;line-height:1.5">–</div><div class="t-note" data-i18n="tMarginN">netto vendite − costi netti</div></div>
       </div>
       <div class="panel">
-        <h3 data-i18n="pCur">Impegni aperti per valuta — costo netto</h3>
+        <h3 data-i18n="pCur">Capitale nella merce non venduta — costo netto</h3>
         <div id="curBox"></div>
       </div>
       <div class="panel">
@@ -763,7 +763,7 @@ var I18N = {
     navHome:'Home', navAcq:'Inventario', navPur:'Acquisti', navMag:'Magazzino', navSales:'Vendite', navCp:'Clienti-Fornitori', navRep:'Reports',
     heroHi:'Bentornato', tOpen:'Acquisti aperti', tOpenN:'ordinati o in arrivo', tStock:'In magazzino',
     tStockN:'ritirati, non venduti', tSold:'Vendite anno', tMargin:'Margine anno', tMarginN:'netto vendite − costi netti',
-    pCur:'Impegni aperti per valuta — costo netto', pLast:'Ultimi movimenti',
+    pCur:'Capitale nella merce non venduta — costo netto', pLast:'Ultimi movimenti',
     purSub:'Registro completo degli acquisti, venduti inclusi.', acqSub:'Gli orologi ritirati e non ancora venduti: quello che hai in casa.',
     magSub:'Orologi ritirati e non ancora venduti — quello che hai in casa.',
     salesSub:'Vendite registrate sugli orologi in archivio, con regime IVA e permuta.',
@@ -838,7 +838,7 @@ var I18N = {
     navHome:'Home', navAcq:'Inventory', navPur:'Purchases', navMag:'Stock', navSales:'Sales', navCp:'Clients-Suppliers', navRep:'Reports',
     heroHi:'Welcome back', tOpen:'Open purchases', tOpenN:'ordered or incoming', tStock:'In stock',
     tStockN:'collected, not sold', tSold:'Sales this year', tMargin:'Margin this year', tMarginN:'net sales − net costs',
-    pCur:'Open commitments by currency — net cost', pLast:'Latest activity',
+    pCur:'Capital tied up in unsold stock — net cost', pLast:'Latest activity',
     purSub:'Full purchase register, sold pieces included.', acqSub:'Watches collected and not yet sold: what you have in hand.',
     magSub:'Watches collected and not yet sold — what you have at home.',
     salesSub:'Sales recorded on archived watches, with VAT regime and trade-ins.',
@@ -1138,7 +1138,7 @@ function renderHome(){
   var m = sumByCur(openRows, function(a){return a.cur;}, function(a){return netCost(a);});
   var html='';
   Object.keys(m).sort().forEach(function(c){
-    html += '<div class="currow"><span>'+c+'</span><span class="amt mono">'+money(m[c],c)+'</span></div>';
+    html += '<div class="currow"><span>'+(FLAGS[c]||'')+' '+c+'</span><span class="amt mono">'+fmtN(m[c],c)+'</span></div>';
   });
   $('curBox').innerHTML = html || '<div class="empty">–</div>';
   /* ultimi movimenti */
