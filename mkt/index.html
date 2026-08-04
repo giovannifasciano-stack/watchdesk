@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>WatchDesk — diagnosi valore di mercato</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#03061a;color:#eef1fb;font-family:'Outfit',sans-serif;padding:20px 14px 60px}
+.w{max-width:820px;margin:0 auto}
+h1{font-size:1.1rem;font-weight:800;margin-bottom:14px}
+button{background:#d4b982;border:none;border-radius:10px;color:#0b1230;cursor:pointer;
+ font-family:inherit;font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:12px 18px;margin-bottom:14px}
+pre{background:#0b1230;border:1px solid #182352;border-radius:12px;padding:13px;
+ font-family:'IBM Plex Mono',monospace;font-size:.74rem;line-height:1.65;white-space:pre-wrap;word-break:break-word;color:#c9d1ee}
+.ok{color:#7ddba3}.ko{color:#f0a4a3}.gold{color:#d4b982}
+</style></head><body><div class="w">
+<h1>Diagnosi valore di mercato</h1>
+<button id="go">Esegui</button>
+<pre id="out">Premi Esegui.</pre>
+</div>
+<script>
+'use strict';
+var API='https://watchdesk-api.owscan.workers.dev';
+var GREY='https://grey-scanner.owscan.workers.dev';
+var out=document.getElementById('out');
+function log(s,c){ out.innerHTML += '\n' + (c?'<span class="'+c+'">'+s+'</span>':s); }
+function tok(){ try{ return localStorage.getItem('wd_token')||''; }catch(e){ return ''; } }
+
+document.getElementById('go').addEventListener('click', function(){
+  out.textContent='';
+  var t=tok();
+  log('browser: '+navigator.userAgent.slice(0,80));
+  log('token: '+(t?('si ('+t.slice(0,6)+'…)'):'NO — apri prima il portale e fai login'), t?'ok':'ko');
+  if(!t) return;
+
+  log('');
+  log('1) DATI  /data','gold');
+  fetch(API+'/data',{headers:{Authorization:'Bearer '+t}})
+   .then(function(r){ log('   HTTP '+r.status, r.ok?'ok':'ko'); return r.json(); })
+   .then(function(S){
+     var acqOf={}, saleOf={};
+     (S.acquisitions||[]).forEach(function(a){ acqOf[a.watch_id]=a; });
+     (S.sales||[]).forEach(function(s){ saleOf[s.watch_id]=s; });
+     log('   orologi: '+(S.watches||[]).length+'  acquisti: '+(S.acquisitions||[]).length+'  vendite: '+(S.sales||[]).length);
+     var stock=(S.watches||[]).filter(function(w){
+       var a=acqOf[w.id]; return a && a.stat==='ritirato' && !saleOf[w.id];
+     });
+     log('   IN MAGAZZINO (ritirati e non venduti): '+stock.length, stock.length?'ok':'ko');
+     if(!stock.length){
+       log('   → ecco perche il riquadro resta vuoto: nessun pezzo risulta ritirato','ko');
+       log('   stati trovati: '+(S.acquisitions||[]).map(function(a){return a.stat+'/'+a.pay;}).join('  '));
+       return;
+     }
+     log('');
+     log('2) QUOTAZIONI, pezzo per pezzo','gold');
+     var i=0;
+     function next(){
+       if(i>=stock.length){ log(''); log('fine.','gold'); return; }
+       var w=stock[i++];
+       var ref=(w.ref||'').trim();
+       log('   • '+(w.brand||'?')+' '+ref+(w.mkt_lock?'  [valore forzato: '+w.mkt_usd+']':''));
+       if(w.mkt_lock && w.mkt_usd){ log('     usa il tuo valore','ok'); return next(); }
+       if(!ref){ log('     referenza mancante','ko'); return next(); }
+       var t0=Date.now();
+       fetch(GREY+'/?ref='+encodeURIComponent(ref))
+         .then(function(r){ log('     scanner: HTTP '+r.status+' ('+(Date.now()-t0)+' ms)', r.ok?'ok':'ko'); return r.json(); })
+         .then(function(q){
+           if(q && q.found){ log('     → USD '+q.avg_usd+' su '+(q.used_for_avg||q.listings)+' annunci','ok'); return null; }
+           log('     scanner: nessun prezzo'+(q&&q.reason?(' ('+q.reason+')'):''),'ko');
+           var t1=Date.now();
+           return fetch(API+'/greyprice?ref='+encodeURIComponent(ref)+'&brand='+encodeURIComponent(w.brand||''),
+                        {headers:{Authorization:'Bearer '+t}})
+             .then(function(r){ log('     ricerca web: HTTP '+r.status+' ('+(Date.now()-t1)+' ms)', r.ok?'ok':'ko'); return r.json(); })
+             .then(function(q2){
+               if(q2 && q2.found) log('     → USD '+q2.avg_usd,'ok');
+               else log('     ricerca web: '+((q2&&(q2.reason||q2.error))||'nessun prezzo'),'ko');
+             });
+         })
+         .catch(function(e){ log('     BLOCCATO: '+e.message,'ko'); })
+         .then(next);
+     }
+     next();
+   })
+   .catch(function(e){ log('ECCEZIONE: '+e.message,'ko'); });
+});
+</script></body></html>
