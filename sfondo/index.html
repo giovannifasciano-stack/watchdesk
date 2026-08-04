@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#03061a">
+<title>WatchDesk — prova sfondo</title>
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#03061a; --bg2:#070c26; --card:#0b1230; --line:#182352; --line2:#2a3768; --text:#eef1fb; --dim:#8891b4; --dim2:#5d6688;
+  --accent:#d4b982; --accent-dark:#a8905f;
+}
+*{margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+body{
+  background:var(--bg); color:var(--text); font-family:'Outfit',-apple-system,BlinkMacSystemFont,sans-serif;
+  min-height:100vh; min-height:100dvh; display:flex; flex-direction:column;
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+}
+body::before{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(900px 520px at 50% -10%, rgba(212,185,130,.10), transparent 65%),
+    radial-gradient(700px 460px at 100% 100%, rgba(24,35,82,.55), transparent 60%);
+}
+.wrap{position:relative; z-index:1; flex:1; width:100%; max-width:1020px; margin:0 auto; padding:46px 22px 40px;
+  display:flex; flex-direction:column}
+
+/* ---------- testata ---------- */
+.lang{display:flex; justify-content:flex-end; gap:6px}
+.langbtn{
+  background:none; border:1px solid var(--line); color:var(--dim); cursor:pointer;
+  font-family:inherit; font-size:.7rem; font-weight:600; letter-spacing:.1em;
+  padding:6px 11px; border-radius:9px; display:flex; align-items:center; gap:6px;
+  transition:color .15s, border-color .15s;
+}
+.langbtn:hover{color:var(--text)}
+.langbtn.on{border-color:var(--accent-dark); color:var(--accent)}
+
+.head{text-align:center; margin-bottom:52px}
+.mark{display:block; margin:0 auto 20px; border-radius:19px; border:1px solid var(--line2)}
+.logo{font-size:2.5rem; font-weight:900; letter-spacing:-.01em; line-height:1}
+.logo .g{color:var(--accent)}
+
+/* ---------- card ---------- */
+.grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px}
+.card{
+  position:relative; display:flex; flex-direction:column; text-decoration:none; color:inherit;
+  background:var(--card); border:1px solid var(--line); border-radius:18px;
+  padding:30px 26px 26px; overflow:hidden;
+  transition:border-color .18s, transform .18s, box-shadow .18s;
+}
+.card::after{
+  content:''; position:absolute; left:0; right:0; top:0; height:2px;
+  background:linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity:0; transition:opacity .18s;
+}
+.card:hover{border-color:var(--accent-dark); transform:translateY(-3px); box-shadow:0 16px 40px rgba(0,0,0,.4)}
+.card:hover::after{opacity:1}
+.card:active{transform:translateY(-1px)}
+.ico{
+  width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center;
+  font-size:1.55rem; background:var(--bg2); border:1px solid var(--line2); margin-bottom:20px;
+}
+.ct{font-size:1.18rem; font-weight:700; letter-spacing:.02em}
+.cs{color:var(--accent); font-size:.62rem; letter-spacing:.24em; text-transform:uppercase; font-weight:600; margin-top:5px}
+.cd{color:var(--dim); font-size:.88rem; line-height:1.55; margin-top:14px; flex:1}
+.go{
+  margin-top:20px; padding-top:15px; border-top:1px solid var(--line);
+  color:var(--dim); font-size:.76rem; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
+  display:flex; align-items:center; justify-content:space-between; transition:color .18s;
+}
+.card:hover .go{color:var(--accent)}
+.go .arw{transition:transform .18s}
+.card:hover .go .arw{transform:translateX(4px)}
+
+/* accesso */
+.gate{max-width:390px; margin:0 auto; background:var(--card); border:1px solid var(--line);
+  border-radius:18px; padding:30px 28px}
+.gate label{display:block; color:var(--dim); font-size:.66rem; letter-spacing:.16em;
+  text-transform:uppercase; font-weight:600; margin:0 0 7px}
+.gate input{width:100%; background:var(--bg2); border:1px solid var(--line2); border-radius:11px;
+  color:var(--text); font-family:inherit; font-size:1rem; padding:12px 14px; margin-bottom:16px; outline:none}
+.gate input:focus{border-color:var(--accent-dark)}
+.gate button{width:100%; background:var(--accent); border:none; border-radius:11px; cursor:pointer;
+  color:#0b1230; font-family:inherit; font-size:.82rem; font-weight:700; letter-spacing:.12em;
+  text-transform:uppercase; padding:14px}
+.gate button:disabled{opacity:.55; cursor:default}
+.msg{display:none; background:rgba(226,75,74,.12); border:1px solid rgba(226,75,74,.4);
+  color:#f0a4a3; border-radius:10px; padding:10px 13px; font-size:.85rem; margin-bottom:16px}
+.msg.on{display:block}
+.who{display:flex; align-items:center; gap:10px; color:var(--dim); font-size:.74rem}
+.who button{background:none; border:1px solid var(--line); border-radius:9px; cursor:pointer;
+  color:var(--dim); font-family:inherit; font-size:.66rem; font-weight:600; letter-spacing:.1em;
+  text-transform:uppercase; padding:6px 11px}
+.who button:hover{color:var(--accent); border-color:var(--accent-dark)}
+.bar{display:flex; flex-direction:column; align-items:flex-end; gap:10px; margin-bottom:34px}
+.hidden{display:none !important}
+
+@media(max-width:820px){
+  .grid{grid-template-columns:1fr; gap:14px}
+  .wrap{padding:26px 16px 30px}
+  .head{margin-bottom:32px}
+  .mark{width:60px; height:60px; border-radius:16px; margin-bottom:15px}
+  .logo{font-size:1.95rem}
+  .card{padding:22px 20px 20px; border-radius:15px}
+  .ico{width:44px; height:44px; font-size:1.3rem; margin-bottom:15px}
+  .ct{font-size:1.05rem}
+  .cd{font-size:.83rem; margin-top:11px}
+  .go{margin-top:16px; padding-top:12px}
+  .lang{margin-bottom:22px}
+}
+
+.bgfx{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden}
+.bgfx .v{position:absolute; display:none}
+body[data-bg="1"] .v1, body[data-bg="2"] .v2, body[data-bg="3"] .v3{display:block}
+.v1{width:min(112vw,860px); height:min(112vw,860px); left:50%; bottom:-46%; transform:translateX(-50%); opacity:.075}
+.v2{width:min(120vw,900px); height:min(120vw,900px); left:50%; bottom:-42%; transform:translateX(-50%) rotate(-12deg); opacity:.10}
+.v3{width:min(90vw,620px); height:min(90vw,620px); right:-16%; bottom:-24%; opacity:.075}
+.sw{position:fixed; left:50%; bottom:14px; transform:translateX(-50%); z-index:99;
+ display:flex; gap:6px; background:rgba(11,18,48,.95); border:1px solid #2a3768; border-radius:12px; padding:6px}
+.sw button{background:none; border:1px solid transparent; border-radius:8px; cursor:pointer; color:#8891b4;
+ font-family:inherit; font-size:.68rem; font-weight:600; letter-spacing:.06em; padding:7px 11px; white-space:nowrap}
+.sw button.on{color:#d4b982; border-color:#a8905f}
+@media(max-width:700px){.sw{flex-wrap:wrap; justify-content:center; max-width:94vw}}
+</style>
+</head>
+<body>
+<div class="bgfx" aria-hidden="true">
+  <div class="v v1"><svg viewBox="0 0 500 500" fill="none" >
+<circle cx="250" cy="250" r="242" stroke="#d4b982" stroke-width="3"/>
+<circle cx="250" cy="250" r="228" stroke="#d4b982" stroke-width="1"/>
+<circle cx="250" cy="250" r="212" stroke="#d4b982" stroke-width="6"/>
+<circle cx="250" cy="250" r="196" stroke="#d4b982" stroke-width="1"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(0 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(6 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(12 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(18 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(24 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(30 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(36 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(42 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(48 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(54 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(60 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(66 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(72 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(78 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(84 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(90 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(96 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(102 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(108 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(114 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(120 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(126 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(132 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(138 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(144 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(150 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(156 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(162 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(168 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(174 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(180 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(186 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(192 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(198 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(204 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(210 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(216 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(222 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(228 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(234 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(240 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(246 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(252 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(258 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(264 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(270 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(276 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(282 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(288 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(294 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(300 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(306 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(312 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(318 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(324 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(330 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(336 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(342 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(348 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(354 250 250)"/>
+<circle cx="250" cy="160" r="34" stroke="#d4b982" stroke-width="1.4"/>
+<circle cx="250" cy="340" r="34" stroke="#d4b982" stroke-width="1.4"/>
+<circle cx="160" cy="250" r="34" stroke="#d4b982" stroke-width="1.4"/>
+<line x1="250" y1="250" x2="250" y2="112" stroke="#eef1fb" stroke-width="6" stroke-linecap="round"/>
+<line x1="250" y1="250" x2="352" y2="318" stroke="#eef1fb" stroke-width="4.5" stroke-linecap="round"/>
+<circle cx="250" cy="250" r="9" fill="#d4b982"/>
+<circle cx="250" cy="250" r="96" stroke="#d4b982" stroke-width=".8"/></svg></div>
+  <div class="v v2"><svg viewBox="0 0 500 500" fill="none">
+<line x1="250" y1="250" x2="250" y2="70"  stroke="#eef1fb" stroke-width="9" stroke-linecap="round"/>
+<line x1="250" y1="250" x2="250" y2="100" stroke="#03061a" stroke-width="3" stroke-linecap="round"/>
+<line x1="250" y1="250" x2="398" y2="348" stroke="#eef1fb" stroke-width="7" stroke-linecap="round"/>
+<line x1="250" y1="250" x2="373" y2="331" stroke="#03061a" stroke-width="2.4" stroke-linecap="round"/>
+<line x1="250" y1="250" x2="150" y2="140" stroke="#d4b982" stroke-width="2.4" stroke-linecap="round"/>
+<circle cx="250" cy="250" r="13" fill="#d4b982"/>
+<circle cx="250" cy="250" r="5" fill="#03061a"/></svg></div>
+  <div class="v v3"><svg viewBox="0 0 500 500" fill="none" >
+<circle cx="250" cy="250" r="242" stroke="#d4b982" stroke-width="3"/>
+<circle cx="250" cy="250" r="228" stroke="#d4b982" stroke-width="1"/>
+<circle cx="250" cy="250" r="212" stroke="#d4b982" stroke-width="6"/>
+<circle cx="250" cy="250" r="196" stroke="#d4b982" stroke-width="1"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(0 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(6 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(12 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(18 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(24 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(30 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(36 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(42 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(48 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(54 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(60 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(66 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(72 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(78 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(84 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(90 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(96 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(102 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(108 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(114 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(120 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(126 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(132 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(138 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(144 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(150 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(156 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(162 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(168 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(174 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(180 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(186 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(192 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(198 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(204 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(210 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(216 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(222 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(228 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(234 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(240 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(246 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(252 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(258 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(264 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(270 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(276 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(282 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(288 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(294 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(300 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(306 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(312 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(318 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(324 250 250)"/><line x1="250" y1="34" x2="250" y2="60" stroke="#d4b982" stroke-width="2.4" transform="rotate(330 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(336 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(342 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(348 250 250)"/><line x1="250" y1="40" x2="250" y2="54" stroke="#d4b982" stroke-width="1" transform="rotate(354 250 250)"/>
+<circle cx="250" cy="160" r="34" stroke="#d4b982" stroke-width="1.4"/>
+<circle cx="250" cy="340" r="34" stroke="#d4b982" stroke-width="1.4"/>
+<circle cx="160" cy="250" r="34" stroke="#d4b982" stroke-width="1.4"/>
+<line x1="250" y1="250" x2="250" y2="112" stroke="#eef1fb" stroke-width="6" stroke-linecap="round"/>
+<line x1="250" y1="250" x2="352" y2="318" stroke="#eef1fb" stroke-width="4.5" stroke-linecap="round"/>
+<circle cx="250" cy="250" r="9" fill="#d4b982"/>
+<circle cx="250" cy="250" r="96" stroke="#d4b982" stroke-width=".8"/></svg></div>
+</div>
+<div class="sw" id="sw">
+  <button data-v="0">Nessuno</button><button data-v="1" class="on">A · quadrante sotto</button>
+  <button data-v="2">B · lancette</button><button data-v="3">C · quadrante d'angolo</button>
+</div>
+
+<div class="wrap">
+
+  <div class="bar">
+    <div class="who hidden" id="who"><span id="whoMail"></span>
+      <button id="btnOut" data-i18n="logout">Esci</button></div>
+    <div class="lang">
+      <button class="langbtn on" id="langIt">🇮🇹 ITA</button>
+      <button class="langbtn" id="langEn">🇬🇧 ENG</button>
+    </div>
+  </div>
+
+  <header class="head">
+    <img class="mark" src="../apple-touch-icon.png" alt="WatchDesk" width="74" height="74">
+    <div class="logo">WATCH<span class="g">DESK</span></div>
+  </header>
+
+  <section class="gate hidden" id="gate">
+    <div class="msg" id="gateMsg"></div>
+    <label data-i18n="email">Email</label>
+    <input type="email" id="gEmail" autocomplete="username" inputmode="email">
+    <label data-i18n="pwd">Password</label>
+    <input type="password" id="gPwd" autocomplete="current-password">
+    <button id="btnIn" data-i18n="enter">Entra</button>
+  </section>
+
+  <main class="grid hidden" id="apps">
+
+    <a class="card" href="../inventory/">
+      <div class="ico">🗂</div>
+      <div class="ct" data-i18n="t1">Inventory</div>
+      <div class="cs" data-i18n="s1">Gestionale</div>
+      <div class="cd" data-i18n="d1">Acquisti, inventario, vendite e clienti-fornitori in un archivio solo, con margini e report stampabili.</div>
+      <div class="go"><span data-i18n="open">Apri</span><span class="arw">→</span></div>
+    </a>
+
+    <a class="card" href="../trading/">
+      <div class="ico">🧾</div>
+      <div class="ct" data-i18n="t2">Trading</div>
+      <div class="cs" data-i18n="s2">Watch Trading</div>
+      <div class="cd" data-i18n="d2">Preventivi e fatture di vendita: più articoli, permute, acconti, regime IVA e stampa in PDF.</div>
+      <div class="go"><span data-i18n="open">Apri</span><span class="arw">→</span></div>
+    </a>
+
+    <a class="card" href="../converter/">
+      <div class="ico">💱</div>
+      <div class="ct" data-i18n="t3">Converter</div>
+      <div class="cs" data-i18n="s3">Valute e tax free</div>
+      <div class="cd" data-i18n="d3">Cambi in tempo reale con detrazione IVA, sales tax americana e sconti: quanto costa davvero.</div>
+      <div class="go"><span data-i18n="open">Apri</span><span class="arw">→</span></div>
+    </a>
+
+  </main>
+
+</div>
+
+<script>
+'use strict';
+var I18N = {
+  it:{
+    open:'Apri', enter:'Entra', email:'Email', pwd:'Password', logout:'Esci',
+    wait:'Attendi…', errCreds:'Email o password non corretti', errNet:'Server non raggiungibile',
+    errFill:'Inserisci email e password',
+    t1:'Inventario', s1:'Gestionale',
+    d1:'Acquisti, inventario, vendite e clienti-fornitori in un archivio solo, con margini e report stampabili.',
+    t2:'Trading', s2:'Watch Trading',
+    d2:'Preventivi e fatture di vendita: più articoli, permute, acconti, regime IVA e stampa in PDF.',
+    t3:'Convertitore', s3:'Valute e tax free',
+    d3:'Cambi in tempo reale con detrazione IVA, sales tax americana e sconti: quanto costa davvero.'
+  },
+  en:{
+    open:'Open', enter:'Sign in', email:'Email', pwd:'Password', logout:'Sign out',
+    wait:'Please wait…', errCreds:'Wrong email or password', errNet:'Server unreachable',
+    errFill:'Enter email and password',
+    t1:'Inventory', s1:'Management',
+    d1:'Purchases, inventory, sales and clients-suppliers in one archive, with margins and printable reports.',
+    t2:'Trading', s2:'Watch Trading',
+    d2:'Sales quotes and invoices: multiple items, trade-ins, deposits, VAT regime and PDF printing.',
+    t3:'Converter', s3:'Currency & tax free',
+    d3:'Live exchange rates with VAT deduction, US sales tax and discounts: what it really costs.'
+  }
+};
+var LANG = 'it';
+function T(k){ return (I18N[LANG] && I18N[LANG][k]) || k; }
+function applyLang(l){
+  LANG = (l === 'en') ? 'en' : 'it';
+  document.documentElement.lang = LANG;
+  var nodes = document.querySelectorAll('[data-i18n]');
+  for (var i = 0; i < nodes.length; i++){
+    nodes[i].textContent = T(nodes[i].getAttribute('data-i18n'));
+  }
+  document.getElementById('langIt').classList.toggle('on', LANG === 'it');
+  document.getElementById('langEn').classList.toggle('on', LANG === 'en');
+  try { localStorage.setItem('wd_lang', LANG); } catch(e){}
+}
+document.getElementById('langIt').addEventListener('click', function(){ applyLang('it'); });
+document.getElementById('langEn').addEventListener('click', function(){ applyLang('en'); });
+var saved = 'it';
+try { saved = localStorage.getItem('wd_lang') || 'it'; } catch(e){}
+applyLang(saved);
+
+/* ---------- accesso: stessa sessione del gestionale (wd_token) ---------- */
+var API = 'https://watchdesk-api.owscan.workers.dev';
+var $ = function(id){ return document.getElementById(id); };
+function token(){ try { return localStorage.getItem('wd_token') || ''; } catch(e){ return ''; } }
+function showMsg(k){ var m = $('gateMsg'); m.textContent = T(k); m.classList.add('on'); }
+function hideMsg(){ $('gateMsg').classList.remove('on'); }
+
+function showApps(mail){
+  $('gate').classList.add('hidden');
+  $('apps').classList.remove('hidden');
+  $('who').classList.remove('hidden');
+  $('whoMail').textContent = mail || '';
+}
+function showGate(){
+  $('apps').classList.add('hidden');
+  $('who').classList.add('hidden');
+  $('gate').classList.remove('hidden');
+}
+
+function checkSession(){
+  var t = token();
+  if (!t) { showGate(); return; }
+  fetch(API + '/me', { headers: { Authorization: 'Bearer ' + t } })
+    .then(function(r){ return r.ok ? r.json() : Promise.reject(0); })
+    .then(function(d){ showApps(d && d.email); })
+    .catch(function(){
+      try { localStorage.removeItem('wd_token'); } catch(e){}
+      showGate();
+    });
+}
+
+function doLogin(){
+  var email = $('gEmail').value.trim(), pwd = $('gPwd').value;
+  if (!email || !pwd) { showMsg('errFill'); return; }
+  hideMsg();
+  var b = $('btnIn');
+  b.disabled = true; b.textContent = T('wait');
+  fetch(API + '/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email, password: pwd })
+  })
+    .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
+    .then(function(res){
+      if (!res.ok || !res.d || !res.d.token) { showMsg('errCreds'); return; }
+      try { localStorage.setItem('wd_token', res.d.token); } catch(e){}
+      $('gPwd').value = '';
+      showApps(res.d.email || email);
+    })
+    .catch(function(){ showMsg('errNet'); })
+    .then(function(){ b.disabled = false; b.textContent = T('enter'); });
+}
+
+$('btnIn').addEventListener('click', doLogin);
+$('gPwd').addEventListener('keydown', function(e){ if (e.key === 'Enter') doLogin(); });
+$('gEmail').addEventListener('keydown', function(e){ if (e.key === 'Enter') $('gPwd').focus(); });
+$('btnOut').addEventListener('click', function(){
+  var t = token();
+  if (t) fetch(API + '/auth/logout', { method: 'POST', headers: { Authorization: 'Bearer ' + t } }).catch(function(){});
+  try { localStorage.removeItem('wd_token'); } catch(e){}
+  showGate();
+});
+checkSession();
+</script>
+<script>
+document.body.dataset.bg = '1';
+document.getElementById('sw').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if(!b) return;
+  document.body.dataset.bg = b.getAttribute('data-v');
+  [].forEach.call(document.querySelectorAll('#sw button'), function(x){ x.classList.toggle('on', x === b); });
+});
+</script></body>
+</html>
