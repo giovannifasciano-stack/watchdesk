@@ -221,6 +221,16 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 .repcard .rd{color:var(--dim); font-size:.82rem; line-height:1.45}
 
 /* ---------- print preview ---------- */
+#waitBox{display:none; position:fixed; inset:0; background:rgba(3,6,26,.86); z-index:240;
+  align-items:center; justify-content:center; backdrop-filter:blur(3px)}
+#waitBox.on{display:flex}
+.wb{background:var(--card); border:1px solid var(--line2); border-radius:18px; padding:28px 32px;
+  min-width:min(88vw,340px); text-align:center}
+.wb-t{font-size:.72rem; letter-spacing:.18em; text-transform:uppercase; color:var(--accent); font-weight:700}
+.wb-bar{height:5px; background:var(--bg2); border-radius:3px; margin:18px 0 12px; overflow:hidden}
+.wb-fill{height:100%; width:0; background:var(--accent); border-radius:3px; transition:width .25s}
+.wb-n{font-size:1.5rem; font-weight:800; font-variant-numeric:tabular-nums}
+.wb-s{color:var(--dim); font-size:.8rem; margin-top:6px; min-height:1.2em}
 #docPreview{display:none; position:fixed; inset:0; background:rgba(3,6,26,.96); z-index:230; flex-direction:column}
 #docPreview.on{display:flex}
 .dp-bar{display:flex; gap:10px; align-items:center; padding:12px 16px; border-bottom:1px solid var(--line); background:var(--bg2)}
@@ -364,7 +374,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v3.8</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v3.9</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -677,6 +687,13 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 </div>
 
 <!-- ============ ANTEPRIMA STAMPA ============ -->
+<div id="waitBox"><div class="wb">
+  <div class="wb-t" id="wbTitle">…</div>
+  <div class="wb-bar"><div class="wb-fill" id="wbFill"></div></div>
+  <div class="wb-n" id="wbNum"></div>
+  <div class="wb-s" id="wbStep"></div>
+</div></div>
+
 <div id="docPreview">
   <div class="dp-bar"><span class="t" id="dpName"></span><div class="spacer"></div>
     <a class="btn dark sm" id="dpDownload" download>⬇ <span data-i18n="download">Scarica</span></a>
@@ -696,7 +713,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v3.8
+   WATCHDESK — GESTIONALE UNIFICATO  v3.9
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -2077,14 +2094,23 @@ function buildRepMkt(){
   if(!rows.length){ openPrint(T('rMktT'), sheetHead(T('rMktT'))+'<div class="fxnote">'+T('noResults')+'</div>'); return; }
 
   var GREY='https://grey-scanner.owscan.workers.dev';
-  var st=$('repMkt').querySelector('.rd'), stOld=st.textContent;
-  st.textContent=T('mktWait')+' 0/'+rows.length;
   var done=0;
+  $('wbTitle').textContent=T('mktWait');
+  $('wbNum').textContent='0 / '+rows.length;
+  $('wbFill').style.width='0%';
+  $('wbStep').textContent='';
+  $('waitBox').classList.add('on');
+  function tick(w2){
+    done++;
+    $('wbNum').textContent=done+' / '+rows.length;
+    $('wbFill').style.width=Math.round(done/rows.length*100)+'%';
+    $('wbStep').textContent=((w2&&w2.brand)||'')+' '+((w2&&w2.ref)||'');
+  }
 
   Promise.all(rows.map(function(a){
     var w=watchById(a.watch_id)||{};
     var ref=(w.ref||'').trim();
-    if(!ref) return Promise.resolve({a:a, w:w, q:null});
+    if(!ref){ tick(w); return Promise.resolve({a:a, w:w, q:null}); }
     /* 1) il Grey Scanner: veloce e gratuito */
     return fetch(GREY+'/?ref='+encodeURIComponent(ref))
       .then(function(r){ return r.json(); })
@@ -2096,9 +2122,9 @@ function buildRepMkt(){
           .then(function(q2){ return {a:a, w:w, q:(q2 && q2.found)?q2:null, why:(q2&&q2.reason)||''}; })
           .catch(function(){ return {a:a, w:w, q:null, why:'net'}; });
       })
-      .then(function(res){ done++; st.textContent=T('mktWait')+' '+done+'/'+rows.length; return res; });
+      .then(function(res){ tick(w); return res; });
   })).then(function(items){
-    st.textContent=stOld;
+    $('waitBox').classList.remove('on');
     loadFx(function(){
       var h=sheetHead(T('rMktT'));
       h+='<table><colgroup><col style="width:5%"><col style="width:11%"><col style="width:13%"><col style="width:15%"><col style="width:12%"><col style="width:12%"><col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%"></colgroup>';
