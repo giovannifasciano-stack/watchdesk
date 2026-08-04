@@ -41,10 +41,9 @@ body::before{
 .langbtn.on{border-color:var(--accent-dark); color:var(--accent)}
 
 .head{text-align:center; margin-bottom:52px}
-.logo{font-size:2.6rem; font-weight:800; letter-spacing:.16em; line-height:1}
+.mark{display:block; margin:0 auto 20px; border-radius:19px; border:1px solid var(--line2)}
+.logo{font-size:2.5rem; font-weight:900; letter-spacing:-.01em; line-height:1}
 .logo .g{color:var(--accent)}
-.rule{width:64px; height:2px; background:var(--accent); border-radius:2px; margin:20px auto 18px; opacity:.85}
-.tag{color:var(--dim); font-size:.78rem; letter-spacing:.3em; text-transform:uppercase; font-weight:500}
 
 /* ---------- card ---------- */
 .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px}
@@ -78,17 +77,12 @@ body::before{
 .go .arw{transition:transform .18s}
 .card:hover .go .arw{transform:translateX(4px)}
 
-.foot{margin-top:auto; padding-top:44px; text-align:center; color:var(--dim2); font-size:.72rem; letter-spacing:.06em}
-.foot a{color:var(--dim2); text-decoration:none; border-bottom:1px solid var(--line)}
-.foot a:hover{color:var(--accent)}
-
 @media(max-width:820px){
   .grid{grid-template-columns:1fr; gap:14px}
   .wrap{padding:26px 16px 30px}
-  .head{margin-bottom:34px}
-  .logo{font-size:1.9rem}
-  .rule{margin:15px auto 14px}
-  .tag{font-size:.66rem; letter-spacing:.22em}
+  .head{margin-bottom:32px}
+  .mark{width:60px; height:60px; border-radius:16px; margin-bottom:15px}
+  .logo{font-size:1.95rem}
   .card{padding:22px 20px 20px; border-radius:15px}
   .ico{width:44px; height:44px; font-size:1.3rem; margin-bottom:15px}
   .ct{font-size:1.05rem}
@@ -107,9 +101,8 @@ body::before{
   </div>
 
   <header class="head">
+    <img class="mark" src="apple-touch-icon.png" alt="WatchDesk" width="74" height="74">
     <div class="logo">WATCH<span class="g">DESK</span></div>
-    <div class="rule"></div>
-    <div class="tag" data-i18n="tag">Strumenti per il trading di orologi</div>
   </header>
 
   <main class="grid">
@@ -140,15 +133,13 @@ body::before{
 
   </main>
 
-  <div class="foot">Giovanni Fasciano · Lugano</div>
-
 </div>
 
 <script>
 'use strict';
 var I18N = {
   it:{
-    tag:'Strumenti per il trading di orologi', open:'Apri',
+    open:'Apri',
     t1:'Inventario', s1:'Gestionale',
     d1:'Acquisti, inventario, vendite e clienti-fornitori in un archivio solo, con margini e report stampabili.',
     t2:'Trading', s2:'WatchDesk Pro',
@@ -157,7 +148,7 @@ var I18N = {
     d3:'Cambi in tempo reale con detrazione IVA, sales tax americana e sconti: quanto costa davvero.'
   },
   en:{
-    tag:'Tools for watch trading', open:'Open',
+    open:'Open',
     t1:'Inventory', s1:'Management',
     d1:'Purchases, inventory, sales and clients-suppliers in one archive, with margins and printable reports.',
     t2:'Trading', s2:'WatchDesk Pro',
