@@ -410,7 +410,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v5.2</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v5.3</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -440,7 +440,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
         <p id="heroDate"></p>
       </div>
       <div class="tiles">
-        <div class="tile" data-goto="acq"><div class="t-label" data-i18n="tOpen">Acquisti aperti</div><div class="t-value" id="kpiOpen">–</div><div class="t-note" data-i18n="tOpenN">ordinati o in arrivo, non pagati</div></div>
+        <div class="tile" id="tileOpen" data-goto="pur"><div class="t-label" data-i18n="tOpen">Ordini acquisto aperti</div><div class="t-value" id="kpiOpen">–</div><div class="t-note" data-i18n="tOpenN">ordinati o in arrivo, non pagati</div></div>
         <div class="tile" data-goto="acq"><div class="t-label" data-i18n="tStock">In magazzino</div><div class="t-value" id="kpiStock">–</div><div class="t-note" data-i18n="tStockN">ritirati, non venduti</div></div>
         <div class="tile" data-goto="sales"><div class="t-label" data-i18n="tSold">Vendite anno</div><div class="t-value" id="kpiSold">–</div><div class="t-note" id="kpiSoldN"></div></div>
         <div class="tile" data-goto="rep"><div class="t-label" data-i18n="tMargin">Margine anno</div><div class="t-value" id="kpiMargin" style="font-size:1.15rem;line-height:1.5">–</div><div class="t-note" data-i18n="tMarginN">netto vendite − costi netti</div></div>
@@ -489,6 +489,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
         <button class="btn" id="btnNewAcq2">+ <span data-i18n="newAcq">Nuovo acquisto</span></button>
         <input type="text" id="purSearch" data-i18n-ph="phSearchAcq" placeholder="Cerca marca, referenza, fornitore…">
         <button class="chip" id="chipDue" data-i18n="onlyDue">Solo da pagare</button>
+        <button class="chip" id="chipOpen" data-i18n="onlyOpen">Solo ordini aperti</button>
       </div>
       <div id="purList"></div>
     </section>
@@ -805,10 +806,10 @@ var I18N = {
     signupCode:'Codice di registrazione', signupBtn:'Registrati', backLogin:'Torna al login',
     recoveryCode:'Codice di recupero', newPass:'Nuova password', resetBtn:'Reimposta password',
     navHome:'Home', navAcq:'Inventario', navPur:'Acquisti', navMag:'Magazzino', navSales:'Vendite', navCp:'Clienti-Fornitori', navRep:'Reports',
-    heroHi:'Bentornato', tOpen:'Acquisti aperti', tOpenN:'ordinati o in arrivo, non pagati', tStock:'In magazzino',
+    heroHi:'Bentornato', tOpen:'Ordini acquisto aperti', tOpenN:'ordinati o in arrivo, non pagati', tStock:'In magazzino',
     tStockN:'ritirati, non venduti', tSold:'Vendite anno', tMargin:'Margine anno', tMarginN:'netto vendite − costi netti',
     pCur:'Totale acquisti — costo netto', pGrand:'Gran totale', pDue:'Ancora da pagare', allPaid:'Tutto pagato', pUp:'Valutazione a mercato', upCalc:'Calcola',
-    upHint:'Premi Calcola per interrogare il mercato', upMkt:'Valore di mercato', upCost:'Costo netto', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'senza quotazione', onlyDue:'Solo da pagare', seeList:"Vedi l'elenco →", pLast:'Ultimi movimenti',
+    upHint:'Premi Calcola per interrogare il mercato', upMkt:'Valore di mercato', upCost:'Costo netto', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'senza quotazione', onlyDue:'Solo da pagare', onlyOpen:'Solo ordini aperti', seeList:"Vedi l'elenco →", pLast:'Ultimi movimenti',
     purSub:'Registro completo degli acquisti, venduti inclusi.', acqSub:'Gli orologi ritirati e non ancora venduti: quello che hai in casa.',
     magSub:'Orologi ritirati e non ancora venduti — quello che hai in casa.',
     salesSub:'Vendite registrate sugli orologi in archivio, con regime IVA e permuta.',
@@ -881,10 +882,10 @@ var I18N = {
     signupCode:'Registration code', signupBtn:'Sign up', backLogin:'Back to login',
     recoveryCode:'Recovery code', newPass:'New password', resetBtn:'Reset password',
     navHome:'Home', navAcq:'Inventory', navPur:'Purchases', navMag:'Stock', navSales:'Sales', navCp:'Clients-Suppliers', navRep:'Reports',
-    heroHi:'Welcome back', tOpen:'Open purchases', tOpenN:'ordered or incoming, unpaid', tStock:'In stock',
+    heroHi:'Welcome back', tOpen:'Open purchase orders', tOpenN:'ordered or incoming, unpaid', tStock:'In stock',
     tStockN:'collected, not sold', tSold:'Sales this year', tMargin:'Margin this year', tMarginN:'net sales − net costs',
     pCur:'Total purchases — net cost', pGrand:'Grand total', pDue:'Still to pay', allPaid:'All paid', pUp:'Mark to market', upCalc:'Calculate',
-    upHint:'Press Calculate to query the market', upMkt:'Market value', upCost:'Net cost', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'without quote', onlyDue:'Only unpaid', seeList:'See the list →', pLast:'Latest activity',
+    upHint:'Press Calculate to query the market', upMkt:'Market value', upCost:'Net cost', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'without quote', onlyDue:'Only unpaid', onlyOpen:'Only open orders', seeList:'See the list →', pLast:'Latest activity',
     purSub:'Full purchase register, sold pieces included.', acqSub:'Watches collected and not yet sold: what you have in hand.',
     magSub:'Watches collected and not yet sold — what you have at home.',
     salesSub:'Sales recorded on archived watches, with VAT regime and trade-ins.',
@@ -1215,7 +1216,7 @@ function renderHome(){
     var a=acqByWatch(w.id), sold=!!saleByWatch(w.id);
     if(!a || sold) return;
     if(a.stat==='ritirato') stock++;
-    else if(a.stat==='ordinato'||a.stat==='arrivato') open++;   /* non ritirati e non ancora pagati */
+    else if(isOpenOrder(a)) open++;
   });
   var year = new Date().getFullYear();
   var soldY = S.sales.filter(function(s){ return s.d_sale && String(s.d_sale).slice(0,4)==String(year); });
@@ -1335,7 +1336,13 @@ function renderAcq(){
   $('acqList').innerHTML = html || '<div class="empty">'+T('noResults')+'</div>';
 }
 
-var PUR_DUE = false;
+var PUR_DUE = false, PUR_OPEN = false;
+/* ordine aperto: ordinato o arrivato, non ritirato e non ancora pagato */
+function isOpenOrder(a){
+  if(!a || saleByWatch(a.watch_id)) return false;
+  if(a.stat!=='ordinato' && a.stat!=='arrivato') return false;
+  return a.pay!=='pagato';
+}
 function dueAmount(a){
   var n=netCost(a);
   if(n==null) return 0;
@@ -1347,6 +1354,7 @@ function renderPur(){
   var q=$('purSearch').value.trim().toLowerCase();
   var rows = S.acquisitions.slice();
   if(PUR_DUE) rows = rows.filter(function(a){ return dueAmount(a)>0; });
+  if(PUR_OPEN) rows = rows.filter(isOpenOrder);
   if(q){
     rows = rows.filter(function(a){
       var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
@@ -2515,9 +2523,20 @@ function bind(){
     if(p[0]==='acq'){ gotoView('pur'); openAcqModal(p.slice(1).join(':')); }
     else { gotoView('sales'); openSaleModal(p.slice(1).join(':')); }
   });
+  $('tileOpen').addEventListener('click', function(){
+    PUR_OPEN = true; PUR_DUE = false;
+    $('chipOpen').classList.add('on'); $('chipDue').classList.remove('on');
+    $('purSearch').value='';
+    renderPur();
+  });
+  $('chipOpen').addEventListener('click', function(){
+    PUR_OPEN = !PUR_OPEN;
+    this.classList.toggle('on', PUR_OPEN);
+    renderPur();
+  });
   $('duePanel').addEventListener('click', function(){
-    PUR_DUE = true;
-    $('chipDue').classList.add('on');
+    PUR_DUE = true; PUR_OPEN = false;
+    $('chipDue').classList.add('on'); $('chipOpen').classList.remove('on');
     $('purSearch').value='';
     gotoView('pur');
     renderPur();
