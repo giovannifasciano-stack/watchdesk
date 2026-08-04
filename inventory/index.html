@@ -118,6 +118,12 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 .panel{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:20px; margin-bottom:20px}
 .panel h3{font-size:.8rem; letter-spacing:.12em; text-transform:uppercase; color:var(--dim); margin-bottom:14px}
 .hgrid{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+.hgrid > *{min-width:0}
+.panel{min-width:0}
+.gt{min-width:0; max-width:100%}
+.uprow, .uptot, .currow{min-width:0}
+.uprow span:first-child, .currow span:first-child{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+main{overflow-x:hidden}
 @media(max-width:820px){ .hgrid{grid-template-columns:1fr} }
 .ph{display:flex; align-items:center; justify-content:space-between; gap:10px}
 select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:9px; color:var(--accent);
@@ -426,7 +432,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v6.2</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v6.3</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
