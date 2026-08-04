@@ -363,7 +363,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v3.3</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v3.4</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -486,7 +486,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
         <div class="repcard" id="repSales"><div class="ri">📤</div><div class="rt" data-i18n="rSalesT">Estratto conto vendite</div><div class="rd" data-i18n="rSalesD">Le vendite del periodo con regime IVA, permute e incassi.</div></div>
         <div class="repcard" id="repMargin"><div class="ri">📈</div><div class="rt" data-i18n="rMarT">Margini</div><div class="rd" data-i18n="rMarD">Margine per pezzo con giorni di giacenza, più totali per marca e cliente.</div></div>
         <div class="repcard" id="repStock"><div class="ri">🏛</div><div class="rt" data-i18n="rStockT">Valore magazzino</div><div class="rd" data-i18n="rStockD">Gli orologi in casa al costo netto, con giacenza a oggi.</div></div>
-        <div class="repcard" id="repInv"><div class="ri">🗂</div><div class="rt" data-i18n="rInvT">Inventario</div><div class="rd" data-i18n="rInvD">Tutti i pezzi non venduti — ordinati, in arrivo e in casa — con stato e costo netto.</div></div>
+        <div class="repcard" id="repInv"><div class="ri">🗂</div><div class="rt" data-i18n="rInvT">Inventario</div><div class="rd" data-i18n="rInvD">Gli orologi ritirati e non ancora venduti, con fornitore e costo netto.</div></div>
         <div class="repcard" id="repCsv"><div class="ri">📄</div><div class="rt" data-i18n="rCsvT">Esporta CSV</div><div class="rd" data-i18n="rCsvD">Acquisti e vendite filtrati, in un file per Excel/Numbers.</div></div>
         <div class="repcard" id="repJson"><div class="ri">💾</div><div class="rt" data-i18n="rJsonT">Backup JSON</div><div class="rd" data-i18n="rJsonD">Copia completa dell'archivio, foto incluse.</div></div>
       </div>
@@ -695,7 +695,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v3.3
+   WATCHDESK — GESTIONALE UNIFICATO  v3.4
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -759,7 +759,7 @@ var I18N = {
     rAcqT:'Estratto conto acquisti', rAcqD:'Tutte le acquisizioni del periodo, con costi netti e stato pagamenti.',
     rSalesT:'Estratto conto vendite', rSalesD:'Le vendite del periodo con regime IVA, permute e incassi.',
     rMarT:'Margini', rMarD:'Margine per pezzo con giorni di giacenza, più totali per marca e cliente.',
-    rStockT:'Valore magazzino', rStockD:'Gli orologi in casa al costo netto, con giacenza a oggi.', rInvT:'Inventario', rInvD:'Tutti i pezzi non venduti — ordinati, in arrivo e in casa — con stato e costo netto.',
+    rStockT:'Valore magazzino', rStockD:'Gli orologi in casa al costo netto, con giacenza a oggi.', rInvT:'Inventario', rInvD:'Gli orologi ritirati e non ancora venduti, con fornitore e costo netto.',
     rCsvT:'Esporta CSV', rCsvD:'Acquisti e vendite filtrati, in un file per Excel/Numbers.',
     rJsonT:'Backup JSON', rJsonD:'Copia completa dell\'archivio, foto incluse.',
     stat_ordinato:'Ordinato', stat_arrivato:'Arrivato dal fornitore', stat_pagatonr:'Pagato, non ritirato', stat_ritirato:'Ritirato',
@@ -831,7 +831,7 @@ var I18N = {
     rAcqT:'Purchases statement', rAcqD:'All acquisitions in the period, with net costs and payment status.',
     rSalesT:'Sales statement', rSalesD:'Sales in the period with VAT regime, trade-ins and collections.',
     rMarT:'Margins', rMarD:'Margin per piece with days in stock, plus totals by brand and client.',
-    rStockT:'Stock value', rStockD:'Watches at home at net cost, with days in stock to date.', rInvT:'Inventory', rInvD:'All unsold pieces — ordered, incoming and at home — with status and net cost.',
+    rStockT:'Stock value', rStockD:'Watches at home at net cost, with days in stock to date.', rInvT:'Inventory', rInvD:'Watches collected and not yet sold, with supplier and net cost.',
     rCsvT:'Export CSV', rCsvD:'Filtered purchases and sales, in a file for Excel/Numbers.',
     rJsonT:'JSON backup', rJsonD:'Full copy of the archive, photos included.',
     stat_ordinato:'Ordered', stat_arrivato:'Arrived from supplier', stat_pagatonr:'Paid, not collected', stat_ritirato:'Collected',
@@ -2037,7 +2037,8 @@ function buildRepStock(){
 }
 
 function buildRepInv(){
-  var rows=S.acquisitions.filter(function(a){ return !saleByWatch(a.watch_id); });
+  /* solo i pezzi ritirati e non venduti: quello che hai davvero in casa */
+  var rows=S.acquisitions.filter(function(a){ return a.stat==='ritirato' && !saleByWatch(a.watch_id); });
   var cpF=$('repSup').value;
   if(cpF) rows=rows.filter(function(a){ return a.counterpart_id===cpF; });
   rows.sort(function(x,y){ return String(x.stat||'').localeCompare(String(y.stat||'')) || String(y.d_ord||'').localeCompare(String(x.d_ord||'')); });
