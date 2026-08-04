@@ -361,7 +361,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v3.0</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v3.1</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -475,7 +475,8 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
         <div class="frow3">
           <div class="field"><label data-i18n="fFrom">Dal</label><input type="date" id="repFrom"></div>
           <div class="field"><label data-i18n="fTo">Al</label><input type="date" id="repTo"></div>
-          <div class="field"><label data-i18n="fCp">Cliente / Fornitore</label><select id="repCp"></select></div>
+          <div class="field"><label data-i18n="fSup">Fornitore</label><select id="repSup"></select></div>
+          <div class="field"><label data-i18n="fCpSell">Cliente</label><select id="repCli"></select></div>
         </div>
       </div>
       <div class="repgrid">
@@ -692,7 +693,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v3.0
+   WATCHDESK — GESTIONALE UNIFICATO  v3.1
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -735,7 +736,7 @@ var I18N = {
     newAcq:'Nuovo acquisto', editAcq:'Modifica acquisto', sellThis:'Vendi questo orologio', newSale:'Nuova vendita', editSale:'Modifica vendita',
     newCp:'Nuova scheda', newCli:'Aggiungi cliente', newSup:'Aggiungi fornitore', editCp:'Modifica scheda',
     magEmpty:'Magazzino vuoto: nessun orologio ritirato in attesa di vendita.',
-    roleBuy:'Compro', roleSell:'Vendo', roleBoth:'Entrambi', allF:'Tutte', allM:'Tutti',
+    roleBuy:'Compro', roleSell:'Vendo', roleBoth:'Entrambi', allF:'Tutte', allSup:'Tutti i fornitori', allCli:'Tutti i clienti', allM:'Tutti',
     dWatch:'Orologio', dAcq:'Acquisizione',
     fBrand:'Marca', fBrandOther:'Altra marca', fRef:'Referenza', fModel:'Modello', fSerial:'Seriale',
     fYear:'Anno', fCond:'Condizioni', fSet:'Corredo', fPhoto:'Foto', fCp:'Cliente / Fornitore', fSup:'Fornitore', fCpSell:'Cliente',
@@ -806,7 +807,7 @@ var I18N = {
     newAcq:'New purchase', editAcq:'Edit purchase', sellThis:'Sell this watch', newSale:'New sale', editSale:'Edit sale',
     newCp:'New record', newCli:'Add client', newSup:'Add supplier', editCp:'Edit record',
     magEmpty:'Inventory is empty: no collected watch awaiting sale.',
-    roleBuy:'Buy', roleSell:'Sell', roleBoth:'Both', allF:'All', allM:'All',
+    roleBuy:'Buy', roleSell:'Sell', roleBoth:'Both', allF:'All', allSup:'All suppliers', allCli:'All clients', allM:'All',
     dWatch:'Watch', dAcq:'Acquisition',
     fBrand:'Brand', fBrandOther:'Other brand', fRef:'Reference', fModel:'Model', fSerial:'Serial',
     fYear:'Year', fCond:'Condition', fSet:'Set', fPhoto:'Photo', fCp:'Client / Supplier', fSup:'Supplier', fCpSell:'Client',
@@ -1000,9 +1001,14 @@ function fillStaticSelects(){
   keep=$('acqStat').value;
   $('acqStat').innerHTML = optHtml('', T('fStat')+': '+T('allM')) + STATS.map(function(s){return optHtml(s,statLabel(s));}).join('');
   if(keep) $('acqStat').value=keep;
-  keep=$('repCp').value;
-  $('repCp').innerHTML = optHtml('', T('allF')) + S.counterparts.map(function(c){return optHtml(c.id, c.name);}).join('');
-  if(keep) $('repCp').value=keep;
+  keep=$('repSup').value;
+  $('repSup').innerHTML = optHtml('', T('allSup')) + S.counterparts.filter(function(c){return c.role!=='sell';})
+    .map(function(c){return optHtml(c.id, c.name);}).join('');
+  if(keep) $('repSup').value=keep;
+  keep=$('repCli').value;
+  $('repCli').innerHTML = optHtml('', T('allCli')) + S.counterparts.filter(function(c){return c.role!=='buy';})
+    .map(function(c){return optHtml(c.id, c.name);}).join('');
+  if(keep) $('repCli').value=keep;
 }
 
 /* ---------- messaggi ---------- */
@@ -1666,7 +1672,9 @@ function openDoc(docId){
    REPORTS
    ================================================================ */
 function repFilterRows(rows, dateKey){
-  var from=$('repFrom').value, to=$('repTo').value, cp=$('repCp').value;
+  /* d_sale = riga di vendita → filtro Cliente; altrimenti acquisto → filtro Fornitore */
+  var from=$('repFrom').value, to=$('repTo').value;
+  var cp = (dateKey==='d_sale') ? $('repCli').value : $('repSup').value;
   return rows.filter(function(r){
     var d=String(r[dateKey]||'').slice(0,10);
     if(from && (!d || d<from)) return false;
@@ -1676,11 +1684,13 @@ function repFilterRows(rows, dateKey){
   });
 }
 function repPeriodText(){
-  var from=$('repFrom').value, to=$('repTo').value, cp=$('repCp').value;
+  var from=$('repFrom').value, to=$('repTo').value;
   var parts=[];
   if(from||to) parts.push(T('period')+': '+(from?fmtDate(from):'…')+' → '+(to?fmtDate(to):'…'));
   else parts.push(T('period')+': '+T('all'));
-  if(cp){ var c=cpById(cp); if(c) parts.push(c.name); }
+  var sup=cpById($('repSup').value), cli=cpById($('repCli').value);
+  if(sup) parts.push(T('fSup')+': '+sup.name);
+  if(cli) parts.push(T('fCpSell')+': '+cli.name);
   return parts.join('  ·  ');
 }
 function sheetHead(title){
@@ -1819,7 +1829,13 @@ function buildRepSales(){
 }
 
 function buildRepMargin(){
-  var rows=repFilterRows(S.sales,'d_sale').filter(function(s){ return !!acqByWatch(s.watch_id); });
+  var supF=$('repSup').value;
+  var rows=repFilterRows(S.sales,'d_sale').filter(function(s){
+    var a=acqByWatch(s.watch_id);
+    if(!a) return false;
+    if(supF && a.counterpart_id!==supF) return false;
+    return true;
+  });
   rows.sort(function(x,y){ return String(x.d_sale||'').localeCompare(String(y.d_sale||'')); });
   var OUT=['CHF','EUR','USD'];   /* le tre valute dell'utile */
 
@@ -1925,7 +1941,7 @@ function buildRepStock(){
 
 function buildRepInv(){
   var rows=S.acquisitions.filter(function(a){ return !saleByWatch(a.watch_id); });
-  var cpF=$('repCp').value;
+  var cpF=$('repSup').value;
   if(cpF) rows=rows.filter(function(a){ return a.counterpart_id===cpF; });
   rows.sort(function(x,y){ return String(x.stat||'').localeCompare(String(y.stat||'')) || String(y.d_ord||'').localeCompare(String(x.d_ord||'')); });
   var h='<h1>WATCH<span class="g">DESK</span></h1>'+
