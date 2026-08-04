@@ -374,7 +374,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v3.9</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v4.0</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -497,7 +497,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
         <div class="repcard" id="repMargin"><div class="ri">📈</div><div class="rt" data-i18n="rMarT">Margini</div><div class="rd" data-i18n="rMarD">Margine per pezzo con giorni di giacenza, più totali per marca e cliente.</div></div>
         <div class="repcard" id="repStock"><div class="ri">🏛</div><div class="rt" data-i18n="rStockT">Valore magazzino</div><div class="rd" data-i18n="rStockD">Gli orologi in casa al costo netto, con giacenza a oggi.</div></div>
         <div class="repcard" id="repInv"><div class="ri">🗂</div><div class="rt" data-i18n="rInvT">Inventario</div><div class="rd" data-i18n="rInvD">Gli orologi ritirati e non ancora venduti, con fornitore e costo netto.</div></div>
-        <div class="repcard" id="repMkt"><div class="ri">📊</div><div class="rt" data-i18n="rMktT">Inventory Market Price Valuation</div><div class="rd" data-i18n="rMktD">Ogni pezzo in inventario col prezzo medio del grey market e lo scarto dal listino.</div></div>
+        <div class="repcard" id="repMkt"><div class="ri">📊</div><div class="rt" data-i18n="rMktT">Inventory Market Price Valuation</div><div class="rd" data-i18n="rMktD">Ogni pezzo in inventario col prezzo medio del grey market e lo scarto dal costo sostenuto.</div></div>
         <div class="repcard" id="repCsv"><div class="ri">📄</div><div class="rt" data-i18n="rCsvT">Esporta CSV</div><div class="rd" data-i18n="rCsvD">Acquisti e vendite filtrati, in un file per Excel/Numbers.</div></div>
         <div class="repcard" id="repJson"><div class="ri">💾</div><div class="rt" data-i18n="rJsonT">Backup JSON</div><div class="rd" data-i18n="rJsonD">Copia completa dell'archivio, foto incluse.</div></div>
       </div>
@@ -713,7 +713,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v3.9
+   WATCHDESK — GESTIONALE UNIFICATO  v4.0
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -803,8 +803,8 @@ var I18N = {
     thList:'Listino', thAgreed:'Concordato', thNet:'Netto', thPay:'Pagamento', thStat:'Stato',
     thPrice:'Prezzo', thNetSale:'Netto vendita', thRegime:'Regime', thTrade:'Permuta', thInv:'Fattura',
     thCost:'Costo netto', thList:'Listino', thMkt:'Grey medio', thDelta:'Scarto', thMin:'Min', thMax:'Max', thAds:'Annunci',
-    rMktT:'Inventory Market Price Valuation', rMktD:'Ogni pezzo in inventario col prezzo medio del grey market e lo scarto dal listino.',
-    mktWait:'Interrogo il grey market…', mktNote:'Prezzi grey in USD. Prima fonte il Grey Market Scanner (Official Watches, Luxury Bazaar); dove non trova nulla subentra la ricerca sul web, segnata AI. Lo scarto confronta il grey col listino convertito in USD', thMargin:'Margine', thDays:'Giac. gg', thSerial:'Seriale', thPick:'Ritirato il',
+    rMktT:'Inventory Market Price Valuation', rMktD:'Ogni pezzo in inventario col prezzo medio del grey market e lo scarto dal costo sostenuto.',
+    mktWait:'Interrogo il grey market…', mktNote:'Prezzi grey in USD. Prima fonte il Grey Market Scanner (Official Watches, Luxury Bazaar); dove non trova nulla subentra la ricerca sul web, segnata AI. Lo scarto confronta il grey col costo netto realmente sostenuto, convertito in USD', thMargin:'Margine', thDays:'Giac. gg', thSerial:'Seriale', thPick:'Ritirato il',
     byBrand:'Totali per marca', byCp:'Totali per cliente', multiCur:'valute diverse',
     thProfit:'Utile', thPct:'Utile %', fxOn:'utile convertito ai cambi', fxMissing:'cambi non disponibili: utile solo a valute uguali',
     fxSaleDay:'Utile in grassetto = valuta di incasso, importo reale. Gli altri (≈) sono indicativi, convertiti al cambio del giorno della vendita',
@@ -877,8 +877,8 @@ var I18N = {
     thList:'List', thAgreed:'Agreed', thNet:'Net', thPay:'Payment', thStat:'Status',
     thPrice:'Price', thNetSale:'Net sale', thRegime:'Regime', thTrade:'Trade-in', thInv:'Invoice',
     thCost:'Net cost', thList:'List price', thMkt:'Grey avg', thDelta:'Delta', thMin:'Min', thMax:'Max', thAds:'Listings',
-    rMktT:'Inventory Market Price Valuation', rMktD:'Every piece in stock with its grey market average and the gap to list price.',
-    mktWait:'Querying the grey market…', mktNote:'Grey prices in USD. First source is the Grey Market Scanner (Official Watches, Luxury Bazaar); where it finds nothing, web search takes over, marked AI. Delta compares grey with list price converted to USD', thMargin:'Margin', thDays:'Days', thSerial:'Serial', thPick:'Collected on',
+    rMktT:'Inventory Market Price Valuation', rMktD:'Every piece in stock with its grey market average and the gap to the cost paid.',
+    mktWait:'Querying the grey market…', mktNote:'Grey prices in USD. First source is the Grey Market Scanner (Official Watches, Luxury Bazaar); where it finds nothing, web search takes over, marked AI. Delta compares grey with the net cost actually paid, converted to USD', thMargin:'Margin', thDays:'Days', thSerial:'Serial', thPick:'Collected on',
     byBrand:'Totals by brand', byCp:'Totals by client', multiCur:'mixed currencies',
     thProfit:'Profit', thPct:'Profit %', fxOn:'profit converted at rates of', fxMissing:'rates unavailable: profit only when currencies match',
     fxSaleDay:'Bold profit = currency actually received, real amount. The others (≈) are indicative, converted at the exchange rate of the sale date',
@@ -2129,14 +2129,14 @@ function buildRepMkt(){
       var h=sheetHead(T('rMktT'));
       h+='<table><colgroup><col style="width:5%"><col style="width:11%"><col style="width:13%"><col style="width:15%"><col style="width:12%"><col style="width:12%"><col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%"></colgroup>';
       h+='<tr><th></th><th>'+T('thBrand')+'</th><th>'+T('thRef')+'</th><th>'+T('thModel')+'</th>'+
-        '<th class="num">'+T('thList')+'</th><th class="num">'+T('thMkt')+'</th>'+
+        '<th class="num">'+T('thCost')+'</th><th class="num">'+T('thMkt')+'</th>'+
         '<th class="num">'+T('thDelta')+'</th><th class="num">'+T('thMin')+'</th><th class="num">'+T('thMax')+'</th>'+
         '<th class="num">'+T('thAds')+'</th></tr>';
 
       var totList=0, totMkt=0, n=0;
       items.forEach(function(it){
         var a=it.a, w=it.w, q=it.q;
-        var lst=num(a.list), cur=a.cur||'CHF';
+        var lst=netCost(a), cur=a.cur||'CHF';   /* costo netto detax, non il listino */
         var mkt=q?Number(q.avg_usd):null;                    /* il grey scanner ragiona in USD */
         var lstUsd=(lst!=null)?((cur==='USD')?lst:fxConv(lst,cur,'USD')):null;
         var delta=(mkt!=null&&lstUsd)?((mkt-lstUsd)/lstUsd*100):null;
