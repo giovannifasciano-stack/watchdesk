@@ -125,6 +125,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 .uprow{display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--line); font-size:.9rem}
 .uprow:last-child{border-bottom:none}
 .uprow .u{font-variant-numeric:tabular-nums; font-weight:700}
+.uptot .arw{margin-right:7px; font-size:.9em}
 .uptot{margin-top:10px; padding-top:10px; border-top:1px solid var(--line2); display:flex; justify-content:space-between; font-weight:800}
 .thumb.badge{display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.85rem; letter-spacing:.04em}
 .thumb.badge.sup{background:rgba(212,185,130,.14); border:1px solid var(--accent-dark); color:var(--accent)}
@@ -409,7 +410,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v5.0</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v5.1</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -452,7 +453,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
         <div class="gt" id="grandBox"></div>
       </div>
       <div class="panel">
-        <div class="ph"><h3 data-i18n="pUp">Upside — utile virtuale</h3>
+        <div class="ph"><h3 data-i18n="pUp">Valutazione a mercato</h3>
           <select id="upCur" class="mini"></select></div>
         <div id="upBox"><div class="empty" data-i18n="upHint">Premi Calcola per interrogare il mercato</div></div>
         <button class="btn dark sm" id="btnUp" style="margin-top:12px"><span data-i18n="upCalc">Calcola</span></button>
@@ -806,8 +807,8 @@ var I18N = {
     navHome:'Home', navAcq:'Inventario', navPur:'Acquisti', navMag:'Magazzino', navSales:'Vendite', navCp:'Clienti-Fornitori', navRep:'Reports',
     heroHi:'Bentornato', tOpen:'Acquisti aperti', tOpenN:'ordinati o in arrivo, non pagati', tStock:'In magazzino',
     tStockN:'ritirati, non venduti', tSold:'Vendite anno', tMargin:'Margine anno', tMarginN:'netto vendite − costi netti',
-    pCur:'Totale acquisti — costo netto', pGrand:'Gran totale', pDue:'Ancora da pagare', allPaid:'Tutto pagato', pUp:'Upside — utile virtuale', upCalc:'Calcola',
-    upHint:'Premi Calcola per interrogare il mercato', upMkt:'Valore grey', upCost:'Costo netto', upNet:'Upside', upNoQuote:'senza quotazione', onlyDue:'Solo da pagare', seeList:"Vedi l'elenco →", pLast:'Ultimi movimenti',
+    pCur:'Totale acquisti — costo netto', pGrand:'Gran totale', pDue:'Ancora da pagare', allPaid:'Tutto pagato', pUp:'Valutazione a mercato', upCalc:'Calcola',
+    upHint:'Premi Calcola per interrogare il mercato', upMkt:'Valore di mercato', upCost:'Costo netto', upGain:'Plusvalenza latente', upLoss:'Minusvalenza latente', upNoQuote:'senza quotazione', onlyDue:'Solo da pagare', seeList:"Vedi l'elenco →", pLast:'Ultimi movimenti',
     purSub:'Registro completo degli acquisti, venduti inclusi.', acqSub:'Gli orologi ritirati e non ancora venduti: quello che hai in casa.',
     magSub:'Orologi ritirati e non ancora venduti — quello che hai in casa.',
     salesSub:'Vendite registrate sugli orologi in archivio, con regime IVA e permuta.',
@@ -882,8 +883,8 @@ var I18N = {
     navHome:'Home', navAcq:'Inventory', navPur:'Purchases', navMag:'Stock', navSales:'Sales', navCp:'Clients-Suppliers', navRep:'Reports',
     heroHi:'Welcome back', tOpen:'Open purchases', tOpenN:'ordered or incoming, unpaid', tStock:'In stock',
     tStockN:'collected, not sold', tSold:'Sales this year', tMargin:'Margin this year', tMarginN:'net sales − net costs',
-    pCur:'Total purchases — net cost', pGrand:'Grand total', pDue:'Still to pay', allPaid:'All paid', pUp:'Upside — virtual profit', upCalc:'Calculate',
-    upHint:'Press Calculate to query the market', upMkt:'Grey value', upCost:'Net cost', upNet:'Upside', upNoQuote:'without quote', onlyDue:'Only unpaid', seeList:'See the list →', pLast:'Latest activity',
+    pCur:'Total purchases — net cost', pGrand:'Grand total', pDue:'Still to pay', allPaid:'All paid', pUp:'Mark to market', upCalc:'Calculate',
+    upHint:'Press Calculate to query the market', upMkt:'Market value', upCost:'Net cost', upGain:'Unrealised gain', upLoss:'Unrealised loss', upNoQuote:'without quote', onlyDue:'Only unpaid', seeList:'See the list →', pLast:'Latest activity',
     purSub:'Full purchase register, sold pieces included.', acqSub:'Watches collected and not yet sold: what you have in hand.',
     magSub:'Watches collected and not yet sold — what you have at home.',
     salesSub:'Sales recorded on archived watches, with VAT regime and trade-ins.',
@@ -1195,9 +1196,11 @@ function renderUpside(){
       function conv(v){ return (cur==='USD')?v:fxConv(v,'USD',cur); }
       var up=mkt-cost, pct=(cost>0)?(up/cost*100):null;
       var f=function(v){ var x=conv(v); return (x==null)?'—':fmtN(x,(cur==='HKD')?'USD':cur); };
+      var su = up>=0;
       var h='<div class="uprow"><span>'+T('upMkt')+'</span><span class="u">'+f(mkt)+'</span></div>'+
             '<div class="uprow"><span>'+T('upCost')+'</span><span class="u">'+f(cost)+'</span></div>'+
-            '<div class="uptot"><span>'+T('upNet')+'</span><span class="'+(up>=0?'pos':'neg')+'">'+f(up)+
+            '<div class="uptot"><span>'+T(su?'upGain':'upLoss')+'</span>'+
+              '<span class="'+(su?'pos':'neg')+'"><span class="arw">'+(su?'\u25b2':'\u25bc')+'</span>'+f(up)+
               (pct!=null?('  <span style="font-size:.85em">('+(pct>=0?'+':'')+pct.toFixed(1)+'%)</span>'):'')+'</span></div>'+
             '<div class="gt-lbl" style="margin-top:10px">'+n+' '+T('pieces')+
               (senza?(' · '+senza+' '+T('upNoQuote')):'')+'</div>';
