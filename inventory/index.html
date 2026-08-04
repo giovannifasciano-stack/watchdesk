@@ -117,6 +117,14 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 .tile .t-note{font-size:.78rem; color:var(--dim2); margin-top:2px}
 .panel{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:20px; margin-bottom:20px}
 .panel h3{font-size:.8rem; letter-spacing:.12em; text-transform:uppercase; color:var(--dim); margin-bottom:14px}
+.gt-lbl{margin-top:16px; color:var(--dim2); font-size:.62rem; letter-spacing:.18em; text-transform:uppercase; font-weight:700}
+.gt{display:flex; gap:10px; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; padding:10px 0 2px; scrollbar-width:none}
+.gt::-webkit-scrollbar{display:none}
+.gt .gtc{flex:0 0 auto; min-width:150px; scroll-snap-align:start; background:var(--bg2); border:1px solid var(--line2); border-radius:12px; padding:12px 14px}
+.gt .gtc .f{font-size:.66rem; letter-spacing:.14em; color:var(--dim); font-weight:700}
+.gt .gtc .v{margin-top:5px; font-size:1.1rem; font-weight:800; font-variant-numeric:tabular-nums; white-space:nowrap}
+.gt .gtc.main{border-color:var(--accent-dark)}
+.gt .gtc.main .v{color:var(--accent)}
 .currow{display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--line); font-size:.95rem}
 .currow:last-child{border-bottom:none}
 .currow .amt{font-weight:600}
@@ -382,7 +390,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v4.7</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v4.8</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -418,8 +426,14 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
         <div class="tile" data-goto="rep"><div class="t-label" data-i18n="tMargin">Margine anno</div><div class="t-value" id="kpiMargin" style="font-size:1.15rem;line-height:1.5">–</div><div class="t-note" data-i18n="tMarginN">netto vendite − costi netti</div></div>
       </div>
       <div class="panel">
-        <h3 data-i18n="pCur">Capitale nella merce non venduta — costo netto</h3>
+        <h3 data-i18n="pCur">Totale acquisti — costo netto</h3>
         <div id="curBox"></div>
+        <div class="gt-lbl" data-i18n="pGrand">Gran totale</div>
+        <div class="gt" id="grandBox"></div>
+      </div>
+      <div class="panel">
+        <h3 data-i18n="pDue">Ancora da pagare</h3>
+        <div id="dueBox"></div>
       </div>
       <div class="panel">
         <h3 data-i18n="pLast">Ultimi movimenti</h3>
@@ -763,7 +777,7 @@ var I18N = {
     navHome:'Home', navAcq:'Inventario', navPur:'Acquisti', navMag:'Magazzino', navSales:'Vendite', navCp:'Clienti-Fornitori', navRep:'Reports',
     heroHi:'Bentornato', tOpen:'Acquisti aperti', tOpenN:'ordinati o in arrivo', tStock:'In magazzino',
     tStockN:'ritirati, non venduti', tSold:'Vendite anno', tMargin:'Margine anno', tMarginN:'netto vendite − costi netti',
-    pCur:'Capitale nella merce non venduta — costo netto', pLast:'Ultimi movimenti',
+    pCur:'Totale acquisti — costo netto', pGrand:'Gran totale', pDue:'Ancora da pagare', allPaid:'Tutto pagato', pLast:'Ultimi movimenti',
     purSub:'Registro completo degli acquisti, venduti inclusi.', acqSub:'Gli orologi ritirati e non ancora venduti: quello che hai in casa.',
     magSub:'Orologi ritirati e non ancora venduti — quello che hai in casa.',
     salesSub:'Vendite registrate sugli orologi in archivio, con regime IVA e permuta.',
@@ -838,7 +852,7 @@ var I18N = {
     navHome:'Home', navAcq:'Inventory', navPur:'Purchases', navMag:'Stock', navSales:'Sales', navCp:'Clients-Suppliers', navRep:'Reports',
     heroHi:'Welcome back', tOpen:'Open purchases', tOpenN:'ordered or incoming', tStock:'In stock',
     tStockN:'collected, not sold', tSold:'Sales this year', tMargin:'Margin this year', tMarginN:'net sales − net costs',
-    pCur:'Capital tied up in unsold stock — net cost', pLast:'Latest activity',
+    pCur:'Total purchases — net cost', pGrand:'Grand total', pDue:'Still to pay', allPaid:'All paid', pLast:'Latest activity',
     purSub:'Full purchase register, sold pieces included.', acqSub:'Watches collected and not yet sold: what you have in hand.',
     magSub:'Watches collected and not yet sold — what you have at home.',
     salesSub:'Sales recorded on archived watches, with VAT regime and trade-ins.',
@@ -1133,14 +1147,44 @@ function renderHome(){
     else mixed=true;
   });
   $('kpiMargin').textContent = curMapToText(margins) + (mixed?' *':'');
-  /* impegni per valuta: acquisizioni non ancora vendute */
-  var openRows = S.acquisitions.filter(function(a){ return !saleByWatch(a.watch_id); });
-  var m = sumByCur(openRows, function(a){return a.cur;}, function(a){return netCost(a);});
+  /* totale acquisti per valuta, al costo netto */
+  var m = sumByCur(S.acquisitions, function(a){return a.cur;}, function(a){return netCost(a);});
   var html='';
   Object.keys(m).sort().forEach(function(c){
     html += '<div class="currow"><span>'+(FLAGS[c]||'')+' '+c+'</span><span class="amt mono">'+fmtN(m[c],c)+'</span></div>';
   });
   $('curBox').innerHTML = html || '<div class="empty">–</div>';
+
+  /* gran totale: la stessa cifra letta in quattro valute, si scorre di lato */
+  loadFx(function(){
+    var g='';
+    GRAND.forEach(function(t,i){
+      var tot=0, ok=true;
+      Object.keys(m).forEach(function(c){
+        var v=(c===t)?m[c]:fxConv(m[c],c,t);
+        if(v==null) ok=false; else tot+=v;
+      });
+      g += '<div class="gtc'+(i===0?' main':'')+'"><div class="f">'+(FLAGS[t]||'')+' '+t+'</div>'+
+           '<div class="v">'+(ok?fmtN(tot,t==='HKD'?'USD':t):'—')+'</div></div>';
+    });
+    $('grandBox').innerHTML = g;
+  });
+
+  /* ancora da pagare: saldo aperto verso i fornitori */
+  function dovuto(a){
+    var n=netCost(a);
+    if(n==null) return 0;
+    if(a.pay==='pagato') return 0;
+    if(a.pay==='acconto') return Math.max(0, n-(num(a.dep)||0));
+    return n;
+  }
+  var d = sumByCur(S.acquisitions.filter(function(a){ return dovuto(a)>0; }),
+                   function(a){return a.cur;}, dovuto);
+  var hd='';
+  Object.keys(d).sort().forEach(function(c){
+    hd += '<div class="currow"><span>'+(FLAGS[c]||'')+' '+c+'</span><span class="amt mono">'+fmtN(d[c],c)+'</span></div>';
+  });
+  $('dueBox').innerHTML = hd || '<div class="empty">'+T('allPaid')+'</div>';
   /* ultimi movimenti */
   var movs=[];
   S.acquisitions.forEach(function(a){ movs.push({t:'acq', d:a.d_ord||a.updated_at||'', r:a}); });
@@ -1897,7 +1941,8 @@ function totRowsByCur(rows, getCur, getVal, cols, label){
 
 
 /* ---------- cambi per i controvalori nei report ---------- */
-var FLAGS = {CHF:'\ud83c\udde8\ud83c\udded', EUR:'\ud83c\uddea\ud83c\uddfa', USD:'\ud83c\uddfa\ud83c\uddf8', GBP:'\ud83c\uddec\ud83c\udde7'};
+var FLAGS = {CHF:'\ud83c\udde8\ud83c\udded', EUR:'\ud83c\uddea\ud83c\uddfa', USD:'\ud83c\uddfa\ud83c\uddf8', GBP:'\ud83c\uddec\ud83c\udde7', HKD:'\ud83c\udded\ud83c\uddf0'};
+var GRAND = ['CHF','EUR','USD','HKD'];   /* le valute del gran totale */
 var FX = null; /* {rates:{CHF:1,...}, date:'', ts:0} */
 function loadFx(cb){
   try{
