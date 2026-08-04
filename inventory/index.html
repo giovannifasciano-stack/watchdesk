@@ -117,6 +117,22 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 .tile .t-note{font-size:.78rem; color:var(--dim2); margin-top:2px}
 .panel{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:20px; margin-bottom:20px}
 .panel h3{font-size:.8rem; letter-spacing:.12em; text-transform:uppercase; color:var(--dim); margin-bottom:14px}
+.hgrid{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+@media(max-width:820px){ .hgrid{grid-template-columns:1fr} }
+.ph{display:flex; align-items:center; justify-content:space-between; gap:10px}
+select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:9px; color:var(--accent);
+  font-family:inherit; font-size:.72rem; font-weight:700; letter-spacing:.08em; padding:5px 8px}
+.uprow{display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--line); font-size:.9rem}
+.uprow:last-child{border-bottom:none}
+.uprow .u{font-variant-numeric:tabular-nums; font-weight:700}
+.uptot{margin-top:10px; padding-top:10px; border-top:1px solid var(--line2); display:flex; justify-content:space-between; font-weight:800}
+.thumb.badge{display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.85rem; letter-spacing:.04em}
+.thumb.badge.sup{background:rgba(212,185,130,.14); border:1px solid var(--accent-dark); color:var(--accent)}
+.thumb.badge.cli{background:rgba(122,158,255,.13); border:1px solid #3a53a8; color:#9db4ff}
+.thumb.badge.both{background:rgba(255,255,255,.07); border:1px solid var(--line2); color:var(--text)}
+.field.pair{min-width:210px; flex:1 1 210px}
+.mvrow{cursor:pointer}
+.mvrow:hover{color:var(--accent)}
 .panel.clickable{cursor:pointer; transition:border-color .15s}
 .panel.clickable:hover{border-color:var(--accent-dark)}
 .panel.clickable:hover .gt-lbl{color:var(--accent)}
@@ -393,7 +409,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v4.9</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v5.0</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -423,16 +439,24 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
         <p id="heroDate"></p>
       </div>
       <div class="tiles">
-        <div class="tile" data-goto="acq"><div class="t-label" data-i18n="tOpen">Acquisti aperti</div><div class="t-value" id="kpiOpen">–</div><div class="t-note" data-i18n="tOpenN">ordinati o in arrivo</div></div>
+        <div class="tile" data-goto="acq"><div class="t-label" data-i18n="tOpen">Acquisti aperti</div><div class="t-value" id="kpiOpen">–</div><div class="t-note" data-i18n="tOpenN">ordinati o in arrivo, non pagati</div></div>
         <div class="tile" data-goto="acq"><div class="t-label" data-i18n="tStock">In magazzino</div><div class="t-value" id="kpiStock">–</div><div class="t-note" data-i18n="tStockN">ritirati, non venduti</div></div>
         <div class="tile" data-goto="sales"><div class="t-label" data-i18n="tSold">Vendite anno</div><div class="t-value" id="kpiSold">–</div><div class="t-note" id="kpiSoldN"></div></div>
         <div class="tile" data-goto="rep"><div class="t-label" data-i18n="tMargin">Margine anno</div><div class="t-value" id="kpiMargin" style="font-size:1.15rem;line-height:1.5">–</div><div class="t-note" data-i18n="tMarginN">netto vendite − costi netti</div></div>
       </div>
+      <div class="hgrid">
       <div class="panel">
         <h3 data-i18n="pCur">Totale acquisti — costo netto</h3>
         <div id="curBox"></div>
         <div class="gt-lbl" data-i18n="pGrand">Gran totale</div>
         <div class="gt" id="grandBox"></div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h3 data-i18n="pUp">Upside — utile virtuale</h3>
+          <select id="upCur" class="mini"></select></div>
+        <div id="upBox"><div class="empty" data-i18n="upHint">Premi Calcola per interrogare il mercato</div></div>
+        <button class="btn dark sm" id="btnUp" style="margin-top:12px"><span data-i18n="upCalc">Calcola</span></button>
+      </div>
       </div>
       <div class="panel clickable" id="duePanel">
         <h3 data-i18n="pDue">Ancora da pagare</h3>
@@ -514,8 +538,8 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
         <div class="frow3">
           <div class="field"><label data-i18n="fFrom">Dal</label><input type="date" id="repFrom"></div>
           <div class="field"><label data-i18n="fTo">Al</label><input type="date" id="repTo"></div>
-          <div class="field"><label data-i18n="fSup">Fornitore</label><select id="repSup"></select></div>
-          <div class="field"><label data-i18n="fCpSell">Cliente</label><select id="repCli"></select></div>
+          <div class="field pair"><label data-i18n="fSup">Fornitore</label><select id="repSup"></select></div>
+          <div class="field pair"><label data-i18n="fCpSell">Cliente</label><select id="repCli"></select></div>
         </div>
       </div>
       <div class="repgrid">
@@ -780,9 +804,10 @@ var I18N = {
     signupCode:'Codice di registrazione', signupBtn:'Registrati', backLogin:'Torna al login',
     recoveryCode:'Codice di recupero', newPass:'Nuova password', resetBtn:'Reimposta password',
     navHome:'Home', navAcq:'Inventario', navPur:'Acquisti', navMag:'Magazzino', navSales:'Vendite', navCp:'Clienti-Fornitori', navRep:'Reports',
-    heroHi:'Bentornato', tOpen:'Acquisti aperti', tOpenN:'ordinati o in arrivo', tStock:'In magazzino',
+    heroHi:'Bentornato', tOpen:'Acquisti aperti', tOpenN:'ordinati o in arrivo, non pagati', tStock:'In magazzino',
     tStockN:'ritirati, non venduti', tSold:'Vendite anno', tMargin:'Margine anno', tMarginN:'netto vendite − costi netti',
-    pCur:'Totale acquisti — costo netto', pGrand:'Gran totale', pDue:'Ancora da pagare', allPaid:'Tutto pagato', onlyDue:'Solo da pagare', seeList:"Vedi l'elenco →", pLast:'Ultimi movimenti',
+    pCur:'Totale acquisti — costo netto', pGrand:'Gran totale', pDue:'Ancora da pagare', allPaid:'Tutto pagato', pUp:'Upside — utile virtuale', upCalc:'Calcola',
+    upHint:'Premi Calcola per interrogare il mercato', upMkt:'Valore grey', upCost:'Costo netto', upNet:'Upside', upNoQuote:'senza quotazione', onlyDue:'Solo da pagare', seeList:"Vedi l'elenco →", pLast:'Ultimi movimenti',
     purSub:'Registro completo degli acquisti, venduti inclusi.', acqSub:'Gli orologi ritirati e non ancora venduti: quello che hai in casa.',
     magSub:'Orologi ritirati e non ancora venduti — quello che hai in casa.',
     salesSub:'Vendite registrate sugli orologi in archivio, con regime IVA e permuta.',
@@ -855,9 +880,10 @@ var I18N = {
     signupCode:'Registration code', signupBtn:'Sign up', backLogin:'Back to login',
     recoveryCode:'Recovery code', newPass:'New password', resetBtn:'Reset password',
     navHome:'Home', navAcq:'Inventory', navPur:'Purchases', navMag:'Stock', navSales:'Sales', navCp:'Clients-Suppliers', navRep:'Reports',
-    heroHi:'Welcome back', tOpen:'Open purchases', tOpenN:'ordered or incoming', tStock:'In stock',
+    heroHi:'Welcome back', tOpen:'Open purchases', tOpenN:'ordered or incoming, unpaid', tStock:'In stock',
     tStockN:'collected, not sold', tSold:'Sales this year', tMargin:'Margin this year', tMarginN:'net sales − net costs',
-    pCur:'Total purchases — net cost', pGrand:'Grand total', pDue:'Still to pay', allPaid:'All paid', onlyDue:'Only unpaid', seeList:'See the list →', pLast:'Latest activity',
+    pCur:'Total purchases — net cost', pGrand:'Grand total', pDue:'Still to pay', allPaid:'All paid', pUp:'Upside — virtual profit', upCalc:'Calculate',
+    upHint:'Press Calculate to query the market', upMkt:'Grey value', upCost:'Net cost', upNet:'Upside', upNoQuote:'without quote', onlyDue:'Only unpaid', seeList:'See the list →', pLast:'Latest activity',
     purSub:'Full purchase register, sold pieces included.', acqSub:'Watches collected and not yet sold: what you have in hand.',
     magSub:'Watches collected and not yet sold — what you have at home.',
     salesSub:'Sales recorded on archived watches, with VAT regime and trade-ins.',
@@ -928,7 +954,7 @@ var I18N = {
 };
 
 /* ---------- stato ---------- */
-var LANG = localStorage.getItem(LANG_KEY) || 'it';
+var LANG = 'it';   /* si apre sempre in italiano; il cambio vale solo per la sessione */
 var TOKEN = localStorage.getItem(TOKEN_KEY) || '';
 var S = { counterparts:[], watches:[], acquisitions:[], sales:[] };
 var CUR_VIEW = 'home';
@@ -1128,12 +1154,65 @@ function gotoView(v){
    ================================================================ */
 function renderAll(){ renderHome(); renderAcq(); renderPur(); renderMag(); renderSales(); renderCp(); }
 
+var MKT_CACHE = {};   /* watchId → prezzo grey USD gia' ottenuto in questa sessione */
+
+/* Prende la quotazione grey di un orologio: valore forzato, poi cache,
+   poi il Grey Scanner, poi la ricerca sul web. */
+function greyFor(w){
+  if(w.mkt_lock && Number(w.mkt_lock) && w.mkt_usd!=null && w.mkt_usd!=='')
+    return Promise.resolve(Number(w.mkt_usd));
+  if(MKT_CACHE[w.id]!=null) return Promise.resolve(MKT_CACHE[w.id]);
+  var ref=(w.ref||'').trim();
+  if(!ref) return Promise.resolve(null);
+  return fetch('https://grey-scanner.owscan.workers.dev/?ref='+encodeURIComponent(ref))
+    .then(function(r){ return r.json(); }).catch(function(){ return null; })
+    .then(function(q){
+      if(q && q.found) return Number(q.avg_usd);
+      return api('/greyprice?ref='+encodeURIComponent(ref)+'&brand='+encodeURIComponent(w.brand||''))
+        .then(function(q2){ return (q2 && q2.found) ? Number(q2.avg_usd) : null; })
+        .catch(function(){ return null; });
+    })
+    .then(function(v){ if(v!=null) MKT_CACHE[w.id]=v; return v; });
+}
+
+function renderUpside(){
+  var box=$('upBox'), cur=$('upCur').value||'USD';
+  var stock=S.watches.filter(function(w){ return isStock(w); });
+  if(!stock.length){ box.innerHTML='<div class="empty">–</div>'; return; }
+  box.innerHTML='<div class="empty">'+T('mktWait')+'</div>';
+  loadFx(function(){
+    Promise.all(stock.map(function(w){
+      return greyFor(w).then(function(g){ return {w:w, g:g}; });
+    })).then(function(items){
+      var mkt=0, cost=0, n=0, senza=0;
+      items.forEach(function(it){
+        var a=acqByWatch(it.w.id), nc=netCost(a);
+        if(it.g==null || nc==null){ senza++; return; }
+        var cU=(a.cur==='USD')?nc:fxConv(nc,a.cur||'CHF','USD');
+        if(cU==null){ senza++; return; }
+        mkt+=it.g; cost+=cU; n++;
+      });
+      function conv(v){ return (cur==='USD')?v:fxConv(v,'USD',cur); }
+      var up=mkt-cost, pct=(cost>0)?(up/cost*100):null;
+      var f=function(v){ var x=conv(v); return (x==null)?'—':fmtN(x,(cur==='HKD')?'USD':cur); };
+      var h='<div class="uprow"><span>'+T('upMkt')+'</span><span class="u">'+f(mkt)+'</span></div>'+
+            '<div class="uprow"><span>'+T('upCost')+'</span><span class="u">'+f(cost)+'</span></div>'+
+            '<div class="uptot"><span>'+T('upNet')+'</span><span class="'+(up>=0?'pos':'neg')+'">'+f(up)+
+              (pct!=null?('  <span style="font-size:.85em">('+(pct>=0?'+':'')+pct.toFixed(1)+'%)</span>'):'')+'</span></div>'+
+            '<div class="gt-lbl" style="margin-top:10px">'+n+' '+T('pieces')+
+              (senza?(' · '+senza+' '+T('upNoQuote')):'')+'</div>';
+      box.innerHTML=h;
+    });
+  });
+}
+
 function renderHome(){
   var open=0, stock=0;
   S.watches.forEach(function(w){
     var a=acqByWatch(w.id), sold=!!saleByWatch(w.id);
     if(!a || sold) return;
-    if(a.stat==='ritirato') stock++; else open++;
+    if(a.stat==='ritirato') stock++;
+    else if(a.stat==='ordinato'||a.stat==='arrivato') open++;   /* non ritirati e non ancora pagati */
   });
   var year = new Date().getFullYear();
   var soldY = S.sales.filter(function(s){ return s.d_sale && String(s.d_sale).slice(0,4)==String(year); });
@@ -1142,16 +1221,21 @@ function renderHome(){
   $('kpiStock').textContent=stock;
   $('kpiSold').textContent=soldY.length;
   $('kpiSoldN').textContent = soldAll!==soldY.length ? (soldAll+' '+T('pieces')+' tot.') : '';
-  /* margine anno: solo coppie stessa valuta */
-  var margins={}, mixed=false;
-  soldY.forEach(function(s){
-    var a=acqByWatch(s.watch_id); if(!a) return;
-    var ns=netSale(s), nc=netCost(a);
-    if(ns==null||nc==null) return;
-    if((s.cur||'CHF')===(a.cur||'CHF')){ var c=s.cur||'CHF'; margins[c]=(margins[c]||0)+(ns-nc); }
-    else mixed=true;
+  /* utile sulle vendite dell'anno, sempre espresso in USD */
+  loadFx(function(){
+    var tot=0, ok=false;
+    soldY.forEach(function(s2){
+      var a=acqByWatch(s2.watch_id); if(!a) return;
+      var ns=netSale(s2), nc=netCost(a);
+      if(ns==null||nc==null) return;
+      var cs=s2.cur||'CHF', ca=a.cur||'CHF';
+      var nsU=(cs==='USD')?ns:fxConv(ns,cs,'USD');
+      var ncU=(ca==='USD')?nc:fxConv(nc,ca,'USD');
+      if(nsU==null||ncU==null) return;
+      tot += nsU-ncU; ok=true;
+    });
+    $('kpiMargin').textContent = ok ? ('USD '+fmtN(tot,'USD')) : '–';
   });
-  $('kpiMargin').textContent = curMapToText(margins) + (mixed?' *':'');
   /* totale acquisti per valuta, al costo netto */
   var m = sumByCur(S.acquisitions, function(a){return a.cur;}, function(a){return netCost(a);});
   var html='';
@@ -1169,8 +1253,8 @@ function renderHome(){
         var v=(c===t)?m[c]:fxConv(m[c],c,t);
         if(v==null) ok=false; else tot+=v;
       });
-      g += '<div class="gtc'+(i===0?' main':'')+'"><div class="f">'+(FLAGS[t]||'')+' '+t+'</div>'+
-           '<div class="v">'+(ok?fmtN(tot,t==='HKD'?'USD':t):'—')+'</div></div>';
+      g += '<div class="gtc"><div class="f">'+(FLAGS[t]||'')+' '+t+'</div>'+
+           '<div class="v">'+(ok?fmtN(tot,(t==='HKD')?'USD':t):'—')+'</div></div>';
     });
     $('grandBox').innerHTML = g;
   });
@@ -1201,7 +1285,7 @@ function renderHome(){
     var w=watchById(mv.r.watch_id)||{};
     var cp=cpById(mv.r.counterpart_id);
     var amt = mv.t==='acq' ? netCost(mv.r) : netSale(mv.r);
-    h2 += '<div class="currow"><span>'+(mv.t==='acq'?'📥':'📤')+' '+esc(watchTitle(w))+
+    h2 += '<div class="currow mvrow" data-mv="'+mv.t+':'+esc(mv.r.id)+'"><span>'+(mv.t==='acq'?'📥':'📤')+' '+esc(watchTitle(w))+
       (cp?' <span style="color:var(--dim2)">· '+esc(cp.name)+'</span>':'')+'</span>'+
       '<span class="amt mono">'+money(amt, mv.r.cur||'CHF')+'</span></div>';
   });
@@ -1374,7 +1458,8 @@ function renderCp(){
     var nA=S.acquisitions.filter(function(a){return a.counterpart_id===c.id;}).length;
     var nS=S.sales.filter(function(s){return s.counterpart_id===c.id;}).length;
     html += '<div class="rowcard" data-cp="'+esc(c.id)+'">'+
-      '<div class="thumb">🏛</div>'+
+      '<div class="thumb badge '+((c.role==='sell')?'cli':((c.role==='both')?'both':'sup'))+'">'+
+        ((c.role==='sell')?'C':((c.role==='both')?'CF':'F'))+'</div>'+
       '<div class="rc-main">'+
         '<div class="rc-title">'+esc(c.name||'')+'</div>'+
         '<div class="rc-sub">'+esc([c.city,c.country].filter(Boolean).join(', '))+
@@ -1956,7 +2041,7 @@ function totRowsByCur(rows, getCur, getVal, cols, label){
 
 /* ---------- cambi per i controvalori nei report ---------- */
 var FLAGS = {CHF:'\ud83c\udde8\ud83c\udded', EUR:'\ud83c\uddea\ud83c\uddfa', USD:'\ud83c\uddfa\ud83c\uddf8', GBP:'\ud83c\uddec\ud83c\udde7', HKD:'\ud83c\udded\ud83c\uddf0'};
-var GRAND = ['CHF','EUR','USD','HKD'];   /* le valute del gran totale */
+var GRAND = ['CHF','EUR','USD','GBP','HKD'];   /* le valute del gran totale */
 var FX = null; /* {rates:{CHF:1,...}, date:'', ts:0} */
 function loadFx(cb){
   try{
@@ -2098,9 +2183,10 @@ function fxAtLoad(dates, cb){
   });
 }
 function fxAt(v, from, to, date){
+  if(from===to) return v;
   var r = FXD[date];
-  if(!r || r[from]==null || r[to]==null) return null;
-  return v * r[to] / r[from];
+  if(r && r[from]!=null && r[to]!=null) return v * r[to] / r[from];
+  return fxConv(v, from, to);   /* niente cambio storico: si ripiega su quello di oggi */
 }
 
 function buildRepMargin(){
@@ -2416,6 +2502,16 @@ function bind(){
 
   /* apertura form */
   $('btnNewAcq2').addEventListener('click',function(){ openAcqModal(null); });
+  $('upCur').innerHTML = GRAND.map(function(c){ return optHtml(c, (FLAGS[c]||'')+' '+c); }).join('');
+  $('upCur').value='USD';
+  $('upCur').addEventListener('change', function(){ if($('upBox').querySelector('.uprow')) renderUpside(); });
+  $('btnUp').addEventListener('click', renderUpside);
+  $('lastBox').addEventListener('click', function(ev){
+    var el=ev.target.closest('[data-mv]'); if(!el) return;
+    var p=el.getAttribute('data-mv').split(':');
+    if(p[0]==='acq'){ gotoView('pur'); openAcqModal(p.slice(1).join(':')); }
+    else { gotoView('sales'); openSaleModal(p.slice(1).join(':')); }
+  });
   $('duePanel').addEventListener('click', function(){
     PUR_DUE = true;
     $('chipDue').classList.add('on');
