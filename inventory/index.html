@@ -144,6 +144,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 .rc-right{text-align:right; flex-shrink:0}
 .rc-amt{font-weight:700; font-size:1.02rem}
 .rc-amt .cur{font-size:.75rem; color:var(--dim); margin-right:4px}
+.rc-amtlbl{color:var(--dim2); font-size:.6rem; letter-spacing:.14em; text-transform:uppercase; text-align:right; margin-top:2px}
 .rc-chips{display:flex; gap:6px; justify-content:flex-end; margin-top:5px; flex-wrap:wrap}
 .st{font-size:.68rem; letter-spacing:.04em; padding:3px 9px; border-radius:12px; border:1px solid; white-space:nowrap}
 .st.ordinato{color:var(--info); border-color:var(--info)}
@@ -363,7 +364,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v3.5</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v3.6</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -694,7 +695,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v3.5
+   WATCHDESK — GESTIONALE UNIFICATO  v3.6
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -783,7 +784,7 @@ var I18N = {
     thDate:'Data', thBrand:'Marca', thRef:'Referenza', thModel:'Modello', thCp:'Cliente / Fornitore', thSup:'Fornitore', thCli:'Cliente', thCur:'Val.',
     thList:'Listino', thAgreed:'Concordato', thNet:'Netto', thPay:'Pagamento', thStat:'Stato',
     thPrice:'Prezzo', thNetSale:'Netto vendita', thRegime:'Regime', thTrade:'Permuta', thInv:'Fattura',
-    thCost:'Costo netto', thMargin:'Margine', thDays:'Giac. gg', thSerial:'Seriale', thPick:'Ritirato il',
+    thCost:'Costo netto', thList:'Listino', thMargin:'Margine', thDays:'Giac. gg', thSerial:'Seriale', thPick:'Ritirato il',
     byBrand:'Totali per marca', byCp:'Totali per cliente', multiCur:'valute diverse',
     thProfit:'Utile', thPct:'Utile %', fxOn:'utile convertito ai cambi', fxMissing:'cambi non disponibili: utile solo a valute uguali',
     fxSaleDay:'Utile in grassetto = valuta di incasso, importo reale. Gli altri (≈) sono indicativi, convertiti al cambio del giorno della vendita',
@@ -855,7 +856,7 @@ var I18N = {
     thDate:'Date', thBrand:'Brand', thRef:'Reference', thModel:'Model', thCp:'Client / Supplier', thSup:'Supplier', thCli:'Client', thCur:'Cur.',
     thList:'List', thAgreed:'Agreed', thNet:'Net', thPay:'Payment', thStat:'Status',
     thPrice:'Price', thNetSale:'Net sale', thRegime:'Regime', thTrade:'Trade-in', thInv:'Invoice',
-    thCost:'Net cost', thMargin:'Margin', thDays:'Days', thSerial:'Serial', thPick:'Collected on',
+    thCost:'Net cost', thList:'List price', thMargin:'Margin', thDays:'Days', thSerial:'Serial', thPick:'Collected on',
     byBrand:'Totals by brand', byCp:'Totals by client', multiCur:'mixed currencies',
     thProfit:'Profit', thPct:'Profit %', fxOn:'profit converted at rates of', fxMissing:'rates unavailable: profit only when currencies match',
     fxSaleDay:'Bold profit = currency actually received, real amount. The others (≈) are indicative, converted at the exchange rate of the sale date',
@@ -1136,7 +1137,7 @@ function renderAcq(){
   var html='';
   rows.forEach(function(a){
     var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
-    var net=netCost(a);
+    var net=num(a.list);   /* in inventario si guarda il listino, non quanto e' costato */
     html += '<div class="rowcard" data-acq="'+esc(a.id)+'">'+
       '<div class="thumb">'+(w.photo?'<img src="'+w.photo+'" alt="">':'⌚')+'</div>'+
       '<div class="rc-main">'+
@@ -1144,7 +1145,8 @@ function renderAcq(){
         '<div class="rc-sub">'+(cp?esc(cp.name):T('noSup'))+(a.d_ord?' · '+fmtDate(a.d_ord):'')+'</div>'+
       '</div>'+
       '<div class="rc-right">'+
-        '<div class="rc-amt mono"><span class="cur">'+esc(a.cur||'CHF')+'</span>'+fmtN(net,a.cur||'CHF')+'</div>'+
+        '<div class="rc-amt mono"><span class="cur">'+esc(a.cur||'CHF')+'</span>'+(net!=null?fmtN(net,a.cur||'CHF'):'—')+'</div>'+
+        '<div class="rc-amtlbl">'+T('fList')+'</div>'+
         '<div class="rc-chips">'+
           '<span class="st '+esc(a.stat||'')+'">'+esc(statLabel(a.stat))+'</span>'+
           '<span class="st '+esc(a.pay||'')+'">'+esc(payLabel(a.pay))+'</span>'+
@@ -2043,16 +2045,16 @@ function buildRepInv(){
     '<div class="sh-sub">'+esc(T('rInvT'))+'</div>'+
     '<div class="sh-meta">'+T('stockAt')+' '+fmtDate(today())+'</div>';
   h+='<table><colgroup><col style="width:5%"><col style="width:11%"><col style="width:13%"><col style="width:14%"><col style="width:10%"><col style="width:15%"><col style="width:9%"><col style="width:8%"><col style="width:9%"><col style="width:6%"></colgroup>';
-  h+='<tr><th></th><th>'+T('thBrand')+'</th><th>'+T('thRef')+'</th><th>'+T('thModel')+'</th><th>'+T('thSerial')+'</th><th>'+T('thSup')+'</th><th>'+T('thStat')+'</th><th>'+T('thDate')+'</th><th class="num">'+T('thCost')+'</th><th>'+T('thCur')+'</th></tr>';
+  h+='<tr><th></th><th>'+T('thBrand')+'</th><th>'+T('thRef')+'</th><th>'+T('thModel')+'</th><th>'+T('thSerial')+'</th><th>'+T('thSup')+'</th><th>'+T('thStat')+'</th><th>'+T('thDate')+'</th><th class="num">'+T('thList')+'</th><th>'+T('thCur')+'</th></tr>';
   rows.forEach(function(a){
     var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
     h+='<tr>'+'<td class="mini">'+(w.photo?'<img src="'+w.photo+'">':'<div class="noph">\u231a</div>')+'</td>'+
       '<td>'+esc(w.brand||'')+'</td><td class="mono2">'+esc(w.ref||'')+setIcons(w)+'</td><td>'+esc(w.model||'')+'</td>'+
       '<td class="mono2">'+esc(w.serial||'')+'</td><td>'+esc(cp?cp.name:'')+'</td><td>'+esc(statLabel(a.stat))+'</td>'+
       '<td>'+fmtDate(a.d_ord)+'</td>'+
-      '<td class="num mono2">'+fmtN(netCost(a),a.cur||'')+'</td><td>'+esc(a.cur||'')+'</td></tr>';
+      '<td class="num mono2">'+fmtN(num(a.list),a.cur||'')+'</td><td>'+esc(a.cur||'')+'</td></tr>';
   });
-  var m=sumByCur(rows,function(a){return a.cur;},function(a){return netCost(a);});
+  var m=sumByCur(rows,function(a){return a.cur;},function(a){return num(a.list)||0;});
   Object.keys(m).sort().forEach(function(c,i){
     h+='<tr class="tot"><td colspan="8">'+(i===0?T('totRow')+' — '+rows.length+' '+T('pieces'):'')+'</td>'+
       '<td class="num mono2">'+fmtN(m[c],c)+'</td><td>'+c+'</td></tr>';
