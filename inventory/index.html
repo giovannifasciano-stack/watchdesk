@@ -1,0 +1,2153 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>WatchDesk — Gestionale</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#03061a; --bg2:#070c2b; --card:#0a1030; --card2:#0d1440;
+  --line:#1a2352; --line2:#26307a;
+  --txt:#e8eaf6; --dim:#8b93c4; --dim2:#5a628f;
+  --accent:#d4b982; --accent2:#e8d5a8; --accent-dark:#a8905f;
+  --ok:#4cd08a; --warn:#e8b04c; --bad:#e86a6a; --info:#6a9de8;
+  --r:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:16px}
+body{
+  background:var(--bg); color:var(--txt);
+  font-family:'Outfit',sans-serif; font-weight:400;
+  min-height:100vh; font-variant-numeric:tabular-nums;
+}
+.mono{font-family:'IBM Plex Mono',monospace}
+button{font-family:'Outfit',sans-serif; cursor:pointer; border:none; background:none; color:inherit}
+input,select,textarea{
+  font-family:'Outfit',sans-serif; font-size:16px; color:var(--txt);
+  background:var(--bg2); border:1px solid var(--line); border-radius:10px;
+  padding:10px 12px; width:100%; outline:none; font-variant-numeric:tabular-nums;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--accent-dark)}
+input[type=date]{color-scheme:dark}
+label{display:block; font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--dim); margin-bottom:5px}
+.field{margin-bottom:14px}
+::placeholder{color:var(--dim2)}
+a{color:var(--accent)}
+
+/* ---------- auth ---------- */
+#authView{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px}
+.auth-card{width:100%; max-width:420px; background:var(--card); border:1px solid var(--line); border-radius:18px; padding:34px 30px}
+.logo{font-weight:800; letter-spacing:.14em; font-size:1.5rem; text-align:center}
+.logo .g{color:var(--accent)}
+.logo-sub{text-align:center; color:var(--dim); font-size:.78rem; letter-spacing:.28em; text-transform:uppercase; margin:6px 0 26px}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  background:var(--accent); color:#0a0d24; font-weight:600; font-size:.95rem;
+  border-radius:10px; padding:11px 18px; transition:opacity .15s; white-space:nowrap;
+}
+.btn:hover{opacity:.88}
+.btn.full{width:100%}
+.btn.ghost{background:transparent; color:var(--accent); border:1px solid var(--accent-dark)}
+.btn.dark{background:var(--bg2); color:var(--txt); border:1px solid var(--line2)}
+.btn.danger{background:transparent; color:var(--bad); border:1px solid var(--bad)}
+.btn.sm{padding:7px 12px; font-size:.83rem; border-radius:8px}
+.auth-alt{text-align:center; margin-top:16px; font-size:.85rem; color:var(--dim)}
+.auth-alt button{color:var(--accent); font-size:.85rem}
+.msg{border-radius:10px; padding:10px 12px; font-size:.85rem; margin-bottom:14px; display:none}
+.msg.err{display:block; background:rgba(232,106,106,.12); border:1px solid rgba(232,106,106,.4); color:#f3a5a5}
+.msg.ok{display:block; background:rgba(76,208,138,.1); border:1px solid rgba(76,208,138,.35); color:#8ce4b4}
+
+/* ---------- app shell ---------- */
+#appView{display:none; min-height:100vh}
+header.app{
+  display:flex; align-items:center; gap:14px; padding:14px 20px;
+  border-bottom:1px solid var(--line); background:var(--bg2);
+  position:sticky; top:0; z-index:40;
+}
+header.app .logo{font-size:1.05rem; text-align:left}
+.pill{font-size:.62rem; letter-spacing:.14em; border:1px solid var(--accent-dark); color:var(--accent); border-radius:20px; padding:2px 9px; margin-left:8px; vertical-align:2px; white-space:nowrap; display:inline-block}
+.spacer{flex:1}
+.langbox{display:flex; gap:6px}
+.langbtn{font-size:.78rem; padding:5px 10px; border-radius:8px; border:1px solid var(--line); color:var(--dim); display:flex; gap:6px; align-items:center}
+.langbtn.on{border-color:var(--accent-dark); color:var(--accent)}
+.iconbtn{width:36px; height:36px; border-radius:9px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:1rem; color:var(--dim)}
+.iconbtn:hover{color:var(--accent); border-color:var(--accent-dark)}
+
+nav.app{
+  display:flex; gap:4px; padding:10px 16px; overflow-x:auto; scrollbar-width:none;
+  border-bottom:1px solid var(--line); background:var(--bg); position:sticky; top:65px; z-index:39;
+}
+nav.app::-webkit-scrollbar{display:none}
+.navbtn{
+  padding:9px 15px; border-radius:10px; font-size:.82rem; font-weight:600; color:var(--dim);
+  white-space:nowrap; border:1px solid transparent; letter-spacing:.08em; text-transform:uppercase;
+  position:relative; transition:color .15s, background .15s;
+}
+.navbtn:hover{color:var(--text)}
+.navbtn.on{color:var(--accent); background:var(--card); border-color:var(--line2)}
+.navbtn.on::after{content:''; position:absolute; left:14px; right:14px; bottom:4px; height:2px; background:var(--accent); border-radius:2px}
+.navsep{width:1px; align-self:stretch; margin:6px 6px; background:var(--line2); flex:0 0 1px}
+
+main{max-width:1180px; margin:0 auto; padding:24px 20px 80px}
+.view{display:none}
+.view.on{display:block}
+h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4px}
+.sec-sub{color:var(--dim); font-size:.88rem; margin-bottom:20px}
+
+/* ---------- home ---------- */
+.hero{
+  background:linear-gradient(135deg, var(--card) 0%, var(--card2) 100%);
+  border:1px solid var(--line2); border-radius:18px; padding:26px 28px; margin-bottom:22px;
+}
+.hero h1{font-size:1.5rem; font-weight:700}
+.hero h1 .g{color:var(--accent)}
+.hero p{color:var(--dim); margin-top:4px; font-size:.9rem}
+.tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-bottom:22px}
+.tile{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:18px; cursor:pointer; transition:border-color .15s}
+.tile:hover{border-color:var(--accent-dark)}
+.tile .t-label{font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--dim)}
+.tile .t-value{font-size:1.7rem; font-weight:700; margin-top:6px}
+.tile .t-note{font-size:.78rem; color:var(--dim2); margin-top:2px}
+.panel{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:20px; margin-bottom:20px}
+.panel h3{font-size:.8rem; letter-spacing:.12em; text-transform:uppercase; color:var(--dim); margin-bottom:14px}
+.currow{display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--line); font-size:.95rem}
+.currow:last-child{border-bottom:none}
+.currow .amt{font-weight:600}
+
+/* ---------- toolbars & lists ---------- */
+.toolbar{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:18px; align-items:center}
+.toolbar input,.toolbar select{width:auto; flex:1; min-width:140px}
+.toolbar .btn{flex-shrink:0}
+.chips{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px}
+.chip{padding:6px 14px; border-radius:20px; font-size:.82rem; border:1px solid var(--line); color:var(--dim)}
+.chip.on{border-color:var(--accent-dark); color:var(--accent); background:rgba(212,185,130,.08)}
+
+.rowcard{
+  display:flex; gap:14px; align-items:center; background:var(--card);
+  border:1px solid var(--line); border-radius:var(--r); padding:13px 16px; margin-bottom:10px;
+  cursor:pointer; transition:border-color .15s;
+}
+.rowcard:hover{border-color:var(--accent-dark)}
+.thumb{
+  width:58px; height:58px; border-radius:10px; background:var(--bg2); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; overflow:hidden; font-size:1.3rem; color:var(--dim2);
+  border:1px solid var(--line);
+}
+.thumb img{width:100%; height:100%; object-fit:cover}
+.rc-main{flex:1; min-width:0}
+.rc-title{font-weight:600; font-size:.98rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.rc-title .ref{font-family:'IBM Plex Mono',monospace; font-size:.85rem; color:var(--accent2)}
+.rc-sub{color:var(--dim); font-size:.82rem; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.rc-right{text-align:right; flex-shrink:0}
+.rc-amt{font-weight:700; font-size:1.02rem}
+.rc-amt .cur{font-size:.75rem; color:var(--dim); margin-right:4px}
+.rc-chips{display:flex; gap:6px; justify-content:flex-end; margin-top:5px; flex-wrap:wrap}
+.st{font-size:.68rem; letter-spacing:.04em; padding:3px 9px; border-radius:12px; border:1px solid; white-space:nowrap}
+.st.ordinato{color:var(--info); border-color:var(--info)}
+.st.arrivato{color:var(--warn); border-color:var(--warn)}
+.st.pagatonr{color:var(--accent); border-color:var(--accent-dark)}
+.st.ritirato{color:var(--ok); border-color:var(--ok)}
+.st.venduto{color:var(--accent); border-color:var(--accent-dark); background:rgba(212,185,130,.1)}
+.st.pagato{color:var(--ok); border-color:var(--ok)}
+.st.acconto{color:var(--warn); border-color:var(--warn)}
+.st.nonpagato{color:var(--bad); border-color:var(--bad)}
+.empty{color:var(--dim2); text-align:center; padding:40px 0; font-size:.9rem}
+
+.grid-mag{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px}
+.magcard{background:var(--card); border:1px solid var(--line); border-radius:var(--r); overflow:hidden; cursor:pointer; transition:border-color .15s}
+.magcard:hover{border-color:var(--accent-dark)}
+.magcard .ph{height:160px; background:var(--bg2); display:flex; align-items:center; justify-content:center; font-size:2rem; color:var(--dim2)}
+.magcard .ph img{width:100%; height:100%; object-fit:cover}
+.magcard .bd{padding:13px 15px}
+.magcard .b1{font-weight:600; font-size:.92rem}
+.magcard .b2{font-family:'IBM Plex Mono',monospace; font-size:.8rem; color:var(--accent2); margin-top:2px}
+.magcard .b3{color:var(--dim); font-size:.78rem; margin-top:6px; display:flex; justify-content:space-between}
+.magfoot{display:flex; border-top:1px solid var(--line)}
+.magfoot button{flex:1; padding:9px; font-size:.82rem; color:var(--accent)}
+.magfoot button:hover{background:var(--bg2)}
+
+/* ---------- modal ---------- */
+.overlay{
+  display:none; position:fixed; inset:0; background:rgba(2,4,16,.78); z-index:100;
+  align-items:flex-start; justify-content:center; padding:30px 14px; overflow-y:auto;
+}
+.overlay.on{display:flex}
+.modal{
+  width:100%; max-width:720px; background:var(--card); border:1px solid var(--line2);
+  border-radius:18px; padding:26px; margin:auto 0;
+}
+.modal.narrow{max-width:480px}
+.m-head{display:flex; align-items:center; margin-bottom:20px}
+.m-head h3{font-size:1.15rem; font-weight:700}
+.m-close{margin-left:auto; font-size:1.2rem; color:var(--dim); width:34px; height:34px; border-radius:8px}
+.m-close:hover{color:var(--txt); background:var(--bg2)}
+.frow{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.frow3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px}
+@media(max-width:560px){.frow,.frow3{grid-template-columns:1fr}}
+.m-actions{display:flex; gap:10px; margin-top:22px; flex-wrap:wrap}
+.m-actions .spacer{flex:1}
+.divider{border-top:1px solid var(--line); margin:20px 0; position:relative}
+.divider span{position:absolute; top:-9px; left:0; background:var(--card); padding-right:10px; font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--dim2)}
+
+.photo-drop{
+  border:1px dashed var(--line2); border-radius:12px; height:130px; display:flex;
+  align-items:center; justify-content:center; color:var(--dim2); font-size:.85rem; cursor:pointer;
+  overflow:hidden; position:relative;
+}
+.photo-drop img{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:var(--bg2)}
+.searchres{border:1px solid var(--line2); border-radius:10px; margin-top:8px; max-height:220px; overflow-y:auto; display:none}
+.searchres.on{display:block}
+.sr-item{padding:10px 12px; border-bottom:1px solid var(--line); cursor:pointer; font-size:.87rem}
+.sr-item:hover{background:var(--bg2)}
+.sr-item:last-child{border-bottom:none}
+.sr-item .r1{font-family:'IBM Plex Mono',monospace; color:var(--accent2)}
+.sr-item .r2{color:var(--dim); font-size:.78rem; margin-top:2px}
+.doclist{margin-top:10px}
+.doc-item{display:flex; align-items:center; gap:10px; padding:8px 10px; background:var(--bg2); border:1px solid var(--line); border-radius:9px; margin-bottom:6px; font-size:.84rem}
+.doc-item .dn{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; cursor:pointer; color:var(--accent2)}
+.doc-item .dx{color:var(--bad); font-size:1rem}
+.status-inline{font-size:.82rem; color:var(--accent); margin-left:10px; display:none}
+
+/* ---------- reports ---------- */
+.repgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px}
+.repcard{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:20px; cursor:pointer; transition:border-color .15s}
+.repcard:hover{border-color:var(--accent-dark)}
+.repcard .ri{font-size:1.5rem; margin-bottom:10px}
+.repcard .rt{font-weight:600; margin-bottom:4px}
+.repcard .rd{color:var(--dim); font-size:.82rem; line-height:1.45}
+
+/* ---------- print preview ---------- */
+#docPreview{display:none; position:fixed; inset:0; background:rgba(3,6,26,.96); z-index:230; flex-direction:column}
+#docPreview.on{display:flex}
+.dp-bar{display:flex; gap:10px; align-items:center; padding:12px 16px; border-bottom:1px solid var(--line); background:var(--bg2)}
+.dp-bar .t{font-size:.9rem; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.dp-body{flex:1; overflow:auto; display:flex; align-items:flex-start; justify-content:center; padding:16px}
+.dp-body img{max-width:100%; height:auto; border-radius:8px; background:#fff}
+.dp-body iframe{width:100%; height:100%; border:0; background:#fff; border-radius:8px}
+.dp-body .dp-noview{color:var(--dim); margin-top:40px; text-align:center}
+#printLayer{
+  display:none; position:fixed; inset:0; background:#20242e; z-index:200; overflow-y:auto;
+}
+@media (max-width:900px){
+  #printLayer{overflow-x:auto; -webkit-overflow-scrolling:touch}
+  .sheet{min-width:980px; margin:16px; font-size:12px}
+  .pl-bar{position:sticky; left:0}
+}
+#printLayer.on{display:block}
+.pl-bar{
+  position:sticky; top:0; z-index:5; display:flex; gap:10px; align-items:center;
+  background:var(--bg2); border-bottom:1px solid var(--line); padding:12px 20px;
+}
+.pl-bar .t{font-weight:600; font-size:.95rem}
+.sheet{
+  background:#fff; color:#14161f; max-width:1050px; margin:24px auto; padding:34px 40px;
+  border-radius:4px; font-size:12.5px; line-height:1.45;
+}
+.sheet h1{font-size:19px; letter-spacing:.1em; font-weight:800}
+.sheet h1 .g{color:#a8905f}
+.sheet .sh-sub{color:#666e85; font-size:11px; letter-spacing:.2em; text-transform:uppercase; margin:2px 0 4px}
+.sheet .sh-meta{color:#666e85; font-size:11px; margin-bottom:16px}
+.sheet table{width:100%; border-collapse:collapse; table-layout:fixed; margin-top:10px}
+.sheet th{
+  text-align:left; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase;
+  color:#666e85; border-bottom:1.5px solid #14161f; padding:6px 6px;
+}
+.sheet td{border-bottom:1px solid #dfe2ea; padding:7px 6px; vertical-align:top; overflow:hidden; text-overflow:ellipsis}
+.sheet .num{text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap}
+.sheet td.mini{padding:3px 4px}
+.sheet .mini img{width:34px; height:34px; object-fit:cover; border-radius:6px; display:block; border:1px solid #dfe2ea}
+.sheet .seticons{font-size:11px; letter-spacing:1px}
+.sheet .mini .noph{width:34px; height:34px; border-radius:6px; background:#eef0f5; color:#a2a8ba; display:flex; align-items:center; justify-content:center; font-size:15px}
+.sheet .fxbox{margin-top:16px; border:1.5px solid #a8905f; border-radius:8px; padding:12px 14px; page-break-inside:avoid}
+.sheet .fxbox .fxt{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#666e85; margin-bottom:8px; font-weight:700}
+.sheet .fxrow{display:flex; align-items:baseline; gap:10px; padding:5px 0; border-bottom:1px dashed #dfe2ea; font-size:13px}
+.sheet .fxrow:last-of-type{border-bottom:none}
+.sheet .fxrow .flag{font-size:15px; width:22px}
+.sheet .fxrow .fxmain{font-weight:800; font-variant-numeric:tabular-nums; white-space:nowrap}
+.sheet .fxrow .fxalt{color:#666e85; font-variant-numeric:tabular-nums; font-size:12px}
+.sheet .fxgrand{margin-top:8px; padding-top:8px; border-top:2px solid #a8905f; display:flex; flex-wrap:wrap; gap:6px 18px; font-size:13px; font-weight:800; font-variant-numeric:tabular-nums}
+.sheet .fxgrand .flag{margin-right:4px}
+.sheet .fxnote{margin-top:7px; font-size:10px; color:#8a91a6}
+.sheet .mono2{font-family:'IBM Plex Mono',monospace; font-size:11px}
+.sheet .tot td{border-top:2px solid #14161f; border-bottom:none; font-weight:700; padding-top:9px}
+.sheet .neg{color:#c0392b}
+.sheet .pos{color:#1e8e5a}
+.sheet .sect{margin-top:22px; font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; border-bottom:1.5px solid #14161f; padding-bottom:4px}
+
+@media print{
+  body>*{display:none !important}
+  #printLayer{display:block !important; position:static; background:#fff; overflow:visible}
+  .pl-bar{display:none !important}
+  .sheet{margin:0; padding:0; max-width:none; border-radius:0; font-size:11.5px}
+  @page{size:A4 landscape; margin:11mm}
+}
+
+@media(max-width:640px){
+  main{padding:16px 12px 70px}
+  header.app{padding:10px 12px; gap:8px}
+  header.app .logo{font-size:1.05rem}
+  header.app .logo{font-size:.95rem; white-space:nowrap}
+  header.app .pill{font-size:.6rem; padding:2px 8px; margin-left:6px}
+  header.app .pill .pw{display:none}
+  .langbtn{padding:5px 8px; font-size:.62rem}
+  .iconbtn{width:34px; height:34px; font-size:.95rem}
+  nav.app{top:56px; padding:8px 10px; gap:2px}
+  .navbtn{padding:8px 10px; font-size:.68rem; letter-spacing:.05em}
+  .navbtn.on::after{left:9px; right:9px}
+  .navsep{margin:5px 3px}
+  .hero{padding:16px 18px; margin-bottom:16px; border-radius:14px}
+  .hero h1{font-size:1.2rem}
+  .hero p{font-size:.8rem}
+  h2.sec{font-size:1.15rem}
+  .sec-sub{font-size:.8rem; margin-bottom:14px}
+  .tiles{grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:16px}
+  .tile{padding:13px 14px}
+  .tile .t-label{font-size:.6rem}
+  .tile .t-value{font-size:1.35rem; margin-top:4px}
+  .tile .t-note{font-size:.68rem}
+  .panel{padding:15px}
+  .toolbar{gap:8px}
+  .toolbar input,.toolbar select{min-width:0; font-size:.85rem}
+  .toolbar .btn{width:100%; justify-content:center}
+  .rowcard{padding:11px 12px; gap:10px}
+  .thumb{width:48px; height:48px}
+  .rc-title{font-size:.88rem}
+  .rc-amt{font-size:.9rem}
+  .rc-sub{white-space:normal}
+  .repcard{padding:15px}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ AUTH ============ -->
+<div id="authView">
+  <div class="auth-card">
+    <div class="logo">WATCH<span class="g">DESK</span></div>
+    <div class="logo-sub" data-i18n="authSub">Gestionale orologi</div>
+    <div class="msg" id="authMsg"></div>
+
+    <div id="loginForm">
+      <div class="field"><label>Email</label><input type="email" id="liEmail" autocomplete="username"></div>
+      <div class="field"><label>Password</label><input type="password" id="liPass" autocomplete="current-password"></div>
+      <button class="btn full" id="btnLogin" data-i18n="login">Entra</button>
+      <div class="auth-alt">
+        <button id="goSignup" data-i18n="goSignup">Crea un account</button> ·
+        <button id="goReset" data-i18n="goReset">Password dimenticata</button>
+      </div>
+    </div>
+
+    <div id="signupForm" style="display:none">
+      <div class="field"><label>Email</label><input type="email" id="suEmail"></div>
+      <div class="field"><label>Password</label><input type="password" id="suPass"></div>
+      <div class="field"><label data-i18n="signupCode">Codice di registrazione</label><input type="text" id="suCode" class="mono"></div>
+      <button class="btn full" id="btnSignup" data-i18n="signupBtn">Registrati</button>
+      <div class="auth-alt"><button class="backLogin" data-i18n="backLogin">Torna al login</button></div>
+    </div>
+
+    <div id="resetForm" style="display:none">
+      <div class="field"><label>Email</label><input type="email" id="rsEmail"></div>
+      <div class="field"><label data-i18n="recoveryCode">Codice di recupero</label><input type="text" id="rsCode" class="mono"></div>
+      <div class="field"><label data-i18n="newPass">Nuova password</label><input type="password" id="rsPass"></div>
+      <button class="btn full" id="btnReset" data-i18n="resetBtn">Reimposta password</button>
+      <div class="auth-alt"><button class="backLogin" data-i18n="backLogin">Torna al login</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="appView">
+  <header class="app">
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v2.9</span></div>
+    <div class="spacer"></div>
+    <div class="langbox">
+      <button class="langbtn" id="langIt">🇮🇹 ITA</button>
+      <button class="langbtn" id="langEn">🇬🇧 ENG</button>
+    </div>
+    <button class="iconbtn" id="btnSettings" title="Impostazioni">⚙</button>
+    <button class="iconbtn" id="btnLogout" title="Esci">⎋</button>
+  </header>
+
+  <nav class="app">
+    <button class="navbtn on" data-view="home" data-i18n="navHome">Home</button>
+    <span class="navsep"></span>
+    <button class="navbtn" data-view="acq" data-i18n="navAcq">Inventario</button>
+    <button class="navbtn" data-view="pur" data-i18n="navPur">Acquisti</button>
+    <button class="navbtn" data-view="sales" data-i18n="navSales">Vendite</button>
+    <span class="navsep"></span>
+    <button class="navbtn" data-view="cp" data-i18n="navCp">Clienti-Fornitori</button>
+    <span class="navsep"></span>
+    <button class="navbtn" data-view="rep" data-i18n="navRep">Reports</button>
+  </nav>
+
+  <main>
+    <!-- HOME -->
+    <section class="view on" id="view-home">
+      <div class="hero">
+        <h1><span data-i18n="heroHi">Bentornato</span><span class="g"> Giovanni</span></h1>
+        <p id="heroDate"></p>
+      </div>
+      <div class="tiles">
+        <div class="tile" data-goto="acq"><div class="t-label" data-i18n="tOpen">Acquisti aperti</div><div class="t-value" id="kpiOpen">–</div><div class="t-note" data-i18n="tOpenN">ordinati o in arrivo</div></div>
+        <div class="tile" data-goto="acq"><div class="t-label" data-i18n="tStock">In magazzino</div><div class="t-value" id="kpiStock">–</div><div class="t-note" data-i18n="tStockN">ritirati, non venduti</div></div>
+        <div class="tile" data-goto="sales"><div class="t-label" data-i18n="tSold">Vendite anno</div><div class="t-value" id="kpiSold">–</div><div class="t-note" id="kpiSoldN"></div></div>
+        <div class="tile" data-goto="rep"><div class="t-label" data-i18n="tMargin">Margine anno</div><div class="t-value" id="kpiMargin" style="font-size:1.15rem;line-height:1.5">–</div><div class="t-note" data-i18n="tMarginN">netto vendite − costi netti</div></div>
+      </div>
+      <div class="panel">
+        <h3 data-i18n="pCur">Impegni aperti per valuta — costo netto</h3>
+        <div id="curBox"></div>
+      </div>
+      <div class="panel">
+        <h3 data-i18n="pLast">Ultimi movimenti</h3>
+        <div id="lastBox"></div>
+      </div>
+    </section>
+
+    <!-- ACQUISTI -->
+    <section class="view" id="view-acq">
+      <h2 class="sec" data-i18n="navAcq">Inventario</h2>
+      <p class="sec-sub" data-i18n="acqSub">Ogni acquisto è un orologio con la sua acquisizione: prezzi, pagamenti, stato ritiro.</p>
+      <div class="toolbar">
+        <input type="text" id="acqSearch" data-i18n-ph="phSearch" placeholder="Cerca referenza, marca, fornitore…">
+        <select id="acqBrand"></select>
+        <select id="acqStat"></select>
+      </div>
+      <div id="acqList"></div>
+    </section>
+
+    <!-- MAGAZZINO -->
+    <section class="view" id="view-pur">
+      <h2 class="sec" data-i18n="navPur">Acquisti</h2>
+      <p class="sec-sub" data-i18n="purSub">Registro completo degli acquisti, venduti inclusi.</p>
+      <div class="toolbar">
+        <button class="btn" id="btnNewAcq2">+ <span data-i18n="newAcq">Nuovo acquisto</span></button>
+        <input type="text" id="purSearch" data-i18n-ph="phSearchAcq" placeholder="Cerca marca, referenza, fornitore…">
+      </div>
+      <div id="purList"></div>
+    </section>
+
+    <section class="view" id="view-mag">
+      <h2 class="sec" data-i18n="navMag">Magazzino</h2>
+      <p class="sec-sub" data-i18n="magSub">Orologi ritirati e non ancora venduti — quello che hai in casa.</p>
+      <div class="toolbar">
+        <input type="text" id="magSearch" data-i18n-ph="phSearchMag" placeholder="Cerca referenza, marca, seriale…">
+      </div>
+      <div class="grid-mag" id="magGrid"></div>
+      <div class="empty" id="magEmpty" style="display:none" data-i18n="magEmpty">Magazzino vuoto: nessun orologio ritirato in attesa di vendita.</div>
+    </section>
+
+    <!-- VENDITE -->
+    <section class="view" id="view-sales">
+      <h2 class="sec" data-i18n="navSales">Vendite</h2>
+      <p class="sec-sub" data-i18n="salesSub">Vendite registrate sugli orologi in archivio, con regime IVA e permuta.</p>
+      <div class="toolbar">
+        <input type="text" id="salesSearch" data-i18n-ph="phSearchSales" placeholder="Cerca referenza, marca, cliente…">
+        <button class="btn" id="btnNewSale">+ <span data-i18n="newSale">Nuova vendita</span></button>
+      </div>
+      <div id="salesList"></div>
+    </section>
+
+    <!-- CONTROPARTI -->
+    <section class="view" id="view-cp">
+      <h2 class="sec" data-i18n="navCp">Controparti</h2>
+      <p class="sec-sub" data-i18n="cpSub">Fornitori e clienti, divisi: chi "entrambi" compare nelle due liste.</p>
+      <div class="chips" id="cpRoleChips">
+        <button class="chip on" data-role="fornitori" data-i18n="tabSup">Fornitori</button>
+        <button class="chip" data-role="clienti" data-i18n="tabCli">Clienti</button>
+      </div>
+      <div class="toolbar">
+        <input type="text" id="cpSearch" data-i18n-ph="phSearchCp" placeholder="Cerca nome, città…">
+        <button class="btn" id="btnNewCli">+ <span data-i18n="newCli">Aggiungi cliente</span></button>
+        <button class="btn" id="btnNewSup">+ <span data-i18n="newSup">Aggiungi fornitore</span></button>
+      </div>
+      <div id="cpList"></div>
+    </section>
+
+    <!-- REPORTS -->
+    <section class="view" id="view-rep">
+      <h2 class="sec" data-i18n="navRep">Reports</h2>
+      <p class="sec-sub" data-i18n="repSub">Estratti conto, registro vendite, margini. Ogni report si apre in anteprima e poi si stampa.</p>
+      <div class="panel">
+        <h3 data-i18n="repFilters">Filtri</h3>
+        <div class="frow3">
+          <div class="field"><label data-i18n="fFrom">Dal</label><input type="date" id="repFrom"></div>
+          <div class="field"><label data-i18n="fTo">Al</label><input type="date" id="repTo"></div>
+          <div class="field"><label data-i18n="fCp">Cliente / Fornitore</label><select id="repCp"></select></div>
+        </div>
+      </div>
+      <div class="repgrid">
+        <div class="repcard" id="repAcq"><div class="ri">📥</div><div class="rt" data-i18n="rAcqT">Estratto conto acquisti</div><div class="rd" data-i18n="rAcqD">Tutte le acquisizioni del periodo, con costi netti e stato pagamenti.</div></div>
+        <div class="repcard" id="repSales"><div class="ri">📤</div><div class="rt" data-i18n="rSalesT">Registro vendite</div><div class="rd" data-i18n="rSalesD">Le vendite del periodo con regime IVA, permute e incassi.</div></div>
+        <div class="repcard" id="repMargin"><div class="ri">📈</div><div class="rt" data-i18n="rMarT">Margini</div><div class="rd" data-i18n="rMarD">Margine per pezzo con giorni di giacenza, più totali per marca e cliente.</div></div>
+        <div class="repcard" id="repStock"><div class="ri">🏛</div><div class="rt" data-i18n="rStockT">Valore magazzino</div><div class="rd" data-i18n="rStockD">Gli orologi in casa al costo netto, con giacenza a oggi.</div></div>
+        <div class="repcard" id="repInv"><div class="ri">🗂</div><div class="rt" data-i18n="rInvT">Inventario</div><div class="rd" data-i18n="rInvD">Tutti i pezzi non venduti — ordinati, in arrivo e in casa — con stato e costo netto.</div></div>
+        <div class="repcard" id="repCsv"><div class="ri">📄</div><div class="rt" data-i18n="rCsvT">Esporta CSV</div><div class="rd" data-i18n="rCsvD">Acquisti e vendite filtrati, in un file per Excel/Numbers.</div></div>
+        <div class="repcard" id="repJson"><div class="ri">💾</div><div class="rt" data-i18n="rJsonT">Backup JSON</div><div class="rd" data-i18n="rJsonD">Copia completa dell'archivio, foto incluse.</div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ============ MODALE ACQUISTO ============ -->
+<div class="overlay" id="ovAcq">
+  <div class="modal">
+    <div class="m-head"><h3 id="acqModalTitle" data-i18n="newAcq">Nuovo acquisto</h3><button class="m-close" data-close="ovAcq">✕</button></div>
+    <div class="msg" id="acqMsg"></div>
+
+    <div class="divider"><span data-i18n="dWatch">Orologio</span></div>
+    <div class="frow">
+      <div class="field"><label data-i18n="fBrand">Marca</label>
+        <select id="aBrand"></select>
+      </div>
+      <div class="field" id="aBrandOtherBox" style="display:none"><label data-i18n="fBrandOther">Altra marca</label><input type="text" id="aBrandOther"></div>
+      <div class="field"><label data-i18n="fRef">Referenza</label>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="aRef" class="mono" style="flex:1">
+          <button class="btn dark sm" id="btnRefSearch" title="Cerca nel catalogo ufficiale">🔎</button>
+        </div>
+        <span class="status-inline" id="refStatus"></span>
+        <div class="searchres" id="refResults"></div>
+      </div>
+    </div>
+    <div class="frow">
+      <div class="field"><label data-i18n="fModel">Modello</label><input type="text" id="aModel"></div>
+      <div class="field"><label data-i18n="fSerial">Seriale</label><input type="text" id="aSerial" class="mono"></div>
+    </div>
+    <div class="frow3">
+      <div class="field"><label data-i18n="fYear">Anno</label><input type="text" id="aYear" inputmode="numeric"></div>
+      <div class="field"><label data-i18n="fCond">Condizioni</label><select id="aCond"></select></div>
+      <div class="field"><label data-i18n="fSet">Corredo</label><select id="aSet"></select></div>
+    </div>
+    <div class="field"><label data-i18n="fPhoto">Foto</label>
+      <div class="photo-drop" id="aPhotoDrop"><span data-i18n="phPhoto">Tocca per caricare una foto</span><img id="aPhotoImg" style="display:none"></div>
+      <input type="file" id="aPhotoFile" accept="image/*" style="display:none">
+    </div>
+
+    <div class="divider"><span data-i18n="dAcq">Acquisizione</span></div>
+    <div class="frow">
+      <div class="field"><label data-i18n="fSup">Fornitore</label><select id="aCp"></select></div>
+      <div class="field"><label data-i18n="fCur">Valuta</label><select id="aCur"></select></div>
+    </div>
+    <div class="frow3">
+      <div class="field"><label data-i18n="fList">Prezzo listino</label><input type="text" id="aList" inputmode="decimal"></div>
+      <div class="field"><label data-i18n="fAgreed">Prezzo concordato</label><input type="text" id="aAgreed" inputmode="decimal"></div>
+      <div class="field"><label data-i18n="fVat">IVA %</label><input type="text" id="aVat" inputmode="decimal"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label data-i18n="fNet">Prezzo netto detax</label><input type="text" id="aNet" inputmode="decimal" style="border-color:var(--accent-dark)"></div>
+      <div class="field"><label data-i18n="fPay">Pagamento</label><select id="aPay"></select></div>
+    </div>
+    <div class="frow">
+      <div class="field" id="aDepBox"><label data-i18n="fDep">Acconto versato</label><input type="text" id="aDep" inputmode="decimal"></div>
+      <div class="field"><label data-i18n="fPayDate">Data pagamento</label><input type="date" id="aPayDate"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label data-i18n="fStat">Stato</label><select id="aStat"></select></div>
+      <div class="field"><label data-i18n="fDOrd">Data ordine</label><input type="date" id="aDOrd"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label data-i18n="fDRec">Arrivato dal fornitore il</label><input type="date" id="aDRec"></div>
+      <div class="field"><label data-i18n="fDPick">Data ritiro</label><input type="date" id="aDPick"></div>
+    </div>
+    <div class="field"><label data-i18n="fNotes">Note</label><textarea id="aNotes" rows="2"></textarea></div>
+
+    <div class="field" id="aDocsBox" style="display:none"><label data-i18n="fDocs">Documenti / fatture</label>
+      <button class="btn dark sm" id="btnAddDocA">+ <span data-i18n="addDoc">Aggiungi file</span></button>
+      <input type="file" id="aDocFile" multiple style="display:none">
+      <div class="doclist" id="aDocList"></div>
+    </div>
+
+    <div class="m-actions">
+      <button class="btn danger sm" id="btnDelAcq" style="display:none" data-i18n="delete">Elimina</button>
+      <button class="btn sm" id="btnSellAcq" style="display:none">💰 <span data-i18n="sellThis">Vendi questo orologio</span> →</button>
+      <div class="spacer"></div>
+      <button class="btn ghost" data-close="ovAcq" data-i18n="cancel">Annulla</button>
+      <button class="btn" id="btnSaveAcq" data-i18n="save">Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODALE VENDITA ============ -->
+<div class="overlay" id="ovSale">
+  <div class="modal">
+    <div class="m-head"><h3 id="saleModalTitle" data-i18n="newSale">Nuova vendita</h3><button class="m-close" data-close="ovSale">✕</button></div>
+    <div class="msg" id="saleMsg"></div>
+    <div class="field"><label data-i18n="fWatch">Orologio</label><select id="sWatch"></select></div>
+    <div class="frow">
+      <div class="field"><label data-i18n="fCpSell">Cliente</label><select id="sCp"></select></div>
+      <div class="field"><label data-i18n="fCur">Valuta</label><select id="sCur"></select></div>
+    </div>
+    <div class="frow3">
+      <div class="field"><label data-i18n="fPrice">Prezzo vendita</label><input type="text" id="sPrice" inputmode="decimal"></div>
+      <div class="field"><label data-i18n="fVat">IVA %</label><input type="text" id="sVat" inputmode="decimal"></div>
+      <div class="field"><label data-i18n="fNetSale">Netto vendita</label><input type="text" id="sNet" inputmode="decimal" style="border-color:var(--accent-dark)"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label data-i18n="fVatMode">Regime</label><select id="sVatMode"></select></div>
+      <div class="field"><label data-i18n="fInvoice">Fattura n.</label><input type="text" id="sInvoice" class="mono"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label data-i18n="fTradeDesc">Permuta — descrizione</label><input type="text" id="sTradeDesc"></div>
+      <div class="field"><label data-i18n="fTradeVal">Permuta — valore</label><input type="text" id="sTradeVal" inputmode="decimal"></div>
+    </div>
+    <div class="frow3">
+      <div class="field"><label data-i18n="fDSale">Data vendita</label><input type="date" id="sDSale"></div>
+      <div class="field"><label data-i18n="fPay">Pagamento</label><select id="sPay"></select></div>
+      <div class="field"><label data-i18n="fPayDate">Data incasso</label><input type="date" id="sPayDate"></div>
+    </div>
+    <div class="field"><label data-i18n="fNotes">Note</label><textarea id="sNotes" rows="2"></textarea></div>
+    <div class="field" id="sDocsBox" style="display:none"><label data-i18n="fDocs">Documenti / fatture</label>
+      <button class="btn dark sm" id="btnAddDocS">+ <span data-i18n="addDoc">Aggiungi file</span></button>
+      <input type="file" id="sDocFile" multiple style="display:none">
+      <div class="doclist" id="sDocList"></div>
+    </div>
+    <div class="m-actions">
+      <button class="btn danger sm" id="btnDelSale" style="display:none" data-i18n="delete">Elimina</button>
+      <div class="spacer"></div>
+      <button class="btn ghost" data-close="ovSale" data-i18n="cancel">Annulla</button>
+      <button class="btn" id="btnSaveSale" data-i18n="save">Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODALE CONTROPARTE ============ -->
+<div class="overlay" id="ovCp">
+  <div class="modal narrow">
+    <div class="m-head"><h3 id="cpModalTitle" data-i18n="newCp">Nuova scheda</h3><button class="m-close" data-close="ovCp">✕</button></div>
+    <div class="msg" id="cpMsg"></div>
+    <div class="field"><label data-i18n="cpLookup">Cerca sul web</label>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="cpLookupQ" data-i18n-ph="phLookup" placeholder="Nome boutique, gioielleria, dealer…" style="flex:1">
+        <button class="btn dark sm" id="btnLookup">🔎</button>
+      </div>
+      <span class="status-inline" id="lookupStatus"></span>
+      <div class="searchres" id="lookupResults"></div>
+    </div>
+    <div class="field"><label data-i18n="fName">Nome / ragione sociale</label><input type="text" id="cName"></div>
+    <div class="frow">
+      <div class="field"><label data-i18n="fAddr">Indirizzo</label><input type="text" id="cAddr"></div>
+      <div class="field"><label data-i18n="fZip">CAP</label><input type="text" id="cZip"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label data-i18n="fCity">Città</label><input type="text" id="cCity"></div>
+      <div class="field"><label data-i18n="fCountry">Paese</label><input type="text" id="cCountry"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label data-i18n="fContact">Referente</label><input type="text" id="cContact"></div>
+      <div class="field"><label data-i18n="fPhone">Telefono</label><input type="text" id="cPhone"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Email</label><input type="email" id="cEmail"></div>
+      <div class="field"><label>Web</label><input type="text" id="cWeb"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label data-i18n="fRole">Ruolo</label><select id="cRole"></select></div>
+      <div class="field"><label data-i18n="fCurDef">Valuta abituale</label><select id="cCur"></select></div>
+    </div>
+    <div class="field"><label data-i18n="fNotes">Note</label><textarea id="cNotes" rows="2"></textarea></div>
+    <div class="m-actions">
+      <button class="btn danger sm" id="btnDelCp" style="display:none" data-i18n="delete">Elimina</button>
+      <div class="spacer"></div>
+      <button class="btn ghost" data-close="ovCp" data-i18n="cancel">Annulla</button>
+      <button class="btn" id="btnSaveCp" data-i18n="save">Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODALE IMPOSTAZIONI ============ -->
+<div class="overlay" id="ovSet">
+  <div class="modal narrow">
+    <div class="m-head"><h3 data-i18n="settings">Impostazioni</h3><button class="m-close" data-close="ovSet">✕</button></div>
+    <div class="msg" id="setMsg"></div>
+    <div class="divider"><span data-i18n="setPass">Cambio password</span></div>
+    <div class="field"><label data-i18n="curPass">Password attuale</label><input type="password" id="chCur"></div>
+    <div class="field"><label data-i18n="newPass">Nuova password</label><input type="password" id="chNew"></div>
+    <button class="btn full" id="btnChange" data-i18n="changeBtn">Cambia password</button>
+    <div class="divider" style="margin-top:26px"><span data-i18n="setMig">Migrazione da Purchases</span></div>
+    <p style="font-size:.84rem;color:var(--dim);margin-bottom:12px" data-i18n="migNote">Copia foto e documenti dal vecchio database WatchDesk Purchases. Da fare una volta sola, con il binding OLDDB attivo sul Worker.</p>
+    <button class="btn dark full" id="btnMigrate" data-i18n="migBtn">Importa foto e documenti</button>
+  </div>
+</div>
+
+<!-- ============ ANTEPRIMA STAMPA ============ -->
+<div id="docPreview">
+  <div class="dp-bar"><span class="t" id="dpName"></span><div class="spacer"></div>
+    <a class="btn dark sm" id="dpDownload" download>⬇ <span data-i18n="download">Scarica</span></a>
+    <button class="btn sm" id="dpClose" data-i18n="close">Chiudi</button></div>
+  <div class="dp-body" id="dpBody"></div>
+</div>
+
+<div id="printLayer">
+  <div class="pl-bar">
+    <span class="t" id="plTitle"></span>
+    <div class="spacer"></div>
+    <button class="btn ghost sm" id="plClose" data-i18n="close">Chiudi</button>
+    <button class="btn sm" id="plPrint">🖨 <span data-i18n="print">Stampa</span></button>
+  </div>
+  <div class="sheet" id="plSheet"></div>
+</div>
+
+<script>
+/* ================================================================
+   WATCHDESK — GESTIONALE UNIFICATO  v2.9
+   API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
+   ================================================================ */
+'use strict';
+
+/* ---------- costanti (tutte PRIMA di qualsiasi uso: mai più TDZ) ---------- */
+var API = 'https://watchdesk-api.owscan.workers.dev';
+var TOKEN_KEY = 'wd_token';
+var LANG_KEY = 'wd_lang';
+
+var CURS = ['CHF','EUR','USD','GBP'];
+
+var BRANDS = ['Patek Philippe','Audemars Piguet','Rolex','Richard Mille','Vacheron Constantin',
+  'A. Lange & Söhne','Jaeger-LeCoultre','F.P. Journe','Omega','Cartier','Tudor','IWC','Panerai',
+  'Hublot','Breguet','Blancpain','Girard-Perregaux','Ulysse Nardin','Zenith','Chopard','Piaget',
+  'Bulgari','Glashütte Original','H. Moser & Cie','Parmigiani Fleurier','Breitling','TAG Heuer','Grand Seiko'];
+
+var STATS = ['ordinato','arrivato','pagatonr','ritirato'];
+var PAYS  = ['nonpagato','acconto','pagato'];
+var ROLES = ['buy','sell','both'];
+var CONDS = ['nuovo','comenuovo','ottimo','buono','darevisione'];
+var SETS  = ['fullset','soloscatola','sologaranzia','soloorologio'];
+var VATMODES = ['ivach','ivaue','export','margine'];
+
+var I18N = {
+  it: {
+    authSub:'Gestionale orologi', login:'Entra', goSignup:'Crea un account', goReset:'Password dimenticata',
+    signupCode:'Codice di registrazione', signupBtn:'Registrati', backLogin:'Torna al login',
+    recoveryCode:'Codice di recupero', newPass:'Nuova password', resetBtn:'Reimposta password',
+    navHome:'Home', navAcq:'Inventario', navPur:'Acquisti', navMag:'Magazzino', navSales:'Vendite', navCp:'Clienti-Fornitori', navRep:'Reports',
+    heroHi:'Bentornato', tOpen:'Acquisti aperti', tOpenN:'ordinati o in arrivo', tStock:'In magazzino',
+    tStockN:'ritirati, non venduti', tSold:'Vendite anno', tMargin:'Margine anno', tMarginN:'netto vendite − costi netti',
+    pCur:'Impegni aperti per valuta — costo netto', pLast:'Ultimi movimenti',
+    purSub:'Registro completo degli acquisti, venduti inclusi.', acqSub:'Ogni pezzo in inventario è un orologio con la sua acquisizione: prezzi, pagamenti, stato ritiro.',
+    magSub:'Orologi ritirati e non ancora venduti — quello che hai in casa.',
+    salesSub:'Vendite registrate sugli orologi in archivio, con regime IVA e permuta.',
+    cpSub:'Fornitori e clienti, divisi: chi \u201centrambi\u201d compare nelle due liste.',
+    repSub:'Estratti conto, registro vendite, margini. Ogni report si apre in anteprima e poi si stampa.',
+    phSearch:'Cerca referenza, marca, fornitore…', phSearchSales:'Cerca referenza, marca, cliente…', phSearchMag:'Cerca referenza, marca, seriale…',
+    phSearchCp:'Cerca nome, città…', phLookup:'Nome boutique, gioielleria, dealer…', phPhoto:'Tocca per caricare una foto',
+    newAcq:'Nuovo acquisto', editAcq:'Modifica acquisto', sellThis:'Vendi questo orologio', newSale:'Nuova vendita', editSale:'Modifica vendita',
+    newCp:'Nuova scheda', newCli:'Aggiungi cliente', newSup:'Aggiungi fornitore', editCp:'Modifica scheda',
+    magEmpty:'Magazzino vuoto: nessun orologio ritirato in attesa di vendita.',
+    roleBuy:'Compro', roleSell:'Vendo', roleBoth:'Entrambi', allF:'Tutte', allM:'Tutti',
+    dWatch:'Orologio', dAcq:'Acquisizione',
+    fBrand:'Marca', fBrandOther:'Altra marca', fRef:'Referenza', fModel:'Modello', fSerial:'Seriale',
+    fYear:'Anno', fCond:'Condizioni', fSet:'Corredo', fPhoto:'Foto', fCp:'Cliente / Fornitore', fSup:'Fornitore', fCpSell:'Cliente',
+    fCur:'Valuta', fList:'Prezzo listino', fAgreed:'Prezzo concordato', fVat:'IVA %', fNet:'Prezzo netto detax',
+    fPay:'Pagamento', fDep:'Acconto versato', fPayDate:'Data pagamento', fStat:'Stato', fDOrd:'Data ordine',
+    fDRec:'Arrivato dal fornitore il', fDPick:'Data ritiro', fNotes:'Note', fDocs:'Documenti / fatture', toUpload:'da caricare al salvataggio', noPreview:'Anteprima non disponibile per questo formato — usa Scarica.', download:'Scarica', close:'Chiudi',
+    addDoc:'Aggiungi file', fWatch:'Orologio', fPrice:'Prezzo vendita', fNetSale:'Netto vendita',
+    fVatMode:'Regime', fInvoice:'Fattura n.', fTradeDesc:'Permuta — descrizione', fTradeVal:'Permuta — valore',
+    fDSale:'Data vendita', fName:'Nome / ragione sociale', fAddr:'Indirizzo', fZip:'CAP', fCity:'Città',
+    fCountry:'Paese', fContact:'Referente', fPhone:'Telefono', fRole:'Ruolo', fCurDef:'Valuta abituale',
+    cpLookup:'Cerca sul web',
+    delete:'Elimina', cancel:'Annulla', save:'Salva', close:'Chiudi', print:'Stampa',
+    settings:'Impostazioni', setPass:'Cambio password', curPass:'Password attuale', changeBtn:'Cambia password',
+    setMig:'Migrazione da Purchases',
+    migNote:'Copia foto e documenti dal vecchio database WatchDesk Purchases. Da fare una volta sola, con il binding OLDDB attivo sul Worker.',
+    migBtn:'Importa foto e documenti',
+    repFilters:'Filtri', fFrom:'Dal', fTo:'Al',
+    rAcqT:'Estratto conto acquisti', rAcqD:'Tutte le acquisizioni del periodo, con costi netti e stato pagamenti.',
+    rSalesT:'Registro vendite', rSalesD:'Le vendite del periodo con regime IVA, permute e incassi.',
+    rMarT:'Margini', rMarD:'Margine per pezzo con giorni di giacenza, più totali per marca e cliente.',
+    rStockT:'Valore magazzino', rStockD:'Gli orologi in casa al costo netto, con giacenza a oggi.', rInvT:'Inventario', rInvD:'Tutti i pezzi non venduti — ordinati, in arrivo e in casa — con stato e costo netto.',
+    rCsvT:'Esporta CSV', rCsvD:'Acquisti e vendite filtrati, in un file per Excel/Numbers.',
+    rJsonT:'Backup JSON', rJsonD:'Copia completa dell\'archivio, foto incluse.',
+    stat_ordinato:'Ordinato', stat_arrivato:'Arrivato dal fornitore', stat_pagatonr:'Pagato, non ritirato', stat_ritirato:'Ritirato',
+    pay_nonpagato:'Non pagato', pay_acconto:'Acconto', pay_pagato:'Pagato',
+    cond_nuovo:'Nuovo', cond_comenuovo:'Come nuovo', cond_ottimo:'Ottimo', cond_buono:'Buono', cond_darevisione:'Da revisione',
+    set_fullset:'Full set', set_soloscatola:'Solo scatola', set_sologaranzia:'Solo garanzia', set_soloorologio:'Solo orologio',
+    vm_ivach:'IVA Svizzera', vm_ivaue:'IVA UE', vm_export:'Export esente', vm_margine:'Regime del margine',
+    role_buy:'Fornitore', role_sell:'Cliente', role_both:'Entrambi',
+    tabSup:'Fornitori', tabCli:'Clienti',
+    venduto:'Venduto', inStock:'In magazzino', days:'giorni', daysStock:'giacenza',
+    noCp:'—', noSup:'— nessun fornitore —', noCli:'— nessun cliente —', selWatch:'— scegli orologio —', selCp:'— scegli cliente —',
+    confirmDelAcq:'Eliminare questo acquisto? Verranno rimossi anche l\'orologio e tutta la sua storia (vendite e documenti).',
+    confirmDelSale:'Eliminare questa vendita?', confirmDelCp:'Eliminare questa scheda?',
+    confirmDelDoc:'Eliminare questo documento?',
+    saving:'Salvataggio…', searching:'Ricerca…', loadingCat:'Interrogo il catalogo…', importing:'Importo la scheda…',
+    noResults:'Nessun risultato', needRef:'Scrivi la referenza prima di cercare', needBrandCat:'La ricerca a catalogo vale per Patek, AP e Rolex',
+    needName:'Serve almeno il nome', needWatch:'Scegli o compila l\'orologio', needBrand:'Indica la marca',
+    errConn:'Connessione non riuscita: il Worker watchdesk-api è online?',
+    sessionOut:'Sessione scaduta, entra di nuovo',
+    genOn:'generato il', period:'Periodo', all:'tutto l\'archivio', totRow:'TOTALE', pieces:'pezzi',
+    fxTitle:'Totali per valuta', fxGrand:'Totale complessivo', fxAbout:'controvalori ai cambi', fxNA:'cambi non disponibili: controvalori omessi',
+    thDate:'Data', thBrand:'Marca', thRef:'Referenza', thModel:'Modello', thCp:'Cliente / Fornitore', thSup:'Fornitore', thCli:'Cliente', thCur:'Val.',
+    thList:'Listino', thAgreed:'Concordato', thNet:'Netto', thPay:'Pagamento', thStat:'Stato',
+    thPrice:'Prezzo', thNetSale:'Netto vendita', thRegime:'Regime', thTrade:'Permuta', thInv:'Fattura',
+    thCost:'Costo netto', thMargin:'Margine', thDays:'Giac. gg', thSerial:'Seriale', thPick:'Ritirato il',
+    byBrand:'Totali per marca', byCp:'Totali per cliente', multiCur:'valute diverse',
+    stockAt:'Magazzino al', marginTitle:'Margini realizzati', valueTitle:'Valore di magazzino',
+    acqTitle:'Estratto conto acquisti', salesTitle:'Registro vendite',
+    migOk:'Migrazione completata', changed:'Password cambiata', docAdded:'Documenti caricati'
+  },
+  en: {
+    authSub:'Watch management', login:'Sign in', goSignup:'Create an account', goReset:'Forgot password',
+    signupCode:'Registration code', signupBtn:'Sign up', backLogin:'Back to login',
+    recoveryCode:'Recovery code', newPass:'New password', resetBtn:'Reset password',
+    navHome:'Home', navAcq:'Inventory', navPur:'Purchases', navMag:'Stock', navSales:'Sales', navCp:'Clients-Suppliers', navRep:'Reports',
+    heroHi:'Welcome back', tOpen:'Open purchases', tOpenN:'ordered or incoming', tStock:'In stock',
+    tStockN:'collected, not sold', tSold:'Sales this year', tMargin:'Margin this year', tMarginN:'net sales − net costs',
+    pCur:'Open commitments by currency — net cost', pLast:'Latest activity',
+    purSub:'Full purchase register, sold pieces included.', acqSub:'Every piece in inventory is a watch with its acquisition: prices, payments, collection status.',
+    magSub:'Watches collected and not yet sold — what you have at home.',
+    salesSub:'Sales recorded on archived watches, with VAT regime and trade-ins.',
+    cpSub:'Suppliers and clients, split: \u201cboth\u201d appears in both lists.',
+    repSub:'Statements, sales ledger, margins. Every report opens as a preview, then prints.',
+    phSearch:'Search reference, brand, supplier…', phSearchSales:'Search reference, brand, client…', phSearchMag:'Search reference, brand, serial…',
+    phSearchCp:'Search name, city…', phLookup:'Boutique, jeweller, dealer name…', phPhoto:'Tap to upload a photo',
+    newAcq:'New purchase', editAcq:'Edit purchase', sellThis:'Sell this watch', newSale:'New sale', editSale:'Edit sale',
+    newCp:'New record', newCli:'Add client', newSup:'Add supplier', editCp:'Edit record',
+    magEmpty:'Inventory is empty: no collected watch awaiting sale.',
+    roleBuy:'Buy', roleSell:'Sell', roleBoth:'Both', allF:'All', allM:'All',
+    dWatch:'Watch', dAcq:'Acquisition',
+    fBrand:'Brand', fBrandOther:'Other brand', fRef:'Reference', fModel:'Model', fSerial:'Serial',
+    fYear:'Year', fCond:'Condition', fSet:'Set', fPhoto:'Photo', fCp:'Client / Supplier', fSup:'Supplier', fCpSell:'Client',
+    fCur:'Currency', fList:'List price', fAgreed:'Agreed price', fVat:'VAT %', fNet:'Net detax price',
+    fPay:'Payment', fDep:'Deposit paid', fPayDate:'Payment date', fStat:'Status', fDOrd:'Order date',
+    fDRec:'Arrived from supplier on', fDPick:'Collection date', fNotes:'Notes', fDocs:'Documents / invoices', toUpload:'uploads on save', noPreview:'No preview for this format — use Download.', download:'Download', close:'Close',
+    addDoc:'Add files', fWatch:'Watch', fPrice:'Sale price', fNetSale:'Net sale',
+    fVatMode:'Regime', fInvoice:'Invoice no.', fTradeDesc:'Trade-in — description', fTradeVal:'Trade-in — value',
+    fDSale:'Sale date', fName:'Name / company', fAddr:'Address', fZip:'ZIP', fCity:'City',
+    fCountry:'Country', fContact:'Contact', fPhone:'Phone', fRole:'Role', fCurDef:'Usual currency',
+    cpLookup:'Search the web',
+    delete:'Delete', cancel:'Cancel', save:'Save', close:'Close', print:'Print',
+    settings:'Settings', setPass:'Change password', curPass:'Current password', changeBtn:'Change password',
+    setMig:'Migration from Purchases',
+    migNote:'Copies photos and documents from the old WatchDesk Purchases database. One-time step, requires the OLDDB binding on the Worker.',
+    migBtn:'Import photos and documents',
+    repFilters:'Filters', fFrom:'From', fTo:'To',
+    rAcqT:'Purchases statement', rAcqD:'All acquisitions in the period, with net costs and payment status.',
+    rSalesT:'Sales ledger', rSalesD:'Sales in the period with VAT regime, trade-ins and collections.',
+    rMarT:'Margins', rMarD:'Margin per piece with days in stock, plus totals by brand and client.',
+    rStockT:'Stock value', rStockD:'Watches at home at net cost, with days in stock to date.', rInvT:'Inventory', rInvD:'All unsold pieces — ordered, incoming and at home — with status and net cost.',
+    rCsvT:'Export CSV', rCsvD:'Filtered purchases and sales, in a file for Excel/Numbers.',
+    rJsonT:'JSON backup', rJsonD:'Full copy of the archive, photos included.',
+    stat_ordinato:'Ordered', stat_arrivato:'Arrived from supplier', stat_pagatonr:'Paid, not collected', stat_ritirato:'Collected',
+    pay_nonpagato:'Unpaid', pay_acconto:'Deposit', pay_pagato:'Paid',
+    cond_nuovo:'New', cond_comenuovo:'Like new', cond_ottimo:'Excellent', cond_buono:'Good', cond_darevisione:'Needs service',
+    set_fullset:'Full set', set_soloscatola:'Box only', set_sologaranzia:'Papers only', set_soloorologio:'Watch only',
+    vm_ivach:'Swiss VAT', vm_ivaue:'EU VAT', vm_export:'Export exempt', vm_margine:'Margin scheme',
+    role_buy:'Supplier', role_sell:'Client', role_both:'Both',
+    tabSup:'Suppliers', tabCli:'Clients',
+    venduto:'Sold', inStock:'In stock', days:'days', daysStock:'in stock',
+    noCp:'—', noSup:'— no supplier —', noCli:'— no client —', selWatch:'— choose watch —', selCp:'— choose client —',
+    confirmDelAcq:'Delete this purchase? The watch and its whole history (sales and documents) will be removed too.',
+    confirmDelSale:'Delete this sale?', confirmDelCp:'Delete this record?',
+    confirmDelDoc:'Delete this document?',
+    saving:'Saving…', searching:'Searching…', loadingCat:'Querying the catalogue…', importing:'Importing details…',
+    noResults:'No results', needRef:'Type the reference first', needBrandCat:'Catalogue search works for Patek, AP and Rolex',
+    needName:'A name is required', needWatch:'Choose or fill in the watch', needBrand:'Set the brand',
+    errConn:'Connection failed: is the watchdesk-api Worker online?',
+    sessionOut:'Session expired, sign in again',
+    genOn:'generated on', period:'Period', all:'whole archive', totRow:'TOTAL', pieces:'pieces',
+    fxTitle:'Totals by currency', fxGrand:'Grand total', fxAbout:'countervalues at rates of', fxNA:'exchange rates unavailable: countervalues omitted',
+    thDate:'Date', thBrand:'Brand', thRef:'Reference', thModel:'Model', thCp:'Client / Supplier', thSup:'Supplier', thCli:'Client', thCur:'Cur.',
+    thList:'List', thAgreed:'Agreed', thNet:'Net', thPay:'Payment', thStat:'Status',
+    thPrice:'Price', thNetSale:'Net sale', thRegime:'Regime', thTrade:'Trade-in', thInv:'Invoice',
+    thCost:'Net cost', thMargin:'Margin', thDays:'Days', thSerial:'Serial', thPick:'Collected on',
+    byBrand:'Totals by brand', byCp:'Totals by client', multiCur:'mixed currencies',
+    stockAt:'Inventory as of', marginTitle:'Realised margins', valueTitle:'Inventory value',
+    acqTitle:'Purchases statement', salesTitle:'Sales ledger',
+    migOk:'Migration completed', changed:'Password changed', docAdded:'Documents uploaded'
+  }
+};
+
+/* ---------- stato ---------- */
+var LANG = localStorage.getItem(LANG_KEY) || 'it';
+var TOKEN = localStorage.getItem(TOKEN_KEY) || '';
+var S = { counterparts:[], watches:[], acquisitions:[], sales:[] };
+var CUR_VIEW = 'home';
+var CP_ROLE_FILTER = 'fornitori';
+var EDIT = { acq:null, watch:null, sale:null, cp:null, photo:'' };
+
+/* ---------- utility ---------- */
+function T(k){ return (I18N[LANG] && I18N[LANG][k]) || I18N.it[k] || k; }
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function rid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+function today(){ return new Date().toISOString().slice(0,10); }
+function num(v){ if(v===''||v==null) return null; var n=Number(String(v).replace(/[’'\s]/g,'').replace(',','.')); return isNaN(n)?null:n; }
+
+function fmtN(v, cur){
+  if(v==null || isNaN(v)) return '–';
+  var neg = v<0; v = Math.abs(v);
+  var parts = v.toFixed(2).split('.');
+  var intp = parts[0], dec = parts[1];
+  var thou, decsep;
+  if(cur==='CHF'){ thou="'"; decsep='.'; }
+  else if(cur==='EUR'){ thou='.'; decsep=','; }
+  else { thou=','; decsep='.'; }
+  var out=''; var c=0;
+  for(var i=intp.length-1;i>=0;i--){ out=intp[i]+out; c++; if(c%3===0 && i>0) out=thou+out; }
+  if(dec!=='00') out += decsep+dec;
+  return (neg?'−':'')+out;
+}
+function money(v, cur){ if(v==null||isNaN(v)) return '–'; return cur+' '+fmtN(v,cur); }
+function fmtDate(d){
+  if(!d) return '';
+  var p = String(d).slice(0,10).split('-');
+  if(p.length!==3) return d;
+  return LANG==='it' ? p[2]+'/'+p[1]+'/'+p[0] : p[2]+'/'+p[1]+'/'+p[0];
+}
+function daysBetween(a,b){
+  if(!a) return null;
+  var d1 = new Date(String(a).slice(0,10)), d2 = b? new Date(String(b).slice(0,10)) : new Date();
+  if(isNaN(d1)||isNaN(d2)) return null;
+  return Math.max(0, Math.round((d2-d1)/86400000));
+}
+function statLabel(s){ return T('stat_'+s) !== 'stat_'+s ? T('stat_'+s) : (s||''); }
+function payLabel(s){ return T('pay_'+s) !== 'pay_'+s ? T('pay_'+s) : (s||''); }
+function sumByCur(rows, getCur, getVal){
+  var out = {};
+  rows.forEach(function(r){
+    var c = getCur(r)||'CHF', v = getVal(r);
+    if(v==null||isNaN(v)) return;
+    out[c] = (out[c]||0)+v;
+  });
+  return out;
+}
+function curMapToText(m){
+  var ks = Object.keys(m).sort();
+  if(!ks.length) return '–';
+  return ks.map(function(c){ return money(m[c], c); }).join('  ·  ');
+}
+
+/* ---------- API ---------- */
+function api(path, opts){
+  opts = opts || {};
+  var headers = opts.headers || {};
+  if(TOKEN) headers['Authorization'] = 'Bearer '+TOKEN;
+  if(opts.body && typeof opts.body!=='string'){ opts.body = JSON.stringify(opts.body); headers['Content-Type']='application/json'; }
+  opts.headers = headers;
+  return fetch(API+path, opts).then(function(r){
+    return r.json().catch(function(){ return {}; }).then(function(d){
+      if(r.status===401 && path.indexOf('/auth/')!==0){ doLogout(true); throw new Error(T('sessionOut')); }
+      if(!r.ok) throw new Error(d && d.error ? d.error : ('HTTP '+r.status));
+      return d;
+    });
+  }, function(){ throw new Error(T('errConn')); });
+}
+
+/* ---------- lookup dati incrociati ---------- */
+function watchById(id){ for(var i=0;i<S.watches.length;i++) if(S.watches[i].id===id) return S.watches[i]; return null; }
+function cpById(id){ for(var i=0;i<S.counterparts.length;i++) if(S.counterparts[i].id===id) return S.counterparts[i]; return null; }
+function acqByWatch(wid){ for(var i=0;i<S.acquisitions.length;i++) if(S.acquisitions[i].watch_id===wid) return S.acquisitions[i]; return null; }
+function saleByWatch(wid){ for(var i=0;i<S.sales.length;i++) if(S.sales[i].watch_id===wid) return S.sales[i]; return null; }
+function netCost(a){ if(!a) return null; if(a.net!=null) return a.net; if(a.agreed!=null) return a.agreed; return a.list!=null?a.list:null; }
+function netSale(s){ if(!s) return null; if(s.net!=null) return s.net; return s.price!=null?s.price:null; }
+function isStock(w){ var a=acqByWatch(w.id); return a && a.stat==='ritirato' && !saleByWatch(w.id); }
+function watchTitle(w){ return (w.brand||'')+(w.ref?' ':'')+(w.ref||'')+(w.model?' — '+w.model:''); }
+
+/* ---------- i18n render ---------- */
+function applyLang(){
+  document.querySelectorAll('[data-i18n]').forEach(function(el){ el.textContent = T(el.getAttribute('data-i18n')); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){ el.placeholder = T(el.getAttribute('data-i18n-ph')); });
+  $('langIt').classList.toggle('on', LANG==='it');
+  $('langEn').classList.toggle('on', LANG==='en');
+  var d = new Date();
+  $('heroDate').textContent = d.toLocaleDateString(LANG==='it'?'it-IT':'en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  fillStaticSelects();
+  renderAll();
+}
+function setLang(l){ LANG=l; localStorage.setItem(LANG_KEY,l); applyLang(); }
+
+/* ---------- select statiche ---------- */
+function optHtml(v,l,sel){ return '<option value="'+esc(v)+'"'+(sel===v?' selected':'')+'>'+esc(l)+'</option>'; }
+function fillStaticSelects(){
+  var keep;
+  keep=$('aBrand').value;
+  $('aBrand').innerHTML = optHtml('','—') + BRANDS.map(function(b){return optHtml(b,b);}).join('') + optHtml('__other','+ '+T('fBrandOther'));
+  if(keep) $('aBrand').value=keep;
+  keep=$('aCond').value;
+  $('aCond').innerHTML = optHtml('','—') + CONDS.map(function(c){return optHtml(c,T('cond_'+c));}).join('');
+  if(keep) $('aCond').value=keep;
+  keep=$('aSet').value;
+  $('aSet').innerHTML = optHtml('','—') + SETS.map(function(c){return optHtml(c,T('set_'+c));}).join('');
+  if(keep) $('aSet').value=keep;
+  ['aCur','sCur','cCur'].forEach(function(id){
+    keep=$(id).value || 'CHF';
+    $(id).innerHTML = CURS.map(function(c){return optHtml(c,c);}).join('');
+    $(id).value=keep;
+  });
+  keep=$('aPay').value;
+  $('aPay').innerHTML = PAYS.map(function(p){return optHtml(p,payLabel(p));}).join('');
+  if(keep) $('aPay').value=keep;
+  keep=$('sPay').value;
+  $('sPay').innerHTML = PAYS.map(function(p){return optHtml(p,payLabel(p));}).join('');
+  if(keep) $('sPay').value=keep;
+  keep=$('aStat').value;
+  $('aStat').innerHTML = STATS.map(function(s){return optHtml(s,statLabel(s));}).join('');
+  if(keep) $('aStat').value=keep;
+  keep=$('sVatMode').value;
+  $('sVatMode').innerHTML = optHtml('','—') + VATMODES.map(function(v){return optHtml(v,T('vm_'+v));}).join('');
+  if(keep) $('sVatMode').value=keep;
+  keep=$('cRole').value;
+  $('cRole').innerHTML = ROLES.map(function(r){return optHtml(r,T('role_'+r));}).join('');
+  if(keep) $('cRole').value=keep;
+  keep=$('acqBrand').value;
+  var brandsInUse = {}; S.watches.forEach(function(w){ if(w.brand) brandsInUse[w.brand]=1; });
+  $('acqBrand').innerHTML = optHtml('', T('fBrand')+': '+T('allF')) + Object.keys(brandsInUse).sort().map(function(b){return optHtml(b,b);}).join('');
+  if(keep) $('acqBrand').value=keep;
+  keep=$('acqStat').value;
+  $('acqStat').innerHTML = optHtml('', T('fStat')+': '+T('allM')) + STATS.map(function(s){return optHtml(s,statLabel(s));}).join('');
+  if(keep) $('acqStat').value=keep;
+  keep=$('repCp').value;
+  $('repCp').innerHTML = optHtml('', T('allF')) + S.counterparts.map(function(c){return optHtml(c.id, c.name);}).join('');
+  if(keep) $('repCp').value=keep;
+}
+
+/* ---------- messaggi ---------- */
+function showMsg(id, text, ok){
+  var el=$(id); el.className='msg '+(ok?'ok':'err'); el.textContent=text;
+  if(ok) setTimeout(function(){ el.className='msg'; }, 3500);
+}
+function hideMsg(id){ $(id).className='msg'; }
+
+/* ================================================================
+   AUTH
+   ================================================================ */
+function showAuthPane(which){
+  ['loginForm','signupForm','resetForm'].forEach(function(id){ $(id).style.display = id===which?'block':'none'; });
+  hideMsg('authMsg');
+}
+function afterLogin(d){
+  TOKEN = d.token; localStorage.setItem(TOKEN_KEY, TOKEN);
+  enterApp();
+}
+function doLogout(silent){
+  if(TOKEN && !silent){ api('/auth/logout',{method:'POST'}).catch(function(){}); }
+  TOKEN=''; localStorage.removeItem(TOKEN_KEY);
+  $('appView').style.display='none'; $('authView').style.display='flex';
+  showAuthPane('loginForm');
+}
+function enterApp(){
+  $('authView').style.display='none'; $('appView').style.display='block';
+  loadData();
+}
+function loadData(){
+  return api('/data').then(function(d){
+    S.counterparts = d.counterparts||[];
+    S.watches = d.watches||[];
+    S.acquisitions = d.acquisitions||[];
+    S.sales = d.sales||[];
+    applyLang();
+  }).catch(function(e){
+    if(String(e.message)!==T('sessionOut')) alert(e.message);
+  });
+}
+
+/* ================================================================
+   NAVIGAZIONE
+   ================================================================ */
+function gotoView(v){
+  CUR_VIEW=v;
+  document.querySelectorAll('.navbtn').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-view')===v); });
+  document.querySelectorAll('.view').forEach(function(s){ s.classList.toggle('on', s.id==='view-'+v); });
+  window.scrollTo(0,0);
+}
+
+/* ================================================================
+   RENDER
+   ================================================================ */
+function renderAll(){ renderHome(); renderAcq(); renderPur(); renderMag(); renderSales(); renderCp(); }
+
+function renderHome(){
+  var open=0, stock=0;
+  S.watches.forEach(function(w){
+    var a=acqByWatch(w.id), sold=!!saleByWatch(w.id);
+    if(!a || sold) return;
+    if(a.stat==='ritirato') stock++; else open++;
+  });
+  var year = new Date().getFullYear();
+  var soldY = S.sales.filter(function(s){ return s.d_sale && String(s.d_sale).slice(0,4)==String(year); });
+  var soldAll = S.sales.length;
+  $('kpiOpen').textContent=open;
+  $('kpiStock').textContent=stock;
+  $('kpiSold').textContent=soldY.length;
+  $('kpiSoldN').textContent = soldAll!==soldY.length ? (soldAll+' '+T('pieces')+' tot.') : '';
+  /* margine anno: solo coppie stessa valuta */
+  var margins={}, mixed=false;
+  soldY.forEach(function(s){
+    var a=acqByWatch(s.watch_id); if(!a) return;
+    var ns=netSale(s), nc=netCost(a);
+    if(ns==null||nc==null) return;
+    if((s.cur||'CHF')===(a.cur||'CHF')){ var c=s.cur||'CHF'; margins[c]=(margins[c]||0)+(ns-nc); }
+    else mixed=true;
+  });
+  $('kpiMargin').textContent = curMapToText(margins) + (mixed?' *':'');
+  /* impegni per valuta: acquisizioni non ancora vendute */
+  var openRows = S.acquisitions.filter(function(a){ return !saleByWatch(a.watch_id); });
+  var m = sumByCur(openRows, function(a){return a.cur;}, function(a){return netCost(a);});
+  var html='';
+  Object.keys(m).sort().forEach(function(c){
+    html += '<div class="currow"><span>'+c+'</span><span class="amt mono">'+money(m[c],c)+'</span></div>';
+  });
+  $('curBox').innerHTML = html || '<div class="empty">–</div>';
+  /* ultimi movimenti */
+  var movs=[];
+  S.acquisitions.forEach(function(a){ movs.push({t:'acq', d:a.d_ord||a.updated_at||'', r:a}); });
+  S.sales.forEach(function(s){ movs.push({t:'sale', d:s.d_sale||s.updated_at||'', r:s}); });
+  movs.sort(function(x,y){ return String(y.d).localeCompare(String(x.d)); });
+  movs = movs.slice(0,5);
+  var h2='';
+  movs.forEach(function(mv){
+    var w=watchById(mv.r.watch_id)||{};
+    var cp=cpById(mv.r.counterpart_id);
+    var amt = mv.t==='acq' ? netCost(mv.r) : netSale(mv.r);
+    h2 += '<div class="currow"><span>'+(mv.t==='acq'?'📥':'📤')+' '+esc(watchTitle(w))+
+      (cp?' <span style="color:var(--dim2)">· '+esc(cp.name)+'</span>':'')+'</span>'+
+      '<span class="amt mono">'+money(amt, mv.r.cur||'CHF')+'</span></div>';
+  });
+  $('lastBox').innerHTML = h2 || '<div class="empty">–</div>';
+}
+
+function acqMatches(a, q, brand, stat){
+  var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
+  if(saleByWatch(a.watch_id)) return false; /* i venduti vivono nella sezione Vendite */
+  if(brand && w.brand!==brand) return false;
+  if(stat && a.stat!==stat) return false;
+  if(q){
+    var hay=((w.brand||'')+' '+(w.ref||'')+' '+(w.model||'')+' '+(w.serial||'')+' '+(cp?cp.name:'')).toLowerCase();
+    if(hay.indexOf(q.toLowerCase())===-1) return false;
+  }
+  return true;
+}
+
+function renderAcq(){
+  var q=$('acqSearch').value.trim(), brand=$('acqBrand').value, stat=$('acqStat').value;
+  var rows = S.acquisitions.filter(function(a){ return acqMatches(a,q,brand,stat); });
+  rows.sort(function(x,y){ return String(y.d_ord||'').localeCompare(String(x.d_ord||'')); });
+  var html='';
+  rows.forEach(function(a){
+    var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
+    var net=netCost(a);
+    html += '<div class="rowcard" data-acq="'+esc(a.id)+'">'+
+      '<div class="thumb">'+(w.photo?'<img src="'+w.photo+'" alt="">':'⌚')+'</div>'+
+      '<div class="rc-main">'+
+        '<div class="rc-title">'+esc(w.brand||'')+' <span class="ref">'+esc(w.ref||'')+'</span>'+(w.model?' · '+esc(w.model):'')+'</div>'+
+        '<div class="rc-sub">'+(cp?esc(cp.name):T('noSup'))+(a.d_ord?' · '+fmtDate(a.d_ord):'')+'</div>'+
+      '</div>'+
+      '<div class="rc-right">'+
+        '<div class="rc-amt mono"><span class="cur">'+esc(a.cur||'CHF')+'</span>'+fmtN(net,a.cur||'CHF')+'</div>'+
+        '<div class="rc-chips">'+
+          '<span class="st '+esc(a.stat||'')+'">'+esc(statLabel(a.stat))+'</span>'+
+          '<span class="st '+esc(a.pay||'')+'">'+esc(payLabel(a.pay))+'</span>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  });
+  $('acqList').innerHTML = html || '<div class="empty">'+T('noResults')+'</div>';
+}
+
+function renderPur(){
+  var q=$('purSearch').value.trim().toLowerCase();
+  var rows = S.acquisitions.slice();
+  if(q){
+    rows = rows.filter(function(a){
+      var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
+      var hay=((w.brand||'')+' '+(w.ref||'')+' '+(w.model||'')+' '+(w.serial||'')+' '+(cp?cp.name:'')).toLowerCase();
+      return hay.indexOf(q)>-1;
+    });
+  }
+  rows.sort(function(x,y){ return String(y.d_ord||'').localeCompare(String(x.d_ord||'')); });
+  var html='';
+  rows.forEach(function(a){
+    var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
+    var sold=!!saleByWatch(a.watch_id);
+    var net=netCost(a);
+    html += '<div class="rowcard" data-acq="'+esc(a.id)+'">'+
+      '<div class="thumb">'+(w.photo?'<img src="'+w.photo+'" alt="">':'\u231a')+'</div>'+
+      '<div class="rc-main">'+
+        '<div class="rc-title">'+esc(w.brand||'')+' <span class="ref">'+esc(w.ref||'')+'</span>'+(w.model?' \u00b7 '+esc(w.model):'')+'</div>'+
+        '<div class="rc-sub">'+(cp?esc(cp.name):T('noSup'))+(a.d_ord?' \u00b7 '+fmtDate(a.d_ord):'')+'</div>'+
+      '</div>'+
+      '<div class="rc-right">'+
+        '<div class="rc-amt mono"><span class="cur">'+esc(a.cur||'CHF')+'</span>'+fmtN(net,a.cur||'CHF')+'</div>'+
+        '<div class="rc-chips">'+
+          (sold?'<span class="st venduto">'+T('venduto')+'</span>':'<span class="st '+esc(a.stat||'')+'">'+esc(statLabel(a.stat))+'</span>')+
+          '<span class="st '+esc(a.pay||'')+'">'+esc(payLabel(a.pay))+'</span>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  });
+  $('purList').innerHTML = html || '<div class="empty">'+T('noResults')+'</div>';
+}
+
+function renderMag(){
+  var q=$('magSearch').value.trim().toLowerCase();
+  var rows = S.watches.filter(function(w){
+    if(!isStock(w)) return false;
+    if(q){
+      var hay=((w.brand||'')+' '+(w.ref||'')+' '+(w.model||'')+' '+(w.serial||'')).toLowerCase();
+      if(hay.indexOf(q)===-1) return false;
+    }
+    return true;
+  });
+  var html='';
+  rows.forEach(function(w){
+    var a=acqByWatch(w.id), net=netCost(a);
+    var gg=daysBetween(a&&a.d_pick, null);
+    html += '<div class="magcard" data-watch="'+esc(w.id)+'">'+
+      '<div class="ph">'+(w.photo?'<img src="'+w.photo+'" alt="">':'⌚')+'</div>'+
+      '<div class="bd">'+
+        '<div class="b1">'+esc(w.brand||'')+'</div>'+
+        '<div class="b2">'+esc(w.ref||'')+(w.model?' · '+esc(w.model):'')+'</div>'+
+        '<div class="b3"><span class="mono">'+money(net, a?a.cur:'CHF')+'</span>'+
+          '<span>'+(gg!=null?gg+' '+T('days'):'')+'</span></div>'+
+      '</div>'+
+      '<div class="magfoot"><button data-sellwatch="'+esc(w.id)+'">'+T('newSale')+' →</button></div>'+
+    '</div>';
+  });
+  $('magGrid').innerHTML = html;
+  $('magEmpty').style.display = rows.length?'none':'block';
+}
+
+function renderSales(){
+  var q=$('salesSearch').value.trim().toLowerCase();
+  var rows = S.sales.filter(function(s){
+    if(!q) return true;
+    var w=watchById(s.watch_id)||{}, cp=cpById(s.counterpart_id);
+    var hay=((w.brand||'')+' '+(w.ref||'')+' '+(w.model||'')+' '+(cp?cp.name:'')+' '+(s.invoice_no||'')).toLowerCase();
+    return hay.indexOf(q)!==-1;
+  });
+  rows.sort(function(x,y){ return String(y.d_sale||'').localeCompare(String(x.d_sale||'')); });
+  var html='';
+  rows.forEach(function(s){
+    var w=watchById(s.watch_id)||{}, cp=cpById(s.counterpart_id);
+    var a=acqByWatch(s.watch_id);
+    var ns=netSale(s), nc=netCost(a);
+    var marginTxt='';
+    if(ns!=null&&nc!=null){
+      if((s.cur||'CHF')===((a&&a.cur)||'CHF')){
+        var mg=ns-nc;
+        marginTxt='<span class="st" style="color:'+(mg>=0?'var(--ok)':'var(--bad)')+';border-color:currentColor">'+
+          (mg>=0?'+':'')+money(mg,s.cur||'CHF')+'</span>';
+      } else marginTxt='<span class="st" style="color:var(--dim);border-color:var(--line2)">'+T('multiCur')+'</span>';
+    }
+    html += '<div class="rowcard" data-sale="'+esc(s.id)+'">'+
+      '<div class="thumb">'+(w.photo?'<img src="'+w.photo+'" alt="">':'⌚')+'</div>'+
+      '<div class="rc-main">'+
+        '<div class="rc-title">'+esc(w.brand||'')+' <span class="ref">'+esc(w.ref||'')+'</span>'+(w.model?' · '+esc(w.model):'')+'</div>'+
+        '<div class="rc-sub">'+(cp?esc(cp.name):T('noCli'))+(s.d_sale?' · '+fmtDate(s.d_sale):'')+(s.invoice_no?' · '+esc(s.invoice_no):'')+'</div>'+
+      '</div>'+
+      '<div class="rc-right">'+
+        '<div class="rc-amt mono"><span class="cur">'+esc(s.cur||'CHF')+'</span>'+fmtN(ns,s.cur||'CHF')+'</div>'+
+        '<div class="rc-chips">'+marginTxt+'<span class="st '+esc(s.pay||'')+'">'+esc(payLabel(s.pay))+'</span></div>'+
+      '</div>'+
+    '</div>';
+  });
+  $('salesList').innerHTML = html || '<div class="empty">'+T('noResults')+'</div>';
+}
+
+function renderCp(){
+  var q=$('cpSearch').value.trim().toLowerCase();
+  var rows = S.counterparts.filter(function(c){
+    var r=c.role||'buy';
+    if(CP_ROLE_FILTER==='fornitori' && r==='sell') return false;
+    if(CP_ROLE_FILTER==='clienti' && r==='buy') return false;
+    if(q){
+      var hay=((c.name||'')+' '+(c.city||'')+' '+(c.country||'')).toLowerCase();
+      if(hay.indexOf(q)===-1) return false;
+    }
+    return true;
+  });
+  var html='';
+  rows.forEach(function(c){
+    var nA=S.acquisitions.filter(function(a){return a.counterpart_id===c.id;}).length;
+    var nS=S.sales.filter(function(s){return s.counterpart_id===c.id;}).length;
+    html += '<div class="rowcard" data-cp="'+esc(c.id)+'">'+
+      '<div class="thumb">🏛</div>'+
+      '<div class="rc-main">'+
+        '<div class="rc-title">'+esc(c.name||'')+'</div>'+
+        '<div class="rc-sub">'+esc([c.city,c.country].filter(Boolean).join(', '))+
+          (c.cur?' · '+esc(c.cur):'')+'</div>'+
+      '</div>'+
+      '<div class="rc-right">'+
+        '<div class="rc-chips"><span class="st" style="color:var(--accent);border-color:var(--accent-dark)">'+T('role_'+(c.role||'buy'))+'</span></div>'+
+        '<div class="rc-sub" style="margin-top:5px">📥 '+nA+' · 📤 '+nS+'</div>'+
+      '</div>'+
+    '</div>';
+  });
+  $('cpList').innerHTML = html || '<div class="empty">'+T('noResults')+'</div>';
+}
+
+/* ================================================================
+   FORM ACQUISTO (orologio + acquisizione)
+   ================================================================ */
+function openAcqModal(acqId, presetWatchId){
+  EDIT.acq = acqId ? S.acquisitions.filter(function(a){return a.id===acqId;})[0] : null;
+  EDIT.watch = EDIT.acq ? watchById(EDIT.acq.watch_id) : (presetWatchId ? watchById(presetWatchId) : null);
+  EDIT.photo = EDIT.watch && EDIT.watch.photo ? EDIT.watch.photo : '';
+  hideMsg('acqMsg');
+  $('acqModalTitle').textContent = EDIT.acq ? T('editAcq') : T('newAcq');
+  $('btnDelAcq').style.display = EDIT.acq ? 'inline-flex' : 'none';
+  $('btnSellAcq').style.display = (EDIT.acq && !saleByWatch(EDIT.acq.watch_id)) ? 'inline-flex' : 'none';
+  /* controparti compro/entrambi */
+  var cps = S.counterparts.filter(function(c){ return c.role!=='sell'; });
+  $('aCp').innerHTML = optHtml('', T('noSup')) + cps.map(function(c){ return optHtml(c.id, c.name); }).join('');
+  var w = EDIT.watch||{}, a = EDIT.acq||{};
+  var brandKnown = !w.brand || BRANDS.indexOf(w.brand)!==-1;
+  $('aBrand').value = w.brand ? (brandKnown ? w.brand : '__other') : '';
+  $('aBrandOther').value = brandKnown ? '' : (w.brand||'');
+  $('aBrandOtherBox').style.display = $('aBrand').value==='__other' ? 'block':'none';
+  $('aRef').value = w.ref||'';
+  $('aModel').value = w.model||'';
+  $('aSerial').value = w.serial||'';
+  $('aYear').value = w.year||'';
+  $('aCond').value = w.cond||'';
+  $('aSet').value = w.set_type||'';
+  if(EDIT.photo){ $('aPhotoImg').src=EDIT.photo; $('aPhotoImg').style.display='block'; }
+  else { $('aPhotoImg').style.display='none'; $('aPhotoImg').removeAttribute('src'); }
+  $('aCp').value = a.counterpart_id||'';
+  $('aCur').value = a.cur||'CHF';
+  $('aList').value = a.list!=null?a.list:'';
+  $('aAgreed').value = a.agreed!=null?a.agreed:'';
+  $('aVat').value = a.vat!=null?a.vat:'';
+  $('aNet').value = a.net!=null?a.net:'';
+  $('aPay').value = a.pay||'nonpagato';
+  $('aDep').value = a.dep!=null&&a.dep!==0?a.dep:'';
+  $('aPayDate').value = a.pay_date||'';
+  $('aStat').value = a.stat||'ordinato';
+  $('aDOrd').value = a.d_ord|| (EDIT.acq?'':today());
+  $('aDRec').value = a.d_rec||'';
+  $('aDPick').value = a.d_pick||'';
+  $('aNotes').value = a.notes||'';
+  $('refResults').className='searchres'; $('refStatus').style.display='none';
+  $('aDocsBox').style.display = 'block';
+  PENDING_DOCS.acq = [];
+  if(EDIT.acq) loadDocs('acquisition', EDIT.acq.id, 'aDocList'); else $('aDocList').innerHTML='';
+  $('ovAcq').classList.add('on');
+}
+
+function calcNetFromVat(listEl, vatEl, netEl){
+  var base = num($(listEl).value);
+  var agreed = listEl==='aList' ? num($('aAgreed').value) : null;
+  if(agreed!=null) base=agreed;
+  var vat = num($(vatEl).value);
+  if(base==null||vat==null) return;
+  $(netEl).value = Math.round(base/(1+vat/100)*100)/100;
+}
+
+function saveAcq(){
+  var brand = $('aBrand').value==='__other' ? $('aBrandOther').value.trim() : $('aBrand').value;
+  if(!brand && !$('aRef').value.trim()){ showMsg('acqMsg', T('needWatch')); return; }
+  var wid = EDIT.watch ? EDIT.watch.id : rid();
+  var aid = EDIT.acq ? EDIT.acq.id : 'acq-'+wid;
+  var wBody = {
+    brand:brand, ref:$('aRef').value.trim(), model:$('aModel').value.trim(),
+    serial:$('aSerial').value.trim(), year:$('aYear').value.trim(),
+    cond:$('aCond').value, setType:$('aSet').value, photo:EDIT.photo||'', notes:''
+  };
+  var aBody = {
+    watchId:wid, counterpartId:$('aCp').value, cur:$('aCur').value,
+    list:num($('aList').value)||0, agreed:num($('aAgreed').value), vat:num($('aVat').value),
+    net:num($('aNet').value), pay:$('aPay').value, dep:num($('aDep').value)||0,
+    payDate:$('aPayDate').value, stat:$('aStat').value,
+    dOrd:$('aDOrd').value, dRec:$('aDRec').value, dPick:$('aDPick').value,
+    notes:$('aNotes').value.trim()
+  };
+  $('btnSaveAcq').textContent=T('saving');
+  api('/watches/'+wid, {method:'PUT', body:wBody})
+    .then(function(){ return api('/acquisitions/'+aid, {method:'PUT', body:aBody}); })
+    .then(function(){ return pushPendingDocs('acq','acquisition',aid); })
+    .then(function(){ $('ovAcq').classList.remove('on'); return loadData(); })
+    .catch(function(e){ showMsg('acqMsg', e.message); })
+    .then(function(){ $('btnSaveAcq').textContent=T('save'); });
+}
+
+function deleteAcq(){
+  if(!EDIT.acq) return;
+  if(!window.confirm(T('confirmDelAcq'))) return;
+  api('/watches/'+EDIT.acq.watch_id, {method:'DELETE'})
+    .then(function(){ $('ovAcq').classList.remove('on'); return loadData(); })
+    .catch(function(e){ showMsg('acqMsg', e.message); });
+}
+
+/* ---------- ricerca a catalogo (PP / AP / Rolex) ---------- */
+function refSearch(){
+  var brand = $('aBrand').value==='__other' ? $('aBrandOther').value : $('aBrand').value;
+  var b = (brand||'').toLowerCase();
+  var supported = b.indexOf('patek')>-1 || b.indexOf('audemars')>-1 || b.indexOf('rolex')>-1;
+  var ref = $('aRef').value.trim();
+  if(!brand){ showMsg('acqMsg', T('needBrand')); return; }
+  if(!supported){ showMsg('acqMsg', T('needBrandCat')); return; }
+  if(!ref){ showMsg('acqMsg', T('needRef')); return; }
+  hideMsg('acqMsg');
+  var st=$('refStatus'); st.style.display='inline'; st.textContent=T('loadingCat');
+  $('refResults').className='searchres';
+  api('/refsearch?brand='+encodeURIComponent(brand)+'&ref='+encodeURIComponent(ref))
+    .then(function(list){
+      st.style.display='none';
+      if(!list || !list.length){ st.style.display='inline'; st.textContent=T('noResults'); return; }
+      var html='';
+      list.forEach(function(it,i){
+        html += '<div class="sr-item" data-i="'+i+'"><div class="r1">'+esc(it.ref)+'</div>'+
+          '<div class="r2">'+esc([it.model||it.col, it.size, it.materials].filter(Boolean).join(' · '))+'</div></div>';
+      });
+      var box=$('refResults'); box.innerHTML=html; box.className='searchres on';
+      box.onclick=function(ev){
+        var el=ev.target.closest('.sr-item'); if(!el) return;
+        pickRef(brand, list[+el.getAttribute('data-i')]);
+      };
+    })
+    .catch(function(e){ st.textContent=e.message; });
+}
+function pickRef(brand, it){
+  $('aRef').value = it.ref||$('aRef').value;
+  if(it.model||it.col) $('aModel').value = it.model||it.col;
+  $('refResults').className='searchres';
+  var st=$('refStatus'); st.style.display='inline'; st.textContent=T('importing');
+  var qs='brand='+encodeURIComponent(brand)+'&ref='+encodeURIComponent(it.ref||'')+
+    '&img='+encodeURIComponent(it.img||'')+'&url='+encodeURIComponent(it.url||'');
+  api('/refdetail?'+qs).then(function(d){
+    st.style.display='none';
+    if(d.photo){ EDIT.photo=d.photo; $('aPhotoImg').src=d.photo; $('aPhotoImg').style.display='block'; }
+    if(d.title && !$('aModel').value) $('aModel').value=d.title;
+    if(d.price){
+      var p=d.price.split(' ');
+      if(p.length===2 && CURS.indexOf(p[0])>-1 && !num($('aList').value)){ $('aCur').value=p[0]; $('aList').value=p[1]; }
+    }
+    if(d.prices){
+      var c=$('aCur').value;
+      if(d.prices[c]!=null) $('aList').value=d.prices[c];
+    }
+  }).catch(function(e){ st.textContent=e.message; });
+}
+
+/* ---------- foto ---------- */
+function compressImage(file, cb){
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var img = new Image();
+    img.onload = function(){
+      var max=760, w=img.width, h=img.height;
+      if(w>max){ h=Math.round(h*max/w); w=max; }
+      var cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+      cv.getContext('2d').drawImage(img,0,0,w,h);
+      cb(cv.toDataURL('image/jpeg', .72));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ================================================================
+   FORM VENDITA
+   ================================================================ */
+function openSaleModal(saleId, presetWatchId){
+  EDIT.sale = saleId ? S.sales.filter(function(s){return s.id===saleId;})[0] : null;
+  hideMsg('saleMsg');
+  $('saleModalTitle').textContent = EDIT.sale ? T('editSale') : T('newSale');
+  $('btnDelSale').style.display = EDIT.sale ? 'inline-flex' : 'none';
+  /* orologi selezionabili: in magazzino + (se modifica) quello già collegato */
+  var opts = S.watches.filter(function(w){
+    if(EDIT.sale && w.id===EDIT.sale.watch_id) return true;
+    return !saleByWatch(w.id);
+  });
+  $('sWatch').innerHTML = optHtml('', T('selWatch')) + opts.map(function(w){
+    var a=acqByWatch(w.id);
+    var tag = a && a.stat==='ritirato' ? ' ✓' : '';
+    return optHtml(w.id, watchTitle(w)+tag);
+  }).join('');
+  /* solo clienti (sell/entrambi): mai i fornitori. Unica eccezione: una vendita
+     gia' registrata su una controparte che nel frattempo e' diventata solo-fornitore */
+  var cps = S.counterparts.filter(function(c){
+    if(EDIT.sale && c.id===EDIT.sale.counterpart_id) return true;
+    return c.role!=='buy';
+  });
+  $('sCp').innerHTML = optHtml('', T('selCp')) + cps.map(function(c){ return optHtml(c.id, c.name); }).join('');
+  var s = EDIT.sale||{};
+  $('sWatch').value = s.watch_id || presetWatchId || '';
+  $('sCp').value = s.counterpart_id||'';
+  $('sCur').value = s.cur||'CHF';
+  $('sPrice').value = s.price!=null?s.price:'';
+  $('sVat').value = s.vat!=null?s.vat:'';
+  $('sNet').value = s.net!=null?s.net:'';
+  $('sVatMode').value = s.vat_mode||'';
+  $('sInvoice').value = s.invoice_no||'';
+  $('sTradeDesc').value = s.tradein_desc||'';
+  $('sTradeVal').value = s.tradein_val!=null&&s.tradein_val!==0?s.tradein_val:'';
+  $('sDSale').value = s.d_sale|| (EDIT.sale?'':today());
+  $('sPay').value = s.pay||'nonpagato';
+  $('sPayDate').value = s.pay_date||'';
+  $('sNotes').value = s.notes||'';
+  $('sDocsBox').style.display = 'block';
+  PENDING_DOCS.sale = [];
+  if(EDIT.sale) loadDocs('sale', EDIT.sale.id, 'sDocList'); else $('sDocList').innerHTML='';
+  $('ovSale').classList.add('on');
+}
+
+function saveSale(){
+  var wid=$('sWatch').value;
+  if(!wid){ showMsg('saleMsg', T('needWatch')); return; }
+  var sid = EDIT.sale ? EDIT.sale.id : 'sale-'+rid();
+  var body = {
+    watchId:wid, counterpartId:$('sCp').value, cur:$('sCur').value,
+    price:num($('sPrice').value)||0, vat:num($('sVat').value), net:num($('sNet').value),
+    vatMode:$('sVatMode').value, tradeinDesc:$('sTradeDesc').value.trim(),
+    tradeinVal:num($('sTradeVal').value)||0, invoiceNo:$('sInvoice').value.trim(),
+    dSale:$('sDSale').value, pay:$('sPay').value, payDate:$('sPayDate').value,
+    notes:$('sNotes').value.trim()
+  };
+  $('btnSaveSale').textContent=T('saving');
+  api('/sales/'+sid, {method:'PUT', body:body})
+    .then(function(){ return pushPendingDocs('sale','sale',sid); })
+    .then(function(){ $('ovSale').classList.remove('on'); return loadData(); })
+    .catch(function(e){ showMsg('saleMsg', e.message); })
+    .then(function(){ $('btnSaveSale').textContent=T('save'); });
+}
+function deleteSale(){
+  if(!EDIT.sale) return;
+  if(!window.confirm(T('confirmDelSale'))) return;
+  api('/sales/'+EDIT.sale.id, {method:'DELETE'})
+    .then(function(){ $('ovSale').classList.remove('on'); return loadData(); })
+    .catch(function(e){ showMsg('saleMsg', e.message); });
+}
+
+/* ================================================================
+   FORM CONTROPARTE
+   ================================================================ */
+function openCpModal(cpId, presetRole){
+  EDIT.cp = cpId ? cpById(cpId) : null;
+  hideMsg('cpMsg');
+  $('cpModalTitle').textContent = EDIT.cp ? T('editCp') :
+    (presetRole==='sell' ? T('newCli') : presetRole==='buy' ? T('newSup') : T('newCp'));
+  $('btnDelCp').style.display = EDIT.cp ? 'inline-flex' : 'none';
+  var c=EDIT.cp||{};
+  $('cpLookupQ').value='';
+  $('lookupResults').className='searchres'; $('lookupStatus').style.display='none';
+  $('cName').value=c.name||''; $('cAddr').value=c.addr||''; $('cZip').value=c.zip||'';
+  $('cCity').value=c.city||''; $('cCountry').value=c.country||''; $('cContact').value=c.contact||'';
+  $('cPhone').value=c.phone||''; $('cEmail').value=c.email||''; $('cWeb').value=c.web||'';
+  $('cRole').value=c.role||presetRole||'buy'; $('cCur').value=c.cur||'CHF'; $('cNotes').value=c.notes||'';
+  $('ovCp').classList.add('on');
+}
+function saveCp(){
+  var name=$('cName').value.trim();
+  if(!name){ showMsg('cpMsg', T('needName')); return; }
+  var id = EDIT.cp ? EDIT.cp.id : 'cp-'+rid();
+  var body = {
+    name:name, addr:$('cAddr').value.trim(), zip:$('cZip').value.trim(),
+    city:$('cCity').value.trim(), country:$('cCountry').value.trim(),
+    contact:$('cContact').value.trim(), phone:$('cPhone').value.trim(),
+    email:$('cEmail').value.trim(), web:$('cWeb').value.trim(),
+    cur:$('cCur').value, role:$('cRole').value, notes:$('cNotes').value.trim()
+  };
+  $('btnSaveCp').textContent=T('saving');
+  api('/counterparts/'+id, {method:'PUT', body:body})
+    .then(function(){ $('ovCp').classList.remove('on'); return loadData(); })
+    .catch(function(e){ showMsg('cpMsg', e.message); })
+    .then(function(){ $('btnSaveCp').textContent=T('save'); });
+}
+function deleteCp(){
+  if(!EDIT.cp) return;
+  if(!window.confirm(T('confirmDelCp'))) return;
+  api('/counterparts/'+EDIT.cp.id, {method:'DELETE'})
+    .then(function(){ $('ovCp').classList.remove('on'); return loadData(); })
+    .catch(function(e){ showMsg('cpMsg', e.message); });
+}
+function doLookup(){
+  var q=$('cpLookupQ').value.trim();
+  if(!q) return;
+  var st=$('lookupStatus'); st.style.display='inline'; st.textContent=T('searching');
+  $('lookupResults').className='searchres';
+  api('/lookup?q='+encodeURIComponent(q)).then(function(list){
+    st.style.display='none';
+    if(!list||!list.length){ st.style.display='inline'; st.textContent=T('noResults'); return; }
+    var html='';
+    list.forEach(function(it,i){
+      html += '<div class="sr-item" data-i="'+i+'"><div>'+esc(it.name)+'</div>'+
+        '<div class="r2">'+esc([it.addr,it.zip,it.city,it.country].filter(Boolean).join(', '))+'</div></div>';
+    });
+    var box=$('lookupResults'); box.innerHTML=html; box.className='searchres on';
+    box.onclick=function(ev){
+      var el=ev.target.closest('.sr-item'); if(!el) return;
+      var it=list[+el.getAttribute('data-i')];
+      $('cName').value=it.name||''; $('cAddr').value=it.addr||''; $('cZip').value=it.zip||'';
+      $('cCity').value=it.city||''; $('cCountry').value=it.country||'';
+      if(it.phone)$('cPhone').value=it.phone; if(it.email)$('cEmail').value=it.email; if(it.web)$('cWeb').value=it.web;
+      box.className='searchres';
+    };
+  }).catch(function(e){ st.textContent=e.message; });
+}
+
+/* ================================================================
+   DOCUMENTI
+   ================================================================ */
+var PENDING_DOCS = {acq:[], sale:[]};
+function readFiles(fileInput){
+  var files = Array.prototype.slice.call(fileInput.files||[]);
+  return Promise.all(files.map(function(f){
+    return new Promise(function(res){
+      var r=new FileReader();
+      r.onload=function(e){ res({name:f.name, type:f.type, size:f.size, data:e.target.result}); };
+      r.readAsDataURL(f);
+    });
+  }));
+}
+function renderPending(kind, listId){
+  var html='';
+  PENDING_DOCS[kind].forEach(function(f,i){
+    html += '<div class="doc-item"><span class="dn" data-pend="'+kind+':'+i+'">📎 '+esc(f.name)+' <em style="color:var(--dim2);font-size:.75em">('+T('toUpload')+')</em></span>'+
+      '<button class="dx" data-delpend="'+kind+':'+i+'" data-list="'+listId+'">✕</button></div>';
+  });
+  $(listId).innerHTML = html;
+}
+function pushPendingDocs(kind, parentType, parentId){
+  var files = PENDING_DOCS[kind];
+  if(!files || !files.length) return Promise.resolve();
+  return api('/docs', {method:'POST', body:{parentType:parentType, parentId:parentId, files:files}})
+    .catch(function(){ return api('/docs', {method:'POST', body:{parent_type:parentType, parent_id:parentId, files:files}}); })
+    .then(function(){ PENDING_DOCS[kind]=[]; });
+}
+function loadDocs(parentType, parentId, listId){
+  $(listId).innerHTML='';
+  api('/docs/'+encodeURIComponent(parentType)+'/'+encodeURIComponent(parentId)).then(function(rows){
+    var html='';
+    (rows||[]).forEach(function(d){
+      html += '<div class="doc-item"><span class="dn" data-doc="'+esc(d.id)+'">📎 '+esc(d.filename)+'</span>'+
+        '<button class="dx" data-deldoc="'+esc(d.id)+'" data-pt="'+esc(parentType)+'" data-pid="'+esc(parentId)+'" data-list="'+listId+'">✕</button></div>';
+    });
+    $(listId).innerHTML=html;
+  }).catch(function(){});
+}
+function uploadDocs(parentType, parentId, fileInput, listId, msgId){
+  var files = Array.prototype.slice.call(fileInput.files||[]);
+  if(!files.length) return;
+  var jobs = files.map(function(f){
+    return new Promise(function(res){
+      var r=new FileReader();
+      r.onload=function(e){ res({name:f.name, type:f.type, size:f.size, data:e.target.result}); };
+      r.readAsDataURL(f);
+    });
+  });
+  Promise.all(jobs).then(function(payload){
+    return api('/docs', {method:'POST', body:{parentType:parentType, parentId:parentId, files:payload}})
+      .catch(function(){
+        /* compatibilità nomi campo alternativi */
+        return api('/docs', {method:'POST', body:{parent_type:parentType, parent_id:parentId, files:payload}});
+      });
+  }).then(function(){
+    fileInput.value='';
+    showMsg(msgId, T('docAdded'), true);
+    loadDocs(parentType, parentId, listId);
+  }).catch(function(e){ showMsg(msgId, e.message); });
+}
+function showDocPreview(name, type, data){
+  $('dpName').textContent = name || 'documento';
+  var dl=$('dpDownload'); dl.href=data; dl.setAttribute('download', name||'documento');
+  var b=$('dpBody'); b.innerHTML='';
+  if(String(type).indexOf('image/')===0){
+    var im=document.createElement('img'); im.src=data; b.appendChild(im);
+  } else if(String(type)==='application/pdf'){
+    var fr=document.createElement('iframe'); fr.src=data; b.appendChild(fr);
+  } else {
+    b.innerHTML='<div class="dp-noview">📄 '+esc(name||'')+'<br>'+T('noPreview')+'</div>';
+  }
+  $('docPreview').classList.add('on');
+}
+function openDoc(docId){
+  api('/docs/file/'+encodeURIComponent(docId)).then(function(d){
+    if(!d||!d.data) return;
+    showDocPreview(d.filename, d.filetype, d.data);
+  }).catch(function(){});
+}
+
+/* ================================================================
+   REPORTS
+   ================================================================ */
+function repFilterRows(rows, dateKey){
+  var from=$('repFrom').value, to=$('repTo').value, cp=$('repCp').value;
+  return rows.filter(function(r){
+    var d=String(r[dateKey]||'').slice(0,10);
+    if(from && (!d || d<from)) return false;
+    if(to && (!d || d>to)) return false;
+    if(cp && r.counterpart_id!==cp) return false;
+    return true;
+  });
+}
+function repPeriodText(){
+  var from=$('repFrom').value, to=$('repTo').value, cp=$('repCp').value;
+  var parts=[];
+  if(from||to) parts.push(T('period')+': '+(from?fmtDate(from):'…')+' → '+(to?fmtDate(to):'…'));
+  else parts.push(T('period')+': '+T('all'));
+  if(cp){ var c=cpById(cp); if(c) parts.push(c.name); }
+  return parts.join('  ·  ');
+}
+function sheetHead(title){
+  return '<h1>WATCH<span class="g">DESK</span></h1>'+
+    '<div class="sh-sub">'+esc(title)+'</div>'+
+    '<div class="sh-meta">'+esc(repPeriodText())+' — '+T('genOn')+' '+fmtDate(today())+'</div>';
+}
+function openPrint(title, html){
+  $('plTitle').textContent=title;
+  $('plSheet').innerHTML=html;
+  $('printLayer').classList.add('on');
+}
+function totRowsByCur(rows, getCur, getVal, cols, label){
+  var m=sumByCur(rows,getCur,getVal);
+  var out='';
+  Object.keys(m).sort().forEach(function(c,i){
+    out+='<tr class="tot"><td colspan="'+(cols-2)+'">'+(i===0?esc(label)+' — '+rows.length+' '+T('pieces'):'')+'</td>'+
+      '<td>'+c+'</td><td class="num mono2">'+fmtN(m[c],c)+'</td></tr>';
+  });
+  return out;
+}
+
+
+/* ---------- cambi per i controvalori nei report ---------- */
+var FLAGS = {CHF:'\ud83c\udde8\ud83c\udded', EUR:'\ud83c\uddea\ud83c\uddfa', USD:'\ud83c\uddfa\ud83c\uddf8', GBP:'\ud83c\uddec\ud83c\udde7'};
+var FX = null; /* {rates:{CHF:1,...}, date:'', ts:0} */
+function loadFx(cb){
+  try{
+    var c = JSON.parse(localStorage.getItem('wd_fx')||'null');
+    if(c && c.rates && (Date.now()-c.ts) < 6*3600*1000){ FX=c; cb(); return; }
+  }catch(e){}
+  fetch('https://open.er-api.com/v6/latest/CHF')
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      if(!j || !j.rates) throw 0;
+      FX = {rates:j.rates, date:(j.time_last_update_utc||'').slice(0,16), ts:Date.now()};
+      try{ localStorage.setItem('wd_fx', JSON.stringify(FX)); }catch(e){}
+      cb();
+    })
+    .catch(function(){
+      fetch('https://api.frankfurter.app/latest?from=CHF')
+        .then(function(r){ return r.json(); })
+        .then(function(j){
+          if(!j || !j.rates) throw 0;
+          j.rates.CHF = 1;
+          FX = {rates:j.rates, date:j.date||'', ts:Date.now()};
+          try{ localStorage.setItem('wd_fx', JSON.stringify(FX)); }catch(e){}
+          cb();
+        })
+        .catch(function(){ FX=null; cb(); });
+    });
+}
+function fxConv(v, from, to){
+  if(!FX || !FX.rates || FX.rates[from]==null || FX.rates[to]==null) return null;
+  return v * FX.rates[to] / FX.rates[from];
+}
+function fxTotalsBlock(m){
+  var curs = Object.keys(m);
+  if(!curs.length) return '';
+  var order = CURS.filter(function(c){return m[c]!=null;});
+  var h = '<div class="fxbox"><div class="fxt">'+T('fxTitle')+'</div>';
+  order.forEach(function(c){
+    var alts = '';
+    if(FX){
+      alts = CURS.filter(function(x){return x!==c;}).map(function(x){
+        var v = fxConv(m[c], c, x);
+        return v==null ? '' : '\u2248 '+x+' '+fmtN(Math.round(v), x);
+      }).filter(Boolean).join(' \u00b7 ');
+    }
+    h += '<div class="fxrow"><span class="flag">'+(FLAGS[c]||'')+'</span>'+
+      '<span class="fxmain">'+c+' '+fmtN(m[c], c)+'</span>'+
+      (alts?'<span class="fxalt">'+alts+'</span>':'')+
+      '</div>';
+  });
+  if(FX && order.length){
+    h += '<div class="fxgrand"><span style="letter-spacing:.12em;font-size:11px;color:#666e85">'+T('fxGrand')+':</span>';
+    CURS.forEach(function(x){
+      var tot=0, ok=true;
+      order.forEach(function(c){ var v=fxConv(m[c], c, x); if(v==null) ok=false; else tot+=v; });
+      if(ok) h += '<span><span class="flag">'+(FLAGS[x]||'')+'</span>'+x+' '+fmtN(Math.round(tot), x)+'</span>';
+    });
+    h += '</div>';
+    h += '<div class="fxnote">'+T('fxAbout')+' '+esc(FX.date||'')+' \u00b7 open.er-api.com</div>';
+  } else {
+    h += '<div class="fxnote">'+T('fxNA')+'</div>';
+  }
+  h += '</div>';
+  return h;
+}
+
+function setIcons(w){
+  var t=(w&&w.set_type)||'';
+  var map={fullset:'\ud83d\udce6\ud83d\udcc4', soloscatola:'\ud83d\udce6', sologaranzia:'\ud83d\udcc4', soloorologio:'\u231a'};
+  return map[t] ? ' <span class="seticons" title="'+esc(T('set_'+t))+'">'+map[t]+'</span>' : '';
+}
+function buildRepAcq(){
+  var rows=repFilterRows(S.acquisitions,'d_ord');
+  rows.sort(function(x,y){ return String(x.d_ord||'').localeCompare(String(y.d_ord||'')); });
+  var h=sheetHead(T('acqTitle'));
+  h+='<table><colgroup><col style="width:5%"><col style="width:7%"><col style="width:11%"><col style="width:12%"><col style="width:13%"><col style="width:16%"><col style="width:8%"><col style="width:9%"><col style="width:6%"><col style="width:5%"><col style="width:8%"></colgroup>';
+  h+='<tr><th></th><th>'+T('thDate')+'</th><th>'+T('thBrand')+'</th><th>'+T('thRef')+'</th><th>'+T('thModel')+'</th><th>'+T('thSup')+'</th><th>'+T('thStat')+'</th><th>'+T('thPay')+'</th><th class="num">'+T('thList')+'</th><th>'+T('thCur')+'</th><th class="num">'+T('thNet')+'</th></tr>';
+  rows.forEach(function(a){
+    var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
+    h+='<tr>'+'<td class="mini">'+(w.photo?'<img src="'+w.photo+'">':'<div class="noph">\u231a</div>')+'</td>'+'<td>'+fmtDate(a.d_ord)+'</td><td>'+esc(w.brand||'')+'</td><td class="mono2">'+esc(w.ref||'')+setIcons(w)+'</td>'+
+      '<td>'+esc(w.model||'')+'</td><td>'+esc(cp?cp.name:'')+'</td><td>'+esc(statLabel(a.stat))+'</td>'+
+      '<td>'+esc(payLabel(a.pay))+(a.pay==='acconto'&&a.dep?' ('+fmtN(a.dep,a.cur)+')':'')+'</td>'+
+      '<td class="num mono2">'+fmtN(a.list,a.cur)+'</td><td>'+esc(a.cur||'')+'</td>'+
+      '<td class="num mono2">'+fmtN(netCost(a),a.cur)+'</td></tr>';
+  });
+  h+=totRowsByCur(rows,function(a){return a.cur;},function(a){return netCost(a);},11,T('totRow'));
+  h+='</table>';
+  var m=sumByCur(rows,function(a){return a.cur;},function(a){return netCost(a);});
+  loadFx(function(){
+    openPrint(T('rAcqT'), h + fxTotalsBlock(m));
+  });
+}
+
+function buildRepSales(){
+  var rows=repFilterRows(S.sales,'d_sale');
+  rows.sort(function(x,y){ return String(x.d_sale||'').localeCompare(String(y.d_sale||'')); });
+  var h=sheetHead(T('salesTitle'));
+  h+='<table><colgroup><col style="width:5%"><col style="width:7%"><col style="width:12%"><col style="width:12%"><col style="width:15%"><col style="width:9%"><col style="width:8%"><col style="width:9%"><col style="width:8%"><col style="width:5%"><col style="width:10%"></colgroup>';
+  h+='<tr><th></th><th>'+T('thDate')+'</th><th>'+T('thBrand')+' / '+T('thRef')+'</th><th>'+T('thCli')+'</th><th>'+T('thRegime')+' · '+T('thInv')+'</th><th>'+T('thTrade')+'</th><th>'+T('thPay')+'</th><th class="num">'+T('thPrice')+'</th><th class="num">IVA %</th><th>'+T('thCur')+'</th><th class="num">'+T('thNetSale')+'</th></tr>';
+  rows.forEach(function(s){
+    var w=watchById(s.watch_id)||{}, cp=cpById(s.counterpart_id);
+    h+='<tr>'+'<td class="mini">'+(w.photo?'<img src="'+w.photo+'">':'<div class="noph">\u231a</div>')+'</td>'+'<td>'+fmtDate(s.d_sale)+'</td><td>'+esc(w.brand||'')+' <span class="mono2">'+esc(w.ref||'')+'</span>'+setIcons(w)+'</td>'+
+      '<td>'+esc(cp?cp.name:'')+'</td><td>'+esc([s.vat_mode?T('vm_'+s.vat_mode):'', s.invoice_no].filter(Boolean).join(' · '))+'</td>'+
+      '<td>'+(s.tradein_val?esc(s.tradein_desc||'')+' ('+fmtN(s.tradein_val,s.cur)+')':'')+'</td>'+
+      '<td>'+esc(payLabel(s.pay))+'</td><td class="num mono2">'+fmtN(s.price,s.cur)+'</td>'+
+      '<td class="num">'+(s.vat!=null?s.vat:'')+'</td><td>'+esc(s.cur||'')+'</td>'+
+      '<td class="num mono2">'+fmtN(netSale(s),s.cur)+'</td></tr>';
+  });
+  h+=totRowsByCur(rows,function(s){return s.cur;},function(s){return netSale(s);},11,T('totRow'));
+  h+='</table>';
+  openPrint(T('rSalesT'), h);
+}
+
+function buildRepMargin(){
+  var rows=repFilterRows(S.sales,'d_sale').filter(function(s){ return !!acqByWatch(s.watch_id); });
+  rows.sort(function(x,y){ return String(x.d_sale||'').localeCompare(String(y.d_sale||'')); });
+  var h=sheetHead(T('marginTitle'));
+  h+='<table><colgroup><col style="width:5%"><col style="width:7%"><col style="width:11%"><col style="width:12%"><col style="width:13%"><col style="width:9%"><col style="width:5%"><col style="width:10%"><col style="width:9%"><col style="width:9%"><col style="width:10%"></colgroup>';
+  h+='<tr><th></th><th>'+T('thDate')+'</th><th>'+T('thBrand')+'</th><th>'+T('thRef')+'</th><th>'+T('thCli')+'</th><th>'+T('thPick')+'</th><th class="num">'+T('thDays')+'</th><th class="num">'+T('thCost')+'</th><th class="num">'+T('thNetSale')+'</th><th>'+T('thCur')+'</th><th class="num">'+T('thMargin')+'</th></tr>';
+  var margTot={}, byBrand={}, byCp={};
+  rows.forEach(function(s){
+    var a=acqByWatch(s.watch_id), w=watchById(s.watch_id)||{}, cp=cpById(s.counterpart_id);
+    var ns=netSale(s), nc=netCost(a);
+    var same=(s.cur||'CHF')===((a&&a.cur)||'CHF');
+    var mg=(same&&ns!=null&&nc!=null)?ns-nc:null;
+    var gg=daysBetween(a&&a.d_pick, s.d_sale);
+    if(mg!=null){
+      var c=s.cur||'CHF';
+      margTot[c]=(margTot[c]||0)+mg;
+      var bk=w.brand||'—'; byBrand[bk]=byBrand[bk]||{}; byBrand[bk][c]=(byBrand[bk][c]||0)+mg;
+      var ck=cp?cp.name:'—'; byCp[ck]=byCp[ck]||{}; byCp[ck][c]=(byCp[ck][c]||0)+mg;
+    }
+    h+='<tr>'+'<td class="mini">'+(w.photo?'<img src="'+w.photo+'">':'<div class="noph">\u231a</div>')+'</td>'+'<td>'+fmtDate(s.d_sale)+'</td><td>'+esc(w.brand||'')+'</td><td class="mono2">'+esc(w.ref||'')+setIcons(w)+'</td>'+
+      '<td>'+esc(cp?cp.name:'')+'</td><td>'+fmtDate(a&&a.d_pick)+'</td><td class="num">'+(gg!=null?gg:'')+'</td>'+
+      '<td class="num mono2">'+(nc!=null?fmtN(nc,(a&&a.cur)||'')+(same?'':' '+((a&&a.cur)||'')):'')+'</td>'+
+      '<td class="num mono2">'+fmtN(ns,s.cur)+'</td><td>'+esc(s.cur||'')+'</td>'+
+      '<td class="num mono2 '+(mg!=null?(mg>=0?'pos':'neg'):'')+'">'+(mg!=null?fmtN(mg,s.cur):T('multiCur'))+'</td></tr>';
+  });
+  Object.keys(margTot).sort().forEach(function(c,i){
+    h+='<tr class="tot"><td colspan="9">'+(i===0?T('totRow')+' — '+rows.length+' '+T('pieces'):'')+'</td>'+
+      '<td>'+c+'</td><td class="num mono2 '+(margTot[c]>=0?'pos':'neg')+'">'+fmtN(margTot[c],c)+'</td></tr>';
+  });
+  h+='</table>';
+  function block(title,map){
+    var out='<div class="sect">'+esc(title)+'</div><table><colgroup><col style="width:60%"><col style="width:12%"><col style="width:28%"></colgroup>';
+    Object.keys(map).sort().forEach(function(k){
+      Object.keys(map[k]).sort().forEach(function(c,i){
+        out+='<tr><td>'+(i===0?esc(k):'')+'</td><td>'+c+'</td><td class="num mono2 '+(map[k][c]>=0?'pos':'neg')+'">'+fmtN(map[k][c],c)+'</td></tr>';
+      });
+    });
+    return out+'</table>';
+  }
+  if(Object.keys(byBrand).length) h+=block(T('byBrand'),byBrand);
+  if(Object.keys(byCp).length) h+=block(T('byCp'),byCp);
+  openPrint(T('rMarT'), h);
+}
+
+function buildRepStock(){
+  var rows=S.watches.filter(isStock);
+  var h='<h1>WATCH<span class="g">DESK</span></h1>'+
+    '<div class="sh-sub">'+esc(T('valueTitle'))+'</div>'+
+    '<div class="sh-meta">'+T('stockAt')+' '+fmtDate(today())+'</div>';
+  h+='<table><colgroup><col style="width:5%"><col style="width:12%"><col style="width:14%"><col style="width:16%"><col style="width:11%"><col style="width:17%"><col style="width:9%"><col style="width:5%"><col style="width:6%"><col style="width:5%"></colgroup>';
+  h+='<tr><th></th><th>'+T('thBrand')+'</th><th>'+T('thRef')+'</th><th>'+T('thModel')+'</th><th>'+T('thSerial')+'</th><th>'+T('thSup')+'</th><th>'+T('thPick')+'</th><th class="num">'+T('thDays')+'</th><th class="num">'+T('thCost')+'</th><th>'+T('thCur')+'</th></tr>';
+  var accs=[];
+  rows.forEach(function(w){
+    var a=acqByWatch(w.id), cp=cpById(a&&a.counterpart_id);
+    accs.push(a);
+    h+='<tr>'+'<td class="mini">'+(w.photo?'<img src="'+w.photo+'">':'<div class="noph">\u231a</div>')+'</td>'+'<td>'+esc(w.brand||'')+'</td><td class="mono2">'+esc(w.ref||'')+setIcons(w)+'</td><td>'+esc(w.model||'')+'</td>'+
+      '<td class="mono2">'+esc(w.serial||'')+'</td><td>'+esc(cp?cp.name:'')+'</td><td>'+fmtDate(a&&a.d_pick)+'</td>'+
+      '<td class="num">'+(function(){var g=daysBetween(a&&a.d_pick,null); return (g!=null&&g>=0)?g:'';})()+'</td>'+
+      '<td class="num mono2">'+fmtN(netCost(a),(a&&a.cur)||'')+'</td><td>'+esc((a&&a.cur)||'')+'</td></tr>';
+  });
+  var m=sumByCur(accs.filter(Boolean),function(a){return a.cur;},function(a){return netCost(a);});
+  Object.keys(m).sort().forEach(function(c,i){
+    h+='<tr class="tot"><td colspan="8">'+(i===0?T('totRow')+' — '+rows.length+' '+T('pieces'):'')+'</td>'+
+      '<td class="num mono2">'+fmtN(m[c],c)+'</td><td>'+c+'</td></tr>';
+  });
+  h+='</table>';
+  openPrint(T('rStockT'), h);
+}
+
+function buildRepInv(){
+  var rows=S.acquisitions.filter(function(a){ return !saleByWatch(a.watch_id); });
+  var cpF=$('repCp').value;
+  if(cpF) rows=rows.filter(function(a){ return a.counterpart_id===cpF; });
+  rows.sort(function(x,y){ return String(x.stat||'').localeCompare(String(y.stat||'')) || String(y.d_ord||'').localeCompare(String(x.d_ord||'')); });
+  var h='<h1>WATCH<span class="g">DESK</span></h1>'+
+    '<div class="sh-sub">'+esc(T('rInvT'))+'</div>'+
+    '<div class="sh-meta">'+T('stockAt')+' '+fmtDate(today())+'</div>';
+  h+='<table><colgroup><col style="width:5%"><col style="width:11%"><col style="width:13%"><col style="width:14%"><col style="width:10%"><col style="width:15%"><col style="width:9%"><col style="width:8%"><col style="width:9%"><col style="width:6%"></colgroup>';
+  h+='<tr><th></th><th>'+T('thBrand')+'</th><th>'+T('thRef')+'</th><th>'+T('thModel')+'</th><th>'+T('thSerial')+'</th><th>'+T('thSup')+'</th><th>'+T('thStat')+'</th><th>'+T('thDate')+'</th><th class="num">'+T('thCost')+'</th><th>'+T('thCur')+'</th></tr>';
+  rows.forEach(function(a){
+    var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
+    h+='<tr>'+'<td class="mini">'+(w.photo?'<img src="'+w.photo+'">':'<div class="noph">\u231a</div>')+'</td>'+
+      '<td>'+esc(w.brand||'')+'</td><td class="mono2">'+esc(w.ref||'')+setIcons(w)+'</td><td>'+esc(w.model||'')+'</td>'+
+      '<td class="mono2">'+esc(w.serial||'')+'</td><td>'+esc(cp?cp.name:'')+'</td><td>'+esc(statLabel(a.stat))+'</td>'+
+      '<td>'+fmtDate(a.d_ord)+'</td>'+
+      '<td class="num mono2">'+fmtN(netCost(a),a.cur||'')+'</td><td>'+esc(a.cur||'')+'</td></tr>';
+  });
+  var m=sumByCur(rows,function(a){return a.cur;},function(a){return netCost(a);});
+  Object.keys(m).sort().forEach(function(c,i){
+    h+='<tr class="tot"><td colspan="8">'+(i===0?T('totRow')+' — '+rows.length+' '+T('pieces'):'')+'</td>'+
+      '<td class="num mono2">'+fmtN(m[c],c)+'</td><td>'+c+'</td></tr>';
+  });
+  h+='</table>';
+  loadFx(function(){
+    openPrint(T('rInvT'), h + fxTotalsBlock(m));
+  });
+}
+
+function csvEsc(v){ v=String(v==null?'':v); return /[";\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
+function download(name, mime, content){
+  var a=document.createElement('a');
+  a.href='data:'+mime+';charset=utf-8,'+encodeURIComponent(content);
+  a.download=name; document.body.appendChild(a); a.click(); a.remove();
+}
+function exportCsv(){
+  var out='TIPO;DATA;MARCA;REFERENZA;MODELLO;SERIALE;CORREDO;CLIENTE_FORNITORE;STATO;PAGAMENTO;VALUTA;LISTINO;CONCORDATO;IVA%;NETTO;FATTURA;REGIME;PERMUTA;PERMUTA_VAL\n';
+  repFilterRows(S.acquisitions,'d_ord').forEach(function(a){
+    var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
+    out+=['ACQUISTO',a.d_ord||'',w.brand||'',w.ref||'',w.model||'',w.serial||'',w.set_type?T('set_'+w.set_type):'',cp?cp.name:'',statLabel(a.stat),payLabel(a.pay),a.cur||'',a.list!=null?a.list:'',a.agreed!=null?a.agreed:'',a.vat!=null?a.vat:'',netCost(a)!=null?netCost(a):'','','','',''].map(csvEsc).join(';')+'\n';
+  });
+  repFilterRows(S.sales,'d_sale').forEach(function(s){
+    var w=watchById(s.watch_id)||{}, cp=cpById(s.counterpart_id);
+    out+=['VENDITA',s.d_sale||'',w.brand||'',w.ref||'',w.model||'',w.serial||'',w.set_type?T('set_'+w.set_type):'',cp?cp.name:'','',payLabel(s.pay),s.cur||'',s.price!=null?s.price:'','',s.vat!=null?s.vat:'',netSale(s)!=null?netSale(s):'',s.invoice_no||'',s.vat_mode?T('vm_'+s.vat_mode):'',s.tradein_desc||'',s.tradein_val||''].map(csvEsc).join(';')+'\n';
+  });
+  download('watchdesk-export-'+today()+'.csv','text/csv',out);
+}
+function exportJson(){
+  download('watchdesk-backup-'+today()+'.json','application/json',JSON.stringify(S,null,1));
+}
+
+/* ================================================================
+   EVENTI
+   ================================================================ */
+function bind(){
+  /* auth */
+  $('btnLogin').addEventListener('click', function(){
+    hideMsg('authMsg');
+    api('/auth/login',{method:'POST',body:{email:$('liEmail').value.trim(),password:$('liPass').value}})
+      .then(afterLogin).catch(function(e){ showMsg('authMsg',e.message); });
+  });
+  $('liPass').addEventListener('keydown',function(e){ if(e.key==='Enter') $('btnLogin').click(); });
+  $('goSignup').addEventListener('click',function(){ showAuthPane('signupForm'); });
+  $('goReset').addEventListener('click',function(){ showAuthPane('resetForm'); });
+  document.querySelectorAll('.backLogin').forEach(function(b){ b.addEventListener('click',function(){ showAuthPane('loginForm'); }); });
+  $('btnSignup').addEventListener('click', function(){
+    hideMsg('authMsg');
+    api('/auth/signup',{method:'POST',body:{email:$('suEmail').value.trim(),password:$('suPass').value,code:$('suCode').value.trim()}})
+      .then(afterLogin).catch(function(e){ showMsg('authMsg',e.message); });
+  });
+  $('btnReset').addEventListener('click', function(){
+    hideMsg('authMsg');
+    api('/auth/reset',{method:'POST',body:{email:$('rsEmail').value.trim(),code:$('rsCode').value.trim(),password:$('rsPass').value}})
+      .then(afterLogin).catch(function(e){ showMsg('authMsg',e.message); });
+  });
+  $('btnLogout').addEventListener('click',function(){ doLogout(false); });
+
+  /* lingua e nav */
+  $('langIt').addEventListener('click',function(){ setLang('it'); });
+  $('langEn').addEventListener('click',function(){ setLang('en'); });
+  document.querySelectorAll('.navbtn').forEach(function(b){
+    b.addEventListener('click',function(){ gotoView(b.getAttribute('data-view')); });
+  });
+  document.querySelectorAll('.tile[data-goto]').forEach(function(t){
+    t.addEventListener('click',function(){ gotoView(t.getAttribute('data-goto')); });
+  });
+
+  /* chiusura modali */
+  document.querySelectorAll('[data-close]').forEach(function(b){
+    b.addEventListener('click',function(){ $(b.getAttribute('data-close')).classList.remove('on'); });
+  });
+
+  /* filtri liste */
+  $('acqSearch').addEventListener('input', renderAcq);
+  $('acqBrand').addEventListener('change', renderAcq);
+  $('acqStat').addEventListener('change', renderAcq);
+  $('magSearch').addEventListener('input', renderMag);
+  $('salesSearch').addEventListener('input', renderSales);
+  $('cpSearch').addEventListener('input', renderCp);
+  function syncCpButtons(){
+    $('btnNewCli').style.display = CP_ROLE_FILTER==='clienti' ? 'inline-flex' : 'none';
+    $('btnNewSup').style.display = CP_ROLE_FILTER==='fornitori' ? 'inline-flex' : 'none';
+  }
+  syncCpButtons();
+  $('cpRoleChips').addEventListener('click',function(ev){
+    var el=ev.target.closest('.chip'); if(!el) return;
+    CP_ROLE_FILTER=el.getAttribute('data-role')||'';
+    document.querySelectorAll('#cpRoleChips .chip').forEach(function(c){ c.classList.toggle('on',c===el); });
+    syncCpButtons();
+    renderCp();
+  });
+
+  /* apertura form */
+  $('btnNewAcq2').addEventListener('click',function(){ openAcqModal(null); });
+  $('acqList').addEventListener('click',function(ev){
+    var el=ev.target.closest('[data-acq]'); if(el) openAcqModal(el.getAttribute('data-acq'));
+  });
+  $('purSearch').addEventListener('input', renderPur);
+  $('purList').addEventListener('click',function(ev){
+    var el=ev.target.closest('[data-acq]'); if(el) openAcqModal(el.getAttribute('data-acq'));
+  });
+  $('btnNewSale').addEventListener('click',function(){ openSaleModal(null); });
+  $('salesList').addEventListener('click',function(ev){
+    var el=ev.target.closest('[data-sale]'); if(el) openSaleModal(el.getAttribute('data-sale'));
+  });
+  $('magGrid').addEventListener('click',function(ev){
+    var sell=ev.target.closest('[data-sellwatch]');
+    if(sell){ openSaleModal(null, sell.getAttribute('data-sellwatch')); return; }
+    var card=ev.target.closest('[data-watch]');
+    if(card){ var a=acqByWatch(card.getAttribute('data-watch')); if(a) openAcqModal(a.id); }
+  });
+  $('btnNewCli').addEventListener('click',function(){ openCpModal(null,'sell'); });
+  $('btnNewSup').addEventListener('click',function(){ openCpModal(null,'buy'); });
+  $('cpList').addEventListener('click',function(ev){
+    var el=ev.target.closest('[data-cp]'); if(el) openCpModal(el.getAttribute('data-cp'));
+  });
+
+  /* form acquisto */
+  $('aBrand').addEventListener('change',function(){
+    $('aBrandOtherBox').style.display = $('aBrand').value==='__other'?'block':'none';
+  });
+  $('btnRefSearch').addEventListener('click', refSearch);
+  $('aRef').addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); refSearch(); } });
+  $('aVat').addEventListener('input',function(){ calcNetFromVat('aList','aVat','aNet'); });
+  $('aList').addEventListener('input',function(){ if($('aVat').value) calcNetFromVat('aList','aVat','aNet'); });
+  $('aAgreed').addEventListener('input',function(){ if($('aVat').value) calcNetFromVat('aList','aVat','aNet'); });
+  $('aPay').addEventListener('change',function(){ $('aDepBox').style.display = $('aPay').value==='acconto'?'block':'none'; });
+  $('aPhotoDrop').addEventListener('click',function(){ $('aPhotoFile').click(); });
+  $('aPhotoFile').addEventListener('change',function(){
+    var f=$('aPhotoFile').files[0]; if(!f) return;
+    compressImage(f,function(data){ EDIT.photo=data; $('aPhotoImg').src=data; $('aPhotoImg').style.display='block'; });
+  });
+  $('btnSaveAcq').addEventListener('click', saveAcq);
+  $('btnSellAcq').addEventListener('click', function(){
+    var wid = EDIT.acq && EDIT.acq.watch_id;
+    if(!wid) return;
+    document.getElementById('ovAcq').classList.remove('on');
+    openSaleModal(null, wid);
+  });
+  $('btnDelAcq').addEventListener('click', deleteAcq);
+  $('btnAddDocA').addEventListener('click',function(){ $('aDocFile').click(); });
+  $('aDocFile').addEventListener('change',function(){
+    if(EDIT.acq){ uploadDocs('acquisition', EDIT.acq.id, $('aDocFile'), 'aDocList', 'acqMsg'); return; }
+    readFiles($('aDocFile')).then(function(fs){
+      PENDING_DOCS.acq = PENDING_DOCS.acq.concat(fs);
+      $('aDocFile').value='';
+      renderPending('acq','aDocList');
+    });
+  });
+
+  /* form vendita */
+  $('sVat').addEventListener('input',function(){ calcNetFromVat('sPrice','sVat','sNet'); });
+  $('sPrice').addEventListener('input',function(){ if($('sVat').value) calcNetFromVat('sPrice','sVat','sNet'); });
+  $('btnSaveSale').addEventListener('click', saveSale);
+  $('btnDelSale').addEventListener('click', deleteSale);
+  $('btnAddDocS').addEventListener('click',function(){ $('sDocFile').click(); });
+  $('sDocFile').addEventListener('change',function(){
+    if(EDIT.sale){ uploadDocs('sale', EDIT.sale.id, $('sDocFile'), 'sDocList', 'saleMsg'); return; }
+    readFiles($('sDocFile')).then(function(fs){
+      PENDING_DOCS.sale = PENDING_DOCS.sale.concat(fs);
+      $('sDocFile').value='';
+      renderPending('sale','sDocList');
+    });
+  });
+
+  /* documenti: apertura ed eliminazione (delegata) */
+  document.addEventListener('click',function(ev){
+    var pn=ev.target.closest('[data-pend]');
+    if(pn){
+      var pk=pn.getAttribute('data-pend').split(':');
+      var pf=PENDING_DOCS[pk[0]][+pk[1]];
+      if(pf) showDocPreview(pf.name, pf.type, pf.data);
+      return;
+    }
+    var px=ev.target.closest('[data-delpend]');
+    if(px){
+      var xk=px.getAttribute('data-delpend').split(':');
+      PENDING_DOCS[xk[0]].splice(+xk[1],1);
+      renderPending(xk[0], px.getAttribute('data-list'));
+      return;
+    }
+    var dn=ev.target.closest('[data-doc]');
+    if(dn){ openDoc(dn.getAttribute('data-doc')); return; }
+    var dx=ev.target.closest('[data-deldoc]');
+    if(dx){
+      if(!window.confirm(T('confirmDelDoc'))) return;
+      api('/docs/'+dx.getAttribute('data-deldoc'),{method:'DELETE'}).then(function(){
+        loadDocs(dx.getAttribute('data-pt'), dx.getAttribute('data-pid'), dx.getAttribute('data-list'));
+      }).catch(function(){});
+    }
+  });
+
+  /* form controparte */
+  $('btnLookup').addEventListener('click', doLookup);
+  $('cpLookupQ').addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); doLookup(); } });
+  $('btnSaveCp').addEventListener('click', saveCp);
+  $('btnDelCp').addEventListener('click', deleteCp);
+
+  /* impostazioni */
+  $('btnSettings').addEventListener('click',function(){ hideMsg('setMsg'); $('ovSet').classList.add('on'); });
+  $('btnChange').addEventListener('click',function(){
+    api('/auth/change',{method:'POST',body:{current:$('chCur').value,password:$('chNew').value}})
+      .then(function(){ $('chCur').value=''; $('chNew').value=''; showMsg('setMsg',T('changed'),true); })
+      .catch(function(e){ showMsg('setMsg',e.message); });
+  });
+  $('btnMigrate').addEventListener('click',function(){
+    $('btnMigrate').textContent=T('saving');
+    api('/admin/migrate-photos',{method:'POST'})
+      .then(function(d){ showMsg('setMsg',T('migOk')+(d&&d.photos!=null?' ('+d.photos+' foto)':''),true); return loadData(); })
+      .catch(function(e){ showMsg('setMsg',e.message); })
+      .then(function(){ $('btnMigrate').textContent=T('migBtn'); });
+  });
+
+  /* reports */
+  $('repAcq').addEventListener('click', buildRepAcq);
+  $('repSales').addEventListener('click', buildRepSales);
+  $('repMargin').addEventListener('click', buildRepMargin);
+  $('repStock').addEventListener('click', buildRepStock);
+  $('repInv').addEventListener('click', buildRepInv);
+  $('repCsv').addEventListener('click', exportCsv);
+  $('repJson').addEventListener('click', exportJson);
+  $('plClose').addEventListener('click',function(){ $('printLayer').classList.remove('on'); });
+  $('dpClose').addEventListener('click',function(){ $('docPreview').classList.remove('on'); });
+  $('plPrint').addEventListener('click',function(){ window.print(); });
+}
+
+/* ================================================================
+   BOOT
+   ================================================================ */
+function boot(){
+  bind();
+  fillStaticSelects();
+  applyLang();
+  if(TOKEN){
+    api('/me').then(function(){ enterApp(); }).catch(function(){ doLogout(true); });
+  } else {
+    doLogout(true);
+  }
+}
+boot();
+</script>
+
+<a href="../" id="wdHomeLink" title="WatchDesk" style="position:fixed;left:12px;bottom:12px;z-index:9999;display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:11px;background:rgba(11,18,48,.94);border:1px solid #2a3768;color:#d4b982;text-decoration:none;font-family:'Outfit',-apple-system,sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;backdrop-filter:blur(6px);box-shadow:0 4px 18px rgba(0,0,0,.35)">&#8592; Home</a>
+<style>@media print{#wdHomeLink{display:none!important}}</style>
+</body>
+</html>
