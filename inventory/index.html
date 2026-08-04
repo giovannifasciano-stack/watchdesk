@@ -133,7 +133,6 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 .thumb.badge.sup{background:rgba(212,185,130,.14); border:1px solid var(--accent-dark); color:var(--accent)}
 .thumb.badge.cli{background:rgba(122,158,255,.13); border:1px solid #3a53a8; color:#9db4ff}
 .thumb.badge.both{background:rgba(255,255,255,.07); border:1px solid var(--line2); color:var(--text)}
-.field.pair{min-width:210px; flex:1 1 210px}
 .mvrow{cursor:pointer}
 .mvrow:hover{color:var(--accent)}
 .panel.clickable{cursor:pointer; transition:border-color .15s}
@@ -412,7 +411,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v5.9</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v6.0</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -539,11 +538,13 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
       <p class="sec-sub" data-i18n="repSub">Estratti conto, registro vendite, margini. Ogni report si apre in anteprima e poi si stampa.</p>
       <div class="panel">
         <h3 data-i18n="repFilters">Filtri</h3>
-        <div class="frow3">
+        <div class="frow">
           <div class="field"><label data-i18n="fFrom">Dal</label><input type="date" id="repFrom"></div>
           <div class="field"><label data-i18n="fTo">Al</label><input type="date" id="repTo"></div>
-          <div class="field pair"><label data-i18n="fSup">Fornitore</label><select id="repSup"></select></div>
-          <div class="field pair"><label data-i18n="fCpSell">Cliente</label><select id="repCli"></select></div>
+        </div>
+        <div class="frow">
+          <div class="field"><label data-i18n="fSup">Fornitore</label><select id="repSup"></select></div>
+          <div class="field"><label data-i18n="fCpSell">Cliente</label><select id="repCli"></select></div>
         </div>
       </div>
       <div class="repgrid">
