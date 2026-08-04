@@ -364,7 +364,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v3.6</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v3.7</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -487,6 +487,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
         <div class="repcard" id="repMargin"><div class="ri">📈</div><div class="rt" data-i18n="rMarT">Margini</div><div class="rd" data-i18n="rMarD">Margine per pezzo con giorni di giacenza, più totali per marca e cliente.</div></div>
         <div class="repcard" id="repStock"><div class="ri">🏛</div><div class="rt" data-i18n="rStockT">Valore magazzino</div><div class="rd" data-i18n="rStockD">Gli orologi in casa al costo netto, con giacenza a oggi.</div></div>
         <div class="repcard" id="repInv"><div class="ri">🗂</div><div class="rt" data-i18n="rInvT">Inventario</div><div class="rd" data-i18n="rInvD">Gli orologi ritirati e non ancora venduti, con fornitore e costo netto.</div></div>
+        <div class="repcard" id="repMkt"><div class="ri">📊</div><div class="rt" data-i18n="rMktT">Inventory Market Price Valuation</div><div class="rd" data-i18n="rMktD">Ogni pezzo in inventario col prezzo medio del grey market e lo scarto dal listino.</div></div>
         <div class="repcard" id="repCsv"><div class="ri">📄</div><div class="rt" data-i18n="rCsvT">Esporta CSV</div><div class="rd" data-i18n="rCsvD">Acquisti e vendite filtrati, in un file per Excel/Numbers.</div></div>
         <div class="repcard" id="repJson"><div class="ri">💾</div><div class="rt" data-i18n="rJsonT">Backup JSON</div><div class="rd" data-i18n="rJsonD">Copia completa dell'archivio, foto incluse.</div></div>
       </div>
@@ -695,7 +696,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v3.6
+   WATCHDESK — GESTIONALE UNIFICATO  v3.7
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -784,7 +785,9 @@ var I18N = {
     thDate:'Data', thBrand:'Marca', thRef:'Referenza', thModel:'Modello', thCp:'Cliente / Fornitore', thSup:'Fornitore', thCli:'Cliente', thCur:'Val.',
     thList:'Listino', thAgreed:'Concordato', thNet:'Netto', thPay:'Pagamento', thStat:'Stato',
     thPrice:'Prezzo', thNetSale:'Netto vendita', thRegime:'Regime', thTrade:'Permuta', thInv:'Fattura',
-    thCost:'Costo netto', thList:'Listino', thMargin:'Margine', thDays:'Giac. gg', thSerial:'Seriale', thPick:'Ritirato il',
+    thCost:'Costo netto', thList:'Listino', thMkt:'Grey medio', thDelta:'Scarto', thMin:'Min', thMax:'Max', thAds:'Annunci',
+    rMktT:'Inventory Market Price Valuation', rMktD:'Ogni pezzo in inventario col prezzo medio del grey market e lo scarto dal listino.',
+    mktWait:'Interrogo il grey market…', mktNote:'Prezzi grey in USD, media degli annunci con outlier esclusi (Official Watches, Luxury Bazaar) · lo scarto confronta il grey col listino convertito in USD', thMargin:'Margine', thDays:'Giac. gg', thSerial:'Seriale', thPick:'Ritirato il',
     byBrand:'Totali per marca', byCp:'Totali per cliente', multiCur:'valute diverse',
     thProfit:'Utile', thPct:'Utile %', fxOn:'utile convertito ai cambi', fxMissing:'cambi non disponibili: utile solo a valute uguali',
     fxSaleDay:'Utile in grassetto = valuta di incasso, importo reale. Gli altri (≈) sono indicativi, convertiti al cambio del giorno della vendita',
@@ -856,7 +859,9 @@ var I18N = {
     thDate:'Date', thBrand:'Brand', thRef:'Reference', thModel:'Model', thCp:'Client / Supplier', thSup:'Supplier', thCli:'Client', thCur:'Cur.',
     thList:'List', thAgreed:'Agreed', thNet:'Net', thPay:'Payment', thStat:'Status',
     thPrice:'Price', thNetSale:'Net sale', thRegime:'Regime', thTrade:'Trade-in', thInv:'Invoice',
-    thCost:'Net cost', thList:'List price', thMargin:'Margin', thDays:'Days', thSerial:'Serial', thPick:'Collected on',
+    thCost:'Net cost', thList:'List price', thMkt:'Grey avg', thDelta:'Delta', thMin:'Min', thMax:'Max', thAds:'Listings',
+    rMktT:'Inventory Market Price Valuation', rMktD:'Every piece in stock with its grey market average and the gap to list price.',
+    mktWait:'Querying the grey market…', mktNote:'Grey prices in USD, average of listings with outliers removed (Official Watches, Luxury Bazaar) · delta compares grey with list price converted to USD', thMargin:'Margin', thDays:'Days', thSerial:'Serial', thPick:'Collected on',
     byBrand:'Totals by brand', byCp:'Totals by client', multiCur:'mixed currencies',
     thProfit:'Profit', thPct:'Profit %', fxOn:'profit converted at rates of', fxMissing:'rates unavailable: profit only when currencies match',
     fxSaleDay:'Bold profit = currency actually received, real amount. The others (≈) are indicative, converted at the exchange rate of the sale date',
@@ -2065,6 +2070,66 @@ function buildRepInv(){
   });
 }
 
+function buildRepMkt(){
+  var rows=S.acquisitions.filter(function(a){ return a.stat==='ritirato' && !saleByWatch(a.watch_id); });
+  var supF=$('repSup').value;
+  if(supF) rows=rows.filter(function(a){ return a.counterpart_id===supF; });
+  if(!rows.length){ openPrint(T('rMktT'), sheetHead(T('rMktT'))+'<div class="fxnote">'+T('noResults')+'</div>'); return; }
+
+  var GREY='https://grey-scanner.owscan.workers.dev';
+  var st=$('repMkt').querySelector('.rd'), stOld=st.textContent;
+  st.textContent=T('mktWait')+' 0/'+rows.length;
+  var done=0;
+
+  Promise.all(rows.map(function(a){
+    var w=watchById(a.watch_id)||{};
+    var ref=(w.ref||'').trim();
+    if(!ref) return Promise.resolve({a:a, w:w, q:null});
+    return fetch(GREY+'/?ref='+encodeURIComponent(ref))
+      .then(function(r){ return r.json(); })
+      .then(function(q){ return {a:a, w:w, q:(q && q.found)?q:null, why:(q&&!q.found)?(q.reason||''):''}; })
+      .catch(function(){ return {a:a, w:w, q:null, why:'net'}; })
+      .then(function(res){ done++; st.textContent=T('mktWait')+' '+done+'/'+rows.length; return res; });
+  })).then(function(items){
+    st.textContent=stOld;
+    loadFx(function(){
+      var h=sheetHead(T('rMktT'));
+      h+='<table><colgroup><col style="width:5%"><col style="width:11%"><col style="width:13%"><col style="width:15%"><col style="width:12%"><col style="width:12%"><col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%"></colgroup>';
+      h+='<tr><th></th><th>'+T('thBrand')+'</th><th>'+T('thRef')+'</th><th>'+T('thModel')+'</th>'+
+        '<th class="num">'+T('thList')+'</th><th class="num">'+T('thMkt')+'</th>'+
+        '<th class="num">'+T('thDelta')+'</th><th class="num">'+T('thMin')+'</th><th class="num">'+T('thMax')+'</th>'+
+        '<th class="num">'+T('thAds')+'</th></tr>';
+
+      var totList=0, totMkt=0, n=0;
+      items.forEach(function(it){
+        var a=it.a, w=it.w, q=it.q;
+        var lst=num(a.list), cur=a.cur||'CHF';
+        var mkt=q?Number(q.avg_usd):null;                    /* il grey scanner ragiona in USD */
+        var lstUsd=(lst!=null)?((cur==='USD')?lst:fxConv(lst,cur,'USD')):null;
+        var delta=(mkt!=null&&lstUsd)?((mkt-lstUsd)/lstUsd*100):null;
+        if(mkt!=null){ totMkt+=mkt; if(lstUsd){ totList+=lstUsd; n++; } }
+        h+='<tr><td class="mini">'+(w.photo?'<img src="'+w.photo+'">':'<div class="noph">\u231a</div>')+'</td>'+
+          '<td>'+esc(w.brand||'')+'</td><td class="mono2">'+esc(w.ref||'')+setIcons(w)+'</td><td>'+esc(w.model||'')+'</td>'+
+          '<td class="num mono2">'+(lst!=null?esc(cur)+' '+fmtN(lst,cur):'\u2014')+'</td>'+
+          '<td class="num mono2 real">'+(mkt!=null?'USD '+fmtN(Math.round(mkt),'USD'):'\u2014')+'</td>'+
+          '<td class="num mono2 '+(delta!=null?(delta>=0?'pos':'neg'):'')+'">'+(delta!=null?((delta>=0?'+':'')+delta.toFixed(1)+'%'):'\u2014')+'</td>'+
+          '<td class="num mono2 appr">'+(q&&q.min_usd?fmtN(Math.round(q.min_usd),'USD'):'\u2014')+'</td>'+
+          '<td class="num mono2 appr">'+(q&&q.max_usd?fmtN(Math.round(q.max_usd),'USD'):'\u2014')+'</td>'+
+          '<td class="num">'+(q?(q.used_for_avg||q.listings||''):'\u2014')+'</td></tr>';
+      });
+      var dTot=(totList>0)?((totMkt-totList)/totList*100):null;
+      h+='<tr class="tot"><td colspan="4">'+T('totRow')+' \u2014 '+items.length+' '+T('pieces')+'</td>'+
+        '<td class="num mono2">'+(totList?'USD '+fmtN(Math.round(totList),'USD'):'')+'</td>'+
+        '<td class="num mono2">'+(totMkt?'USD '+fmtN(Math.round(totMkt),'USD'):'')+'</td>'+
+        '<td class="num mono2 '+(dTot!=null&&dTot>=0?'pos':'neg')+'">'+(dTot!=null?((dTot>=0?'+':'')+dTot.toFixed(1)+'%'):'')+'</td>'+
+        '<td colspan="3"></td></tr>';
+      h+='</table>';
+      h+='<div class="fxnote">'+T('mktNote')+(FX?(' \u00b7 '+T('fxOn')+' '+esc(FX.date||'')):'')+'</div>';
+      openPrint(T('rMktT'), h);
+    });
+  });
+}
+
 function csvEsc(v){ v=String(v==null?'':v); return /[";\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
 function download(name, mime, content){
   var a=document.createElement('a');
@@ -2274,6 +2339,7 @@ function bind(){
   $('repMargin').addEventListener('click', buildRepMargin);
   $('repStock').addEventListener('click', buildRepStock);
   $('repInv').addEventListener('click', buildRepInv);
+  $('repMkt').addEventListener('click', buildRepMkt);
   $('repCsv').addEventListener('click', exportCsv);
   $('repJson').addEventListener('click', exportJson);
   $('plClose').addEventListener('click',function(){ $('printLayer').classList.remove('on'); });
