@@ -260,6 +260,8 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 .sheet td.mini{padding:3px 4px}
 .sheet .mini img{width:34px; height:34px; object-fit:cover; border-radius:6px; display:block; border:1px solid #dfe2ea}
 .sheet .seticons{font-size:11px; letter-spacing:1px}
+.sheet td.real{font-weight:800}
+.sheet td.appr{opacity:.72; font-size:.94em}
 .sheet .mini .noph{width:34px; height:34px; border-radius:6px; background:#eef0f5; color:#a2a8ba; display:flex; align-items:center; justify-content:center; font-size:15px}
 .sheet .fxbox{margin-top:16px; border:1.5px solid #a8905f; border-radius:8px; padding:12px 14px; page-break-inside:avoid}
 .sheet .fxbox .fxt{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#666e85; margin-bottom:8px; font-weight:700}
@@ -361,7 +363,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v3.1</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v3.2</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -693,7 +695,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v3.1
+   WATCHDESK — GESTIONALE UNIFICATO  v3.2
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -785,6 +787,7 @@ var I18N = {
     thCost:'Costo netto', thMargin:'Margine', thDays:'Giac. gg', thSerial:'Seriale', thPick:'Ritirato il',
     byBrand:'Totali per marca', byCp:'Totali per cliente', multiCur:'valute diverse',
     thProfit:'Utile', thPct:'Utile %', fxOn:'utile convertito ai cambi', fxMissing:'cambi non disponibili: utile solo a valute uguali',
+    fxSaleDay:'Utile in grassetto = valuta di incasso, importo reale. Gli altri (≈) sono indicativi, convertiti al cambio del giorno della vendita',
     stockAt:'Magazzino al', marginTitle:'Margini realizzati', valueTitle:'Valore di magazzino',
     acqTitle:'Estratto conto acquisti', salesTitle:'Registro vendite',
     migOk:'Migrazione completata', changed:'Password cambiata', docAdded:'Documenti caricati'
@@ -856,6 +859,7 @@ var I18N = {
     thCost:'Net cost', thMargin:'Margin', thDays:'Days', thSerial:'Serial', thPick:'Collected on',
     byBrand:'Totals by brand', byCp:'Totals by client', multiCur:'mixed currencies',
     thProfit:'Profit', thPct:'Profit %', fxOn:'profit converted at rates of', fxMissing:'rates unavailable: profit only when currencies match',
+    fxSaleDay:'Bold profit = currency actually received, real amount. The others (≈) are indicative, converted at the exchange rate of the sale date',
     stockAt:'Inventory as of', marginTitle:'Realised margins', valueTitle:'Inventory value',
     acqTitle:'Purchases statement', salesTitle:'Sales ledger',
     migOk:'Migration completed', changed:'Password changed', docAdded:'Documents uploaded'
@@ -1828,6 +1832,40 @@ function buildRepSales(){
   openPrint(T('rSalesT'), h);
 }
 
+
+/* ---------- cambi al giorno della vendita, congelati ---------- */
+var FXD = {};   /* '2026-08-03' -> {CHF:1, EUR:.., USD:.., GBP:..} */
+function fxAtLoad(dates, cb){
+  var todo = [];
+  dates.forEach(function(d){
+    if(!d || FXD[d]) return;
+    var c=null;
+    try { c = JSON.parse(localStorage.getItem('wd_fxd_'+d)||'null'); } catch(e){}
+    if(c && c.CHF){ FXD[d]=c; return; }
+    if(todo.indexOf(d)===-1) todo.push(d);
+  });
+  if(!todo.length){ cb(); return; }
+  var left = todo.length;
+  todo.forEach(function(d){
+    fetch('https://api.frankfurter.app/'+d+'?from=CHF&to=EUR,USD,GBP')
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        if(j && j.rates){
+          j.rates.CHF = 1;
+          FXD[d] = j.rates;
+          try { localStorage.setItem('wd_fxd_'+d, JSON.stringify(j.rates)); } catch(e){}
+        }
+      })
+      .catch(function(){})
+      .then(function(){ if(--left === 0) cb(); });
+  });
+}
+function fxAt(v, from, to, date){
+  var r = FXD[date];
+  if(!r || r[from]==null || r[to]==null) return null;
+  return v * r[to] / r[from];
+}
+
 function buildRepMargin(){
   var supF=$('repSup').value;
   var rows=repFilterRows(S.sales,'d_sale').filter(function(s){
@@ -1838,8 +1876,9 @@ function buildRepMargin(){
   });
   rows.sort(function(x,y){ return String(x.d_sale||'').localeCompare(String(y.d_sale||'')); });
   var OUT=['CHF','EUR','USD'];   /* le tre valute dell'utile */
+  var dates=rows.map(function(r){ return String(r.d_sale||'').slice(0,10); }).filter(Boolean);
 
-  loadFx(function(){
+  fxAtLoad(dates, function(){
     var h=sheetHead(T('marginTitle'));
     h+='<table><colgroup><col style="width:4%"><col style="width:6%"><col style="width:9%"><col style="width:11%"><col style="width:12%"><col style="width:4%"><col style="width:11%"><col style="width:11%"><col style="width:10%"><col style="width:10%"><col style="width:10%"><col style="width:6%"></colgroup>';
     h+='<tr><th></th><th>'+T('thDate')+'</th><th>'+T('thBrand')+'</th><th>'+T('thRef')+'</th><th>'+T('thCli')+'</th>'+
@@ -1856,23 +1895,27 @@ function buildRepMargin(){
       var cs=s2.cur||'CHF', ca=(a&&a.cur)||'CHF';
       var gg=daysBetween(a&&a.d_pick, s2.d_sale);
 
-      /* utile in CHF: ricavo e costo portati entrambi in CHF, anche a valute diverse */
-      var mgChf=null, pct=null;
+      /* l'utile VERO e' nella valuta in cui hai incassato; il costo viene
+         portato a quella valuta col cambio del giorno della vendita e li' si ferma */
+      var dt=String(s2.d_sale||'').slice(0,10);
+      var mgReal=null, pct=null, mgChf=null;
       if(ns!=null && nc!=null){
-        var nsC=fxConv(ns, cs, 'CHF'), ncC=fxConv(nc, ca, 'CHF');
-        if(nsC!=null && ncC!=null){
-          mgChf=nsC-ncC;
-          if(ncC>0) pct=mgChf/ncC*100;
-          totCostChf+=ncC;
-        } else if(cs===ca){
-          mgChf=ns-nc; if(nc>0) pct=mgChf/nc*100; totCostChf+=nc;
+        var ncS = (ca===cs) ? nc : fxAt(nc, ca, cs, dt);
+        if(ncS!=null){
+          mgReal = ns - ncS;
+          if(ncS>0) pct = mgReal/ncS*100;
+          var ncC = (ca==='CHF') ? nc : fxAt(nc, ca, 'CHF', dt);
+          if(ncC!=null) totCostChf += ncC;
+          mgChf = (cs==='CHF') ? mgReal : fxAt(mgReal, cs, 'CHF', dt);
         }
       }
       var cells='';
       OUT.forEach(function(c){
-        var v=(mgChf==null)?null:(c==='CHF'?mgChf:fxConv(mgChf,'CHF',c));
+        var v = (mgReal==null) ? null : ((c===cs) ? mgReal : fxAt(mgReal, cs, c, dt));
         if(v!=null) tot[c]+=v;
-        cells+='<td class="num mono2 '+(v!=null?(v>=0?'pos':'neg'):'')+'">'+(v!=null?fmtN(Math.round(v),c):'—')+'</td>';
+        var vero = (c===cs);
+        cells+='<td class="num mono2 '+(v!=null?(v>=0?'pos':'neg'):'')+(vero?' real':' appr')+'">'+
+          (v!=null?((vero?'':'\u2248 ')+fmtN(Math.round(v),c)):'\u2014')+'</td>';
       });
       if(mgChf!=null){
         var bk=w.brand||'\u2014'; byBrand[bk]=(byBrand[bk]||0)+mgChf;
@@ -1894,7 +1937,7 @@ function buildRepMargin(){
       OUT.map(function(c){ return '<td class="num mono2 '+(tot[c]>=0?'pos':'neg')+'">'+fmtN(Math.round(tot[c]),c)+'</td>'; }).join('')+
       '<td class="num mono2 '+(pctTot!=null&&pctTot>=0?'pos':'neg')+'">'+(pctTot!=null?(pctTot>=0?'+':'')+pctTot.toFixed(1)+'%':'')+'</td></tr>';
     h+='</table>';
-    h+='<div class="fxnote">'+(FX?(T('fxOn')+' '+esc(FX.date||'')+' \u00b7 open.er-api.com'):T('fxMissing'))+'</div>';
+    h+='<div class="fxnote">'+T('fxSaleDay')+' \u00b7 api.frankfurter.app (BCE)</div>';
 
     function block(title,map){
       var out='<div class="sect">'+esc(title)+'</div><table><colgroup><col style="width:46%">'+
@@ -1908,9 +1951,12 @@ function buildRepMargin(){
       });
       return out+'</table>';
     }
-    if(Object.keys(byBrand).length) h+=block(T('byBrand'),byBrand);
-    if(Object.keys(byCp).length) h+=block(T('byCp'),byCp);
-    openPrint(T('rMarT'), h);
+    loadFx(function(){
+      var h2=h;
+      if(Object.keys(byBrand).length) h2+=block(T('byBrand'),byBrand);
+      if(Object.keys(byCp).length) h2+=block(T('byCp'),byCp);
+      openPrint(T('rMarT'), h2);
+    });
   });
 }
 
