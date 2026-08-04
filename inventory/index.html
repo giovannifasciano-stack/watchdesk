@@ -412,7 +412,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v5.8</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v5.9</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -1302,9 +1302,12 @@ function renderHome(){
   });
   $('dueBox').innerHTML = hd || '<div class="empty">'+T('allPaid')+'</div>';
 
-  /* valutazione di mercato: parte da sola all'apertura, poi vive di cache */
-  if(!UP_AUTO){ UP_AUTO = true; setTimeout(renderUpside, 60); }
-  else if($('upBox').querySelector('.uprow')) renderUpside();
+  /* Valutazione di mercato: parte da sola, ma solo quando i dati ci sono davvero.
+     Al primo disegno della pagina il magazzino e' ancora vuoto (i dati arrivano
+     dopo), e segnarla "gia' fatta" li' significava non farla partire mai piu'. */
+  var stockN = S.watches.filter(function(w){ return isStock(w); }).length;
+  if(stockN && !UP_AUTO){ UP_AUTO = true; setTimeout(renderUpside, 60); }
+  else if(stockN && $('upBox').querySelector('.uprow')) renderUpside();
   /* ultimi movimenti */
   var movs=[];
   S.acquisitions.forEach(function(a){ movs.push({t:'acq', d:a.d_ord||a.updated_at||'', r:a}); });
