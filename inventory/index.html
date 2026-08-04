@@ -411,7 +411,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v6.0</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v6.1</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -812,7 +812,7 @@ var I18N = {
     heroHi:'Bentornato', tOpen:'Ordini acquisto aperti', tOpenN:'ordinati o in arrivo, non pagati', tStock:'In magazzino',
     tStockN:'ritirati, non venduti', tSold:'Vendite anno', tMargin:'Utile totale vendite', tMarginN:'tutte le vendite, netto − costo',
     pCur:'Totale acquisti — costo netto', pGrand:'Gran totale', pDue:'Ancora da pagare', allPaid:'Tutto pagato', pUp:'Inventory Market Value', upCalc:'Aggiorna',
-    upHint:'Interrogo il mercato…', upMkt:'Valore di mercato', upCost:'Costo netto', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'senza quotazione', upNone:'Nessuna quotazione disponibile', onlyDue:'Solo da pagare', onlyOpen:'Solo ordini aperti', seeList:"Vedi l'elenco →", pLast:'Ultimi movimenti',
+    upHint:'Interrogo il mercato…', upMkt:'Valore di mercato', upCost:'Costo netto', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'senza quotazione', upNone:'Nessuna quotazione disponibile', upNoStock:'Nessun pezzo in magazzino', onlyDue:'Solo da pagare', onlyOpen:'Solo ordini aperti', seeList:"Vedi l'elenco →", pLast:'Ultimi movimenti',
     purSub:'Registro completo degli acquisti, venduti inclusi.', acqSub:'Gli orologi ritirati e non ancora venduti: quello che hai in casa.',
     magSub:'Orologi ritirati e non ancora venduti — quello che hai in casa.',
     salesSub:'Vendite registrate sugli orologi in archivio, con regime IVA e permuta.',
@@ -888,7 +888,7 @@ var I18N = {
     heroHi:'Welcome back', tOpen:'Open purchase orders', tOpenN:'ordered or incoming, unpaid', tStock:'In stock',
     tStockN:'collected, not sold', tSold:'Sales this year', tMargin:'Total profit on sales', tMarginN:'all sales, net − cost',
     pCur:'Total purchases — net cost', pGrand:'Grand total', pDue:'Still to pay', allPaid:'All paid', pUp:'Inventory Market Value', upCalc:'Refresh',
-    upHint:'Querying the market…', upMkt:'Market value', upCost:'Net cost', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'without quote', upNone:'No quotes available', onlyDue:'Only unpaid', onlyOpen:'Only open orders', seeList:'See the list →', pLast:'Latest activity',
+    upHint:'Querying the market…', upMkt:'Market value', upCost:'Net cost', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'without quote', upNone:'No quotes available', upNoStock:'No pieces in stock', onlyDue:'Only unpaid', onlyOpen:'Only open orders', seeList:'See the list →', pLast:'Latest activity',
     purSub:'Full purchase register, sold pieces included.', acqSub:'Watches collected and not yet sold: what you have in hand.',
     magSub:'Watches collected and not yet sold — what you have at home.',
     salesSub:'Sales recorded on archived watches, with VAT regime and trade-ins.',
@@ -1164,19 +1164,26 @@ var UP_AUTO = false;  /* la valutazione parte da sola una volta per sessione */
 
 /* Prende la quotazione grey di un orologio: valore forzato, poi cache,
    poi il Grey Scanner, poi la ricerca sul web. */
+var UP_ERR = '';   /* ultimo motivo per cui una quotazione non e' arrivata */
 function greyFor(w){
   if(w.mkt_lock && Number(w.mkt_lock) && w.mkt_usd!=null && w.mkt_usd!=='')
     return Promise.resolve(Number(w.mkt_usd));
   if(MKT_CACHE[w.id]!=null) return Promise.resolve(MKT_CACHE[w.id]);
   var ref=(w.ref||'').trim();
-  if(!ref) return Promise.resolve(null);
+  if(!ref){ UP_ERR='referenza mancante'; return Promise.resolve(null); }
   return fetch('https://grey-scanner.owscan.workers.dev/?ref='+encodeURIComponent(ref))
-    .then(function(r){ return r.json(); }).catch(function(){ return null; })
+    .then(function(r){ return r.json(); })
+    .catch(function(e){ UP_ERR='scanner: '+(e&&e.message?e.message:'non raggiungibile'); return null; })
     .then(function(q){
       if(q && q.found) return Number(q.avg_usd);
+      if(q && q.reason) UP_ERR='scanner: '+q.reason;
       return api('/greyprice?ref='+encodeURIComponent(ref)+'&brand='+encodeURIComponent(w.brand||''))
-        .then(function(q2){ return (q2 && q2.found) ? Number(q2.avg_usd) : null; })
-        .catch(function(){ return null; });
+        .then(function(q2){
+          if(q2 && q2.found) return Number(q2.avg_usd);
+          UP_ERR='ricerca web: '+((q2&&q2.reason)||'nessun prezzo');
+          return null;
+        })
+        .catch(function(e){ UP_ERR='ricerca web: '+(e&&e.message?e.message:'errore'); return null; });
     })
     .then(function(v){ if(v!=null) MKT_CACHE[w.id]=v; return v; });
 }
@@ -1184,7 +1191,8 @@ function greyFor(w){
 function renderUpside(){
   var box=$('upBox'), cur=$('upCur').value||'USD';
   var stock=S.watches.filter(function(w){ return isStock(w); });
-  if(!stock.length){ box.innerHTML='<div class="empty">–</div>'; return; }
+  if(!stock.length){ box.innerHTML='<div class="empty">'+T('upNoStock')+'</div>'; return; }
+  UP_ERR='';
   box.innerHTML='<div class="empty">'+T('mktWait')+' 0/'+stock.length+'</div>';
   var fatti=0;
   /* nessuna interrogazione puo' bloccare le altre: 15 secondi e si va avanti */
@@ -1217,8 +1225,9 @@ function renderUpside(){
       function conv(v){ return (cur==='USD')?v:fxConv(v,'USD',cur); }
       var up=mkt-cost, pct=(cost>0)?(up/cost*100):null;
       var f=function(v){ var x=conv(v); return (x==null)?'—':fmtN(x,(cur==='HKD')?'USD':cur); };
-      if(!n){   /* nessuna quotazione: meglio dirlo che mostrare degli zeri */
-        box.innerHTML='<div class="empty">'+T('upNone')+' ('+senza+' '+T('pieces')+')</div>';
+      if(!n){   /* nessuna quotazione: meglio dirlo, e dire anche perche' */
+        box.innerHTML='<div class="empty">'+T('upNone')+' ('+senza+' '+T('pieces')+')</div>'+
+          (UP_ERR?('<div class="gt-lbl" style="margin-top:8px;text-transform:none;letter-spacing:0">'+esc(UP_ERR)+'</div>'):'');
         return;
       }
       var su = up>=0;
