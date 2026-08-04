@@ -363,7 +363,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v3.2</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v3.3</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -695,7 +695,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v3.2
+   WATCHDESK — GESTIONALE UNIFICATO  v3.3
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -774,7 +774,7 @@ var I18N = {
     confirmDelAcq:'Eliminare questo acquisto? Verranno rimossi anche l\'orologio e tutta la sua storia (vendite e documenti).',
     confirmDelSale:'Eliminare questa vendita?', confirmDelCp:'Eliminare questa scheda?',
     confirmDelDoc:'Eliminare questo documento?',
-    saving:'Salvataggio…', searching:'Ricerca…', loadingCat:'Interrogo il catalogo…', importing:'Importo la scheda…',
+    saving:'Salvataggio…', searching:'Ricerca…', loadingCat:'Interrogo il catalogo…', importing:'Importo la scheda…', noPhoto:'foto non disponibile',
     noResults:'Nessun risultato', needRef:'Scrivi la referenza prima di cercare', needBrandCat:'La ricerca a catalogo vale per Patek, AP e Rolex',
     needName:'Serve almeno il nome', needWatch:'Scegli o compila l\'orologio', needBrand:'Indica la marca',
     errConn:'Connessione non riuscita: il Worker watchdesk-api è online?',
@@ -846,7 +846,7 @@ var I18N = {
     confirmDelAcq:'Delete this purchase? The watch and its whole history (sales and documents) will be removed too.',
     confirmDelSale:'Delete this sale?', confirmDelCp:'Delete this record?',
     confirmDelDoc:'Delete this document?',
-    saving:'Saving…', searching:'Searching…', loadingCat:'Querying the catalogue…', importing:'Importing details…',
+    saving:'Saving…', searching:'Searching…', loadingCat:'Querying the catalogue…', importing:'Importing details…', noPhoto:'photo unavailable',
     noResults:'No results', needRef:'Type the reference first', needBrandCat:'Catalogue search works for Patek, AP and Rolex',
     needName:'A name is required', needWatch:'Choose or fill in the watch', needBrand:'Set the brand',
     errConn:'Connection failed: is the watchdesk-api Worker online?',
@@ -1420,7 +1420,22 @@ function pickRef(brand, it){
     '&img='+encodeURIComponent(it.img||'')+'&url='+encodeURIComponent(it.url||'');
   api('/refdetail?'+qs).then(function(d){
     st.style.display='none';
-    if(d.photo){ EDIT.photo=d.photo; $('aPhotoImg').src=d.photo; $('aPhotoImg').style.display='block'; }
+    function setPhoto(p){
+      if(!p) return;
+      EDIT.photo=p; $('aPhotoImg').src=p; $('aPhotoImg').style.display='block';
+    }
+    if(d.photo){ setPhoto(d.photo); }
+    else {
+      var src=d.img||it.img||'';
+      if(src){
+        st.style.display='inline'; st.textContent=T('importing');
+        photoFromUrl(src, function(p){
+          st.style.display='none';
+          setPhoto(p);
+          if(!p){ st.style.display='inline'; st.textContent=T('noPhoto'); }
+        });
+      }
+    }
     if(d.title && !$('aModel').value) $('aModel').value=d.title;
     if(d.price){
       var p=d.price.split(' ');
@@ -1434,6 +1449,42 @@ function pickRef(brand, it){
 }
 
 /* ---------- foto ---------- */
+/* Scarica una foto da un indirizzo web e la riduce a 760px, tutto nel browser.
+   Serve perche' le richieste del Worker verso i server immagini vengono
+   rifiutate, mentre dal browser passano (come nei cataloghi PP e AP).
+   Tre tentativi: i due proxy (che mandano gli header CORS necessari alla
+   canvas) e infine la sorgente diretta. */
+function photoFromUrl(src, cb){
+  if(!src){ cb(''); return; }
+  var bare = String(src).replace(/^https?:\/\//,'');
+  var tries = [
+    'https://images.weserv.nl/?url='+encodeURIComponent(bare)+'&w=760&output=jpg&q=72',
+    'https://wsrv.nl/?url='+encodeURIComponent(bare)+'&w=760&output=jpg&q=72',
+    src
+  ];
+  var i = 0;
+  function next(){
+    if(i >= tries.length){ cb(''); return; }
+    var u = tries[i++];
+    var im = new Image();
+    im.crossOrigin = 'anonymous';
+    im.onload = function(){
+      try{
+        var max=760, w=im.naturalWidth||im.width, h=im.naturalHeight||im.height;
+        if(!w || !h){ next(); return; }
+        if(w>max){ h=Math.round(h*max/w); w=max; }
+        var cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+        cv.getContext('2d').drawImage(im,0,0,w,h);
+        var out=cv.toDataURL('image/jpeg', .72);
+        if(out && out.length>2000) cb(out); else next();
+      }catch(e){ next(); }   /* canvas "sporcata": provo la fonte dopo */
+    };
+    im.onerror = next;
+    im.src = u;
+  }
+  next();
+}
+
 function compressImage(file, cb){
   var reader = new FileReader();
   reader.onload = function(e){
