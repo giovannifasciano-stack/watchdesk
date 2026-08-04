@@ -30,7 +30,7 @@ body::before{
   display:flex; flex-direction:column}
 
 /* ---------- testata ---------- */
-.lang{display:flex; justify-content:flex-end; gap:6px; margin-bottom:34px}
+.lang{display:flex; justify-content:flex-end; gap:6px}
 .langbtn{
   background:none; border:1px solid var(--line); color:var(--dim); cursor:pointer;
   font-family:inherit; font-size:.7rem; font-weight:600; letter-spacing:.1em;
@@ -97,7 +97,7 @@ body::before{
   color:var(--dim); font-family:inherit; font-size:.66rem; font-weight:600; letter-spacing:.1em;
   text-transform:uppercase; padding:6px 11px}
 .who button:hover{color:var(--accent); border-color:var(--accent-dark)}
-.bar{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:34px}
+.bar{display:flex; flex-direction:column; align-items:flex-end; gap:10px; margin-bottom:34px}
 .hidden{display:none !important}
 
 @media(max-width:820px){
@@ -121,7 +121,6 @@ body::before{
   <div class="bar">
     <div class="who hidden" id="who"><span id="whoMail"></span>
       <button id="btnOut" data-i18n="logout">Esci</button></div>
-    <div style="flex:1"></div>
     <div class="lang">
       <button class="langbtn on" id="langIt">🇮🇹 ITA</button>
       <button class="langbtn" id="langEn">🇬🇧 ENG</button>
@@ -155,7 +154,7 @@ body::before{
     <a class="card" href="trading/">
       <div class="ico">🧾</div>
       <div class="ct" data-i18n="t2">Trading</div>
-      <div class="cs" data-i18n="s2">WatchDesk Pro</div>
+      <div class="cs" data-i18n="s2">WatchDesk Trading</div>
       <div class="cd" data-i18n="d2">Preventivi e fatture di vendita: più articoli, permute, acconti, regime IVA e stampa in PDF.</div>
       <div class="go"><span data-i18n="open">Apri</span><span class="arw">→</span></div>
     </a>
@@ -163,7 +162,7 @@ body::before{
     <a class="card" href="converter/">
       <div class="ico">💱</div>
       <div class="ct" data-i18n="t3">Converter</div>
-      <div class="cs" data-i18n="s3">Valute e imposte</div>
+      <div class="cs" data-i18n="s3">Valute e tax free</div>
       <div class="cd" data-i18n="d3">Cambi in tempo reale con detrazione IVA, sales tax americana e sconti: quanto costa davvero.</div>
       <div class="go"><span data-i18n="open">Apri</span><span class="arw">→</span></div>
     </a>
@@ -181,9 +180,9 @@ var I18N = {
     errFill:'Inserisci email e password',
     t1:'Inventario', s1:'Gestionale',
     d1:'Acquisti, inventario, vendite e clienti-fornitori in un archivio solo, con margini e report stampabili.',
-    t2:'Trading', s2:'WatchDesk Pro',
+    t2:'Trading', s2:'WatchDesk Trading',
     d2:'Preventivi e fatture di vendita: più articoli, permute, acconti, regime IVA e stampa in PDF.',
-    t3:'Convertitore', s3:'Valute e imposte',
+    t3:'Convertitore', s3:'Valute e tax free',
     d3:'Cambi in tempo reale con detrazione IVA, sales tax americana e sconti: quanto costa davvero.'
   },
   en:{
@@ -192,9 +191,9 @@ var I18N = {
     errFill:'Enter email and password',
     t1:'Inventory', s1:'Management',
     d1:'Purchases, inventory, sales and clients-suppliers in one archive, with margins and printable reports.',
-    t2:'Trading', s2:'WatchDesk Pro',
+    t2:'Trading', s2:'WatchDesk Trading',
     d2:'Sales quotes and invoices: multiple items, trade-ins, deposits, VAT regime and PDF printing.',
-    t3:'Converter', s3:'Currency & tax',
+    t3:'Converter', s3:'Currency & tax free',
     d3:'Live exchange rates with VAT deduction, US sales tax and discounts: what it really costs.'
   }
 };
