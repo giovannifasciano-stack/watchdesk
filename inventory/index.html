@@ -379,7 +379,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v4.2</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v4.3</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -558,7 +558,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
     </div>
     <div class="frow3">
       <div class="field"><label data-i18n="fList">Prezzo listino</label><input type="text" id="aList" inputmode="decimal"></div>
-      <div class="field"><label data-i18n="fAgreed">Prezzo concordato</label><input type="text" id="aAgreed" inputmode="decimal"></div>
+      <div class="field"><label data-i18n="fAgreed">Prezzo pagato</label><input type="text" id="aAgreed" inputmode="decimal"></div>
       <div class="field"><label data-i18n="fVat">IVA %</label><input type="text" id="aVat" inputmode="decimal"></div>
     </div>
     <div class="frow">
@@ -771,7 +771,7 @@ var I18N = {
     dWatch:'Orologio', dAcq:'Acquisizione',
     fBrand:'Marca', fBrandOther:'Altra marca', fRef:'Referenza', fModel:'Modello', fSerial:'Seriale',
     fYear:'Anno', fCond:'Condizioni', fSet:'Corredo', fPhoto:'Foto', fCp:'Cliente / Fornitore', fSup:'Fornitore', fCpSell:'Cliente',
-    fCur:'Valuta', fList:'Prezzo listino', fAgreed:'Prezzo concordato', fVat:'IVA %', fNet:'Prezzo netto detax',
+    fCur:'Valuta', fList:'Prezzo listino', fAgreed:'Prezzo pagato', fVat:'IVA %', fNet:'Prezzo netto detax',
     fPay:'Pagamento', fDep:'Acconto versato', fPayDate:'Data pagamento', fStat:'Stato', fDOrd:'Data ordine',
     fDRec:'Arrivato dal fornitore il', fDPick:'Data ritiro', fNotes:'Note', fDocs:'Documenti / fatture', toUpload:'da caricare al salvataggio', noPreview:'Anteprima non disponibile per questo formato — usa Scarica.', download:'Scarica', close:'Chiudi',
     addDoc:'Aggiungi file', fWatch:'Orologio', fPrice:'Prezzo vendita', fNetSale:'Netto vendita',
@@ -812,7 +812,7 @@ var I18N = {
     genOn:'generato il', period:'Periodo', all:'tutto l\'archivio', totRow:'TOTALE', pieces:'pezzi',
     fxTitle:'Totali per valuta', fxGrand:'Totale complessivo', fxAbout:'controvalori ai cambi', fxNA:'cambi non disponibili: controvalori omessi',
     thDate:'Data', thBrand:'Marca', thRef:'Referenza', thModel:'Modello', thCp:'Cliente / Fornitore', thSup:'Fornitore', thCli:'Cliente', thCur:'Val.',
-    thList:'Listino', thAgreed:'Concordato', thNet:'Netto', thPay:'Pagamento', thStat:'Stato',
+    thList:'Listino', thAgreed:'Pagato', thNet:'Netto', thPay:'Pagamento', thStat:'Stato',
     thPrice:'Prezzo', thNetSale:'Netto vendita', thRegime:'Regime', thTrade:'Permuta', thInv:'Fattura',
     thCost:'Costo netto', thList:'Listino', thMkt:'Grey medio', thDelta:'Scarto', thMin:'Min', thMax:'Max', thAds:'Annunci',
     rMktT:'Inventory Market Price Valuation', rMktD:'Ogni pezzo in inventario col prezzo medio del grey market e lo scarto dal costo sostenuto.',
@@ -846,7 +846,7 @@ var I18N = {
     dWatch:'Watch', dAcq:'Acquisition',
     fBrand:'Brand', fBrandOther:'Other brand', fRef:'Reference', fModel:'Model', fSerial:'Serial',
     fYear:'Year', fCond:'Condition', fSet:'Set', fPhoto:'Photo', fCp:'Client / Supplier', fSup:'Supplier', fCpSell:'Client',
-    fCur:'Currency', fList:'List price', fAgreed:'Agreed price', fVat:'VAT %', fNet:'Net detax price',
+    fCur:'Currency', fList:'List price', fAgreed:'Price paid', fVat:'VAT %', fNet:'Net detax price',
     fPay:'Payment', fDep:'Deposit paid', fPayDate:'Payment date', fStat:'Status', fDOrd:'Order date',
     fDRec:'Arrived from supplier on', fDPick:'Collection date', fNotes:'Notes', fDocs:'Documents / invoices', toUpload:'uploads on save', noPreview:'No preview for this format — use Download.', download:'Download', close:'Close',
     addDoc:'Add files', fWatch:'Watch', fPrice:'Sale price', fNetSale:'Net sale',
@@ -887,7 +887,7 @@ var I18N = {
     genOn:'generated on', period:'Period', all:'whole archive', totRow:'TOTAL', pieces:'pieces',
     fxTitle:'Totals by currency', fxGrand:'Grand total', fxAbout:'countervalues at rates of', fxNA:'exchange rates unavailable: countervalues omitted',
     thDate:'Date', thBrand:'Brand', thRef:'Reference', thModel:'Model', thCp:'Client / Supplier', thSup:'Supplier', thCli:'Client', thCur:'Cur.',
-    thList:'List', thAgreed:'Agreed', thNet:'Net', thPay:'Payment', thStat:'Status',
+    thList:'List', thAgreed:'Paid', thNet:'Net', thPay:'Payment', thStat:'Status',
     thPrice:'Price', thNetSale:'Net sale', thRegime:'Regime', thTrade:'Trade-in', thInv:'Invoice',
     thCost:'Net cost', thList:'List price', thMkt:'Grey avg', thDelta:'Delta', thMin:'Min', thMax:'Max', thAds:'Listings',
     rMktT:'Inventory Market Price Valuation', rMktD:'Every piece in stock with its grey market average and the gap to the cost paid.',
