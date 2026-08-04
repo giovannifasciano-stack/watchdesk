@@ -379,7 +379,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v4.3</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v4.4</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -928,7 +928,7 @@ function fmtN(v, cur){
   else { thou=','; decsep='.'; }
   var out=''; var c=0;
   for(var i=intp.length-1;i>=0;i--){ out=intp[i]+out; c++; if(c%3===0 && i>0) out=thou+out; }
-  if(dec!=='00') out += decsep+dec;
+  out += decsep+dec;
   return (neg?'−':'')+out;
 }
 function money(v, cur){ if(v==null||isNaN(v)) return '–'; return cur+' '+fmtN(v,cur); }
@@ -1930,7 +1930,7 @@ function fxTotalsBlock(m){
     if(FX){
       alts = CURS.filter(function(x){return x!==c;}).map(function(x){
         var v = fxConv(m[c], c, x);
-        return v==null ? '' : '\u2248 '+x+' '+fmtN(Math.round(v), x);
+        return v==null ? '' : '\u2248 '+x+' '+fmtN(v, x);
       }).filter(Boolean).join(' \u00b7 ');
     }
     h += '<div class="fxrow"><span class="flag">'+(FLAGS[c]||'')+'</span>'+
@@ -1943,7 +1943,7 @@ function fxTotalsBlock(m){
     CURS.forEach(function(x){
       var tot=0, ok=true;
       order.forEach(function(c){ var v=fxConv(m[c], c, x); if(v==null) ok=false; else tot+=v; });
-      if(ok) h += '<span><span class="flag">'+(FLAGS[x]||'')+'</span>'+x+' '+fmtN(Math.round(tot), x)+'</span>';
+      if(ok) h += '<span><span class="flag">'+(FLAGS[x]||'')+'</span>'+x+' '+fmtN(tot, x)+'</span>';
     });
     h += '</div>';
     h += '<div class="fxnote">'+T('fxAbout')+' '+esc(FX.date||'')+' \u00b7 open.er-api.com</div>';
@@ -2084,7 +2084,7 @@ function buildRepMargin(){
         if(v!=null) tot[c]+=v;
         var vero = (c===cs);
         cells+='<td class="num mono2 '+(v!=null?(v>=0?'pos':'neg'):'')+(vero?' real':' appr')+'">'+
-          (v!=null?((vero?'':'\u2248 ')+fmtN(Math.round(v),c)):'\u2014')+'</td>';
+          (v!=null?((vero?'':'\u2248 ')+fmtN(v, c)):'\u2014')+'</td>';
       });
       if(mgChf!=null){
         var bk=w.brand||'\u2014'; byBrand[bk]=(byBrand[bk]||0)+mgChf;
@@ -2102,8 +2102,8 @@ function buildRepMargin(){
 
     var pctTot=(totCostChf>0)?tot.CHF/totCostChf*100:null;
     h+='<tr class="tot"><td colspan="6">'+T('totRow')+' \u2014 '+rows.length+' '+T('pieces')+'</td>'+
-      '<td class="num mono2">CHF '+fmtN(Math.round(totCostChf),'CHF')+'</td><td></td>'+
-      OUT.map(function(c){ return '<td class="num mono2 '+(tot[c]>=0?'pos':'neg')+'">'+fmtN(Math.round(tot[c]),c)+'</td>'; }).join('')+
+      '<td class="num mono2">CHF '+fmtN(totCostChf, 'CHF')+'</td><td></td>'+
+      OUT.map(function(c){ return '<td class="num mono2 '+(tot[c]>=0?'pos':'neg')+'">'+fmtN(tot[c], c)+'</td>'; }).join('')+
       '<td class="num mono2 '+(pctTot!=null&&pctTot>=0?'pos':'neg')+'">'+(pctTot!=null?(pctTot>=0?'+':'')+pctTot.toFixed(1)+'%':'')+'</td></tr>';
     h+='</table>';
     h+='<div class="fxnote">'+T('fxSaleDay')+' \u00b7 api.frankfurter.app (BCE)</div>';
@@ -2115,7 +2115,7 @@ function buildRepMargin(){
       Object.keys(map).sort().forEach(function(k){
         out+='<tr><td>'+esc(k)+'</td>'+OUT.map(function(c){
           var v=(c==='CHF')?map[k]:fxConv(map[k],'CHF',c);
-          return '<td class="num mono2 '+((v||0)>=0?'pos':'neg')+'">'+(v!=null?fmtN(Math.round(v),c):'\u2014')+'</td>';
+          return '<td class="num mono2 '+((v||0)>=0?'pos':'neg')+'">'+(v!=null?fmtN(v, c):'\u2014')+'</td>';
         }).join('')+'</tr>';
       });
       return out+'</table>';
@@ -2241,16 +2241,16 @@ function buildRepMkt(){
         h+='<tr><td class="mini">'+(w.photo?'<img src="'+w.photo+'">':'<div class="noph">\u231a</div>')+'</td>'+
           '<td>'+esc(w.brand||'')+'</td><td class="mono2">'+esc(w.ref||'')+setIcons(w)+'</td><td>'+esc(w.model||'')+'</td>'+
           '<td class="num mono2">'+(lst!=null?esc(cur)+' '+fmtN(lst,cur):'\u2014')+'</td>'+
-          '<td class="num mono2 real">'+(mkt!=null?'USD '+fmtN(Math.round(mkt),'USD'):'\u2014')+'</td>'+
+          '<td class="num mono2 real">'+(mkt!=null?'USD '+fmtN(mkt, 'USD'):'\u2014')+'</td>'+
           '<td class="num mono2 '+(delta!=null?(delta>=0?'pos':'neg'):'')+'">'+(delta!=null?((delta>=0?'+':'')+delta.toFixed(1)+'%'):'\u2014')+'</td>'+
-          '<td class="num mono2 appr">'+(q&&q.min_usd?fmtN(Math.round(q.min_usd),'USD'):'\u2014')+'</td>'+
-          '<td class="num mono2 appr">'+(q&&q.max_usd?fmtN(Math.round(q.max_usd),'USD'):'\u2014')+'</td>'+
+          '<td class="num mono2 appr">'+(q&&q.min_usd?fmtN(q.min_usd, 'USD'):'\u2014')+'</td>'+
+          '<td class="num mono2 appr">'+(q&&q.max_usd?fmtN(q.max_usd, 'USD'):'\u2014')+'</td>'+
           '<td class="num">'+(q?((q.used_for_avg||q.listings||'')+(q.via==='ai'?' <span class="appr">AI</span>':'')):'\u2014')+'</td></tr>';
       });
       var dTot=(totList>0)?((totMkt-totList)/totList*100):null;
       h+='<tr class="tot"><td colspan="4">'+T('totRow')+' \u2014 '+items.length+' '+T('pieces')+'</td>'+
-        '<td class="num mono2">'+(totList?'USD '+fmtN(Math.round(totList),'USD'):'')+'</td>'+
-        '<td class="num mono2">'+(totMkt?'USD '+fmtN(Math.round(totMkt),'USD'):'')+'</td>'+
+        '<td class="num mono2">'+(totList?'USD '+fmtN(totList, 'USD'):'')+'</td>'+
+        '<td class="num mono2">'+(totMkt?'USD '+fmtN(totMkt, 'USD'):'')+'</td>'+
         '<td class="num mono2 '+(dTot!=null&&dTot>=0?'pos':'neg')+'">'+(dTot!=null?((dTot>=0?'+':'')+dTot.toFixed(1)+'%'):'')+'</td>'+
         '<td colspan="3"></td></tr>';
       h+='</table>';
