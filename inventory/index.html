@@ -364,7 +364,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v3.7</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v3.8</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -696,7 +696,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v3.7
+   WATCHDESK — GESTIONALE UNIFICATO  v3.8
    API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
    ================================================================ */
 'use strict';
@@ -787,7 +787,7 @@ var I18N = {
     thPrice:'Prezzo', thNetSale:'Netto vendita', thRegime:'Regime', thTrade:'Permuta', thInv:'Fattura',
     thCost:'Costo netto', thList:'Listino', thMkt:'Grey medio', thDelta:'Scarto', thMin:'Min', thMax:'Max', thAds:'Annunci',
     rMktT:'Inventory Market Price Valuation', rMktD:'Ogni pezzo in inventario col prezzo medio del grey market e lo scarto dal listino.',
-    mktWait:'Interrogo il grey market…', mktNote:'Prezzi grey in USD, media degli annunci con outlier esclusi (Official Watches, Luxury Bazaar) · lo scarto confronta il grey col listino convertito in USD', thMargin:'Margine', thDays:'Giac. gg', thSerial:'Seriale', thPick:'Ritirato il',
+    mktWait:'Interrogo il grey market…', mktNote:'Prezzi grey in USD. Prima fonte il Grey Market Scanner (Official Watches, Luxury Bazaar); dove non trova nulla subentra la ricerca sul web, segnata AI. Lo scarto confronta il grey col listino convertito in USD', thMargin:'Margine', thDays:'Giac. gg', thSerial:'Seriale', thPick:'Ritirato il',
     byBrand:'Totali per marca', byCp:'Totali per cliente', multiCur:'valute diverse',
     thProfit:'Utile', thPct:'Utile %', fxOn:'utile convertito ai cambi', fxMissing:'cambi non disponibili: utile solo a valute uguali',
     fxSaleDay:'Utile in grassetto = valuta di incasso, importo reale. Gli altri (≈) sono indicativi, convertiti al cambio del giorno della vendita',
@@ -861,7 +861,7 @@ var I18N = {
     thPrice:'Price', thNetSale:'Net sale', thRegime:'Regime', thTrade:'Trade-in', thInv:'Invoice',
     thCost:'Net cost', thList:'List price', thMkt:'Grey avg', thDelta:'Delta', thMin:'Min', thMax:'Max', thAds:'Listings',
     rMktT:'Inventory Market Price Valuation', rMktD:'Every piece in stock with its grey market average and the gap to list price.',
-    mktWait:'Querying the grey market…', mktNote:'Grey prices in USD, average of listings with outliers removed (Official Watches, Luxury Bazaar) · delta compares grey with list price converted to USD', thMargin:'Margin', thDays:'Days', thSerial:'Serial', thPick:'Collected on',
+    mktWait:'Querying the grey market…', mktNote:'Grey prices in USD. First source is the Grey Market Scanner (Official Watches, Luxury Bazaar); where it finds nothing, web search takes over, marked AI. Delta compares grey with list price converted to USD', thMargin:'Margin', thDays:'Days', thSerial:'Serial', thPick:'Collected on',
     byBrand:'Totals by brand', byCp:'Totals by client', multiCur:'mixed currencies',
     thProfit:'Profit', thPct:'Profit %', fxOn:'profit converted at rates of', fxMissing:'rates unavailable: profit only when currencies match',
     fxSaleDay:'Bold profit = currency actually received, real amount. The others (≈) are indicative, converted at the exchange rate of the sale date',
@@ -2085,10 +2085,17 @@ function buildRepMkt(){
     var w=watchById(a.watch_id)||{};
     var ref=(w.ref||'').trim();
     if(!ref) return Promise.resolve({a:a, w:w, q:null});
+    /* 1) il Grey Scanner: veloce e gratuito */
     return fetch(GREY+'/?ref='+encodeURIComponent(ref))
       .then(function(r){ return r.json(); })
-      .then(function(q){ return {a:a, w:w, q:(q && q.found)?q:null, why:(q&&!q.found)?(q.reason||''):''}; })
-      .catch(function(){ return {a:a, w:w, q:null, why:'net'}; })
+      .catch(function(){ return null; })
+      .then(function(q){
+        if(q && q.found){ q.via='scanner'; return {a:a, w:w, q:q}; }
+        /* 2) riserva: ricerca sul web, che raggiunge anche i siti bloccati */
+        return api('/greyprice?ref='+encodeURIComponent(ref)+'&brand='+encodeURIComponent(w.brand||''))
+          .then(function(q2){ return {a:a, w:w, q:(q2 && q2.found)?q2:null, why:(q2&&q2.reason)||''}; })
+          .catch(function(){ return {a:a, w:w, q:null, why:'net'}; });
+      })
       .then(function(res){ done++; st.textContent=T('mktWait')+' '+done+'/'+rows.length; return res; });
   })).then(function(items){
     st.textContent=stOld;
@@ -2115,7 +2122,7 @@ function buildRepMkt(){
           '<td class="num mono2 '+(delta!=null?(delta>=0?'pos':'neg'):'')+'">'+(delta!=null?((delta>=0?'+':'')+delta.toFixed(1)+'%'):'\u2014')+'</td>'+
           '<td class="num mono2 appr">'+(q&&q.min_usd?fmtN(Math.round(q.min_usd),'USD'):'\u2014')+'</td>'+
           '<td class="num mono2 appr">'+(q&&q.max_usd?fmtN(Math.round(q.max_usd),'USD'):'\u2014')+'</td>'+
-          '<td class="num">'+(q?(q.used_for_avg||q.listings||''):'\u2014')+'</td></tr>';
+          '<td class="num">'+(q?((q.used_for_avg||q.listings||'')+(q.via==='ai'?' <span class="appr">AI</span>':'')):'\u2014')+'</td></tr>';
       });
       var dTot=(totList>0)?((totMkt-totList)/totList*100):null;
       h+='<tr class="tot"><td colspan="4">'+T('totRow')+' \u2014 '+items.length+' '+T('pieces')+'</td>'+
