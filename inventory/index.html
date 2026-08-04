@@ -410,7 +410,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v5.3</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v5.4</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -443,7 +443,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
         <div class="tile" id="tileOpen" data-goto="pur"><div class="t-label" data-i18n="tOpen">Ordini acquisto aperti</div><div class="t-value" id="kpiOpen">–</div><div class="t-note" data-i18n="tOpenN">ordinati o in arrivo, non pagati</div></div>
         <div class="tile" data-goto="acq"><div class="t-label" data-i18n="tStock">In magazzino</div><div class="t-value" id="kpiStock">–</div><div class="t-note" data-i18n="tStockN">ritirati, non venduti</div></div>
         <div class="tile" data-goto="sales"><div class="t-label" data-i18n="tSold">Vendite anno</div><div class="t-value" id="kpiSold">–</div><div class="t-note" id="kpiSoldN"></div></div>
-        <div class="tile" data-goto="rep"><div class="t-label" data-i18n="tMargin">Margine anno</div><div class="t-value" id="kpiMargin" style="font-size:1.15rem;line-height:1.5">–</div><div class="t-note" data-i18n="tMarginN">netto vendite − costi netti</div></div>
+        <div class="tile" data-goto="rep"><div class="t-label" data-i18n="tMargin">Utile totale vendite</div><div class="t-value" id="kpiMargin" style="font-size:1.15rem;line-height:1.5">–</div><div class="t-note" data-i18n="tMarginN">tutte le vendite, netto − costo</div></div>
       </div>
       <div class="hgrid">
       <div class="panel">
@@ -807,7 +807,7 @@ var I18N = {
     recoveryCode:'Codice di recupero', newPass:'Nuova password', resetBtn:'Reimposta password',
     navHome:'Home', navAcq:'Inventario', navPur:'Acquisti', navMag:'Magazzino', navSales:'Vendite', navCp:'Clienti-Fornitori', navRep:'Reports',
     heroHi:'Bentornato', tOpen:'Ordini acquisto aperti', tOpenN:'ordinati o in arrivo, non pagati', tStock:'In magazzino',
-    tStockN:'ritirati, non venduti', tSold:'Vendite anno', tMargin:'Margine anno', tMarginN:'netto vendite − costi netti',
+    tStockN:'ritirati, non venduti', tSold:'Vendite anno', tMargin:'Utile totale vendite', tMarginN:'tutte le vendite, netto − costo',
     pCur:'Totale acquisti — costo netto', pGrand:'Gran totale', pDue:'Ancora da pagare', allPaid:'Tutto pagato', pUp:'Valutazione a mercato', upCalc:'Calcola',
     upHint:'Premi Calcola per interrogare il mercato', upMkt:'Valore di mercato', upCost:'Costo netto', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'senza quotazione', onlyDue:'Solo da pagare', onlyOpen:'Solo ordini aperti', seeList:"Vedi l'elenco →", pLast:'Ultimi movimenti',
     purSub:'Registro completo degli acquisti, venduti inclusi.', acqSub:'Gli orologi ritirati e non ancora venduti: quello che hai in casa.',
@@ -883,7 +883,7 @@ var I18N = {
     recoveryCode:'Recovery code', newPass:'New password', resetBtn:'Reset password',
     navHome:'Home', navAcq:'Inventory', navPur:'Purchases', navMag:'Stock', navSales:'Sales', navCp:'Clients-Suppliers', navRep:'Reports',
     heroHi:'Welcome back', tOpen:'Open purchase orders', tOpenN:'ordered or incoming, unpaid', tStock:'In stock',
-    tStockN:'collected, not sold', tSold:'Sales this year', tMargin:'Margin this year', tMarginN:'net sales − net costs',
+    tStockN:'collected, not sold', tSold:'Sales this year', tMargin:'Total profit on sales', tMarginN:'all sales, net − cost',
     pCur:'Total purchases — net cost', pGrand:'Grand total', pDue:'Still to pay', allPaid:'All paid', pUp:'Mark to market', upCalc:'Calculate',
     upHint:'Press Calculate to query the market', upMkt:'Market value', upCost:'Net cost', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'without quote', onlyDue:'Only unpaid', onlyOpen:'Only open orders', seeList:'See the list →', pLast:'Latest activity',
     purSub:'Full purchase register, sold pieces included.', acqSub:'Watches collected and not yet sold: what you have in hand.',
@@ -1225,10 +1225,10 @@ function renderHome(){
   $('kpiStock').textContent=stock;
   $('kpiSold').textContent=soldY.length;
   $('kpiSoldN').textContent = soldAll!==soldY.length ? (soldAll+' '+T('pieces')+' tot.') : '';
-  /* utile sulle vendite dell'anno, sempre espresso in USD */
+  /* utile su TUTTE le vendite, sempre espresso in USD */
   loadFx(function(){
     var tot=0, ok=false;
-    soldY.forEach(function(s2){
+    S.sales.forEach(function(s2){
       var a=acqByWatch(s2.watch_id); if(!a) return;
       var ns=netSale(s2), nc=netCost(a);
       if(ns==null||nc==null) return;
