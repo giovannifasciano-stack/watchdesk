@@ -215,6 +215,8 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 .doc-item{display:flex; align-items:center; gap:10px; padding:8px 10px; background:var(--bg2); border:1px solid var(--line); border-radius:9px; margin-bottom:6px; font-size:.84rem}
 .doc-item .dn{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; cursor:pointer; color:var(--accent2)}
 .doc-item .dx{color:var(--bad); font-size:1rem}
+.chk{display:flex; align-items:center; gap:8px; margin-top:7px; color:var(--dim); font-size:.76rem; cursor:pointer}
+.chk input{width:16px; height:16px; accent-color:var(--accent); cursor:pointer}
 .hint{display:block; color:var(--dim2); font-size:.68rem; margin-top:4px}
 .status-inline{font-size:.82rem; color:var(--accent); margin-left:10px; display:none}
 
@@ -380,7 +382,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v4.5</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v4.6</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -548,7 +550,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
       <div class="field"><label data-i18n="fSet">Corredo</label><select id="aSet"></select></div>
       <div class="field"><label data-i18n="fMkt">Valore grey USD</label>
         <input type="text" id="aMkt" inputmode="decimal" placeholder="—">
-        <span class="hint" data-i18n="fMktHint">vuoto = quotazione automatica</span>
+        <label class="chk"><input type="checkbox" id="aMktUse"><span data-i18n="fMktUse">Usa questo valore invece della quotazione trovata</span></label>
       </div>
     </div>
     <div class="field"><label data-i18n="fPhoto">Foto</label>
@@ -775,7 +777,7 @@ var I18N = {
     roleBuy:'Compro', roleSell:'Vendo', roleBoth:'Entrambi', allF:'Tutte', allSup:'Tutti i fornitori', allCli:'Tutti i clienti', allM:'Tutti',
     dWatch:'Orologio', dAcq:'Acquisizione',
     fBrand:'Marca', fBrandOther:'Altra marca', fRef:'Referenza', fModel:'Modello', fSerial:'Seriale',
-    fYear:'Anno', fCond:'Condizioni', fSet:'Corredo', fMkt:'Valore grey USD', fMktHint:'vuoto = quotazione automatica', mktMan:'forzato', fPhoto:'Foto', fCp:'Cliente / Fornitore', fSup:'Fornitore', fCpSell:'Cliente',
+    fYear:'Anno', fCond:'Condizioni', fSet:'Corredo', fMkt:'Valore grey USD', fMktUse:'Usa questo valore invece della quotazione trovata', mktMan:'mio', fPhoto:'Foto', fCp:'Cliente / Fornitore', fSup:'Fornitore', fCpSell:'Cliente',
     fCur:'Valuta', fList:'Prezzo listino', fAgreed:'Prezzo pagato', fVat:'IVA %', fNet:'Prezzo netto detax',
     fPay:'Pagamento', fDep:'Acconto versato', fPayDate:'Data pagamento', fStat:'Stato', fDOrd:'Data ordine',
     fDRec:'Arrivato dal fornitore il', fDPick:'Data ritiro', fNotes:'Note', fDocs:'Documenti / fatture', toUpload:'da caricare al salvataggio', noPreview:'Anteprima non disponibile per questo formato — usa Scarica.', download:'Scarica', close:'Chiudi',
@@ -850,7 +852,7 @@ var I18N = {
     roleBuy:'Buy', roleSell:'Sell', roleBoth:'Both', allF:'All', allSup:'All suppliers', allCli:'All clients', allM:'All',
     dWatch:'Watch', dAcq:'Acquisition',
     fBrand:'Brand', fBrandOther:'Other brand', fRef:'Reference', fModel:'Model', fSerial:'Serial',
-    fYear:'Year', fCond:'Condition', fSet:'Set', fMkt:'Grey value USD', fMktHint:'empty = automatic quote', mktMan:'manual', fPhoto:'Photo', fCp:'Client / Supplier', fSup:'Supplier', fCpSell:'Client',
+    fYear:'Year', fCond:'Condition', fSet:'Set', fMkt:'Grey value USD', fMktUse:'Use this value instead of the quote found online', mktMan:'mine', fPhoto:'Photo', fCp:'Client / Supplier', fSup:'Supplier', fCpSell:'Client',
     fCur:'Currency', fList:'List price', fAgreed:'Price paid', fVat:'VAT %', fNet:'Net detax price',
     fPay:'Payment', fDep:'Deposit paid', fPayDate:'Payment date', fStat:'Status', fDOrd:'Order date',
     fDRec:'Arrived from supplier on', fDPick:'Collection date', fNotes:'Notes', fDocs:'Documents / invoices', toUpload:'uploads on save', noPreview:'No preview for this format — use Download.', download:'Download', close:'Close',
@@ -1352,6 +1354,7 @@ function openAcqModal(acqId, presetWatchId){
   $('aModel').value = w.model||'';
   $('aSerial').value = w.serial||'';
   $('aMkt').value = (w.mkt_usd!=null && w.mkt_usd!=='') ? w.mkt_usd : '';
+  $('aMktUse').checked = !!(w.mkt_lock && Number(w.mkt_lock));
   $('aYear').value = w.year||'';
   $('aCond').value = w.cond||'';
   $('aSet').value = w.set_type||'';
@@ -1394,7 +1397,7 @@ function saveAcq(){
   var wid = EDIT.watch ? EDIT.watch.id : rid();
   var aid = EDIT.acq ? EDIT.acq.id : 'acq-'+wid;
   var wBody = {
-    brand:brand, mktUsd:num($('aMkt').value), ref:$('aRef').value.trim(), model:$('aModel').value.trim(),
+    brand:brand, mktUsd:num($('aMkt').value), mktLock:$('aMktUse').checked?1:0, ref:$('aRef').value.trim(), model:$('aModel').value.trim(),
     serial:$('aSerial').value.trim(), year:$('aYear').value.trim(),
     cond:$('aCond').value, setType:$('aSet').value, photo:EDIT.photo||'', notes:''
   };
@@ -2213,7 +2216,7 @@ function buildRepMkt(){
   Promise.all(rows.map(function(a){
     var w=watchById(a.watch_id)||{};
     var ref=(w.ref||'').trim();
-    if(w.mkt_usd!=null && w.mkt_usd!==''){    /* valore forzato a mano: comanda lui */
+    if(w.mkt_lock && Number(w.mkt_lock) && w.mkt_usd!=null && w.mkt_usd!==''){   /* casella spuntata: comanda il suo valore */
       tick(w);
       return Promise.resolve({a:a, w:w, q:{found:true, avg_usd:Number(w.mkt_usd), via:'manuale'}});
     }
@@ -2381,6 +2384,7 @@ function bind(){
   $('aBrand').addEventListener('change',function(){
     $('aBrandOtherBox').style.display = $('aBrand').value==='__other'?'block':'none';
   });
+  $('aMkt').addEventListener('input', function(){ $('aMktUse').checked = !!num(this.value); });
   $('btnScan').addEventListener('click',function(){ $('scanFile').click(); });
   $('scanFile').addEventListener('change',function(){
     if(this.files && this.files[0]) scanDoc(this.files[0]);
