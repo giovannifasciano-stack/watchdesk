@@ -436,7 +436,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v7.2</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v7.3</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -1202,38 +1202,56 @@ var UP_ERR = '';   /* ultimo motivo per cui una quotazione non e' arrivata */
    risposta contiene il dettaglio per fonte (sources: name, count, min, max)
    ricalcolo la media convertendo solo la parte in sterline; se il dettaglio
    manca, converto l'intero valore quando la fonte in sterline e' l'unica nota. */
-function srcIsGbp(name){
-  return String(name||'').toLowerCase().indexOf('official') > -1;
+/* In che valuta espone i prezzi ciascuna fonte. Lo scanner dichiara tutto
+   come "usd" ma non lo e': va saputo sito per sito. Fonte sconosciuta =
+   valuta non verificabile, e la riga viene marcata invece di essere creduta. */
+var SRC_CUR = [
+  [/official\s*watches|officialwatches/i, 'GBP'],
+  [/watches\s*of\s*switzerland|watchfinder|goldsmiths|fraser|mappin|bucherer\s*uk/i, 'GBP'],
+  [/luxury\s*bazaar|jomashop|bob'?s\s*watches|watchmaxx|watchbox|crown\s*&?\s*caliber|hodinkee|chrono24|watchcharts|ebay/i, 'USD'],
+  [/chronext|watch\.?de|montre|juwelier|kronoshop|orologi/i, 'EUR'],
+  [/bucherer\s*ch|gubelin|kirchhofer|swiss/i, 'CHF']
+];
+function srcCurrency(name){
+  var n = String(name||'');
+  for(var i=0;i<SRC_CUR.length;i++){ if(SRC_CUR[i][0].test(n)) return SRC_CUR[i][1]; }
+  return null;   /* non la conosco */
 }
 function scannerToUsd(q){
   var src = q && q.sources;
   if(src && src.length){
-    var somma=0, peso=0, convertito=false, nomi=[];
+    var somma=0, peso=0, convertito=false, ignota=false, nomi=[];
     for(var i=0;i<src.length;i++){
       var f=src[i];
       var n=Number(f.count)||1;
       var mn=Number(f.min), mx=Number(f.max);
       var media=(isFinite(mn)&&isFinite(mx)&&mn&&mx)?((mn+mx)/2):Number(q.avg_usd);
       if(!isFinite(media)||!media) continue;
-      if(srcIsGbp(f.name)){
-        var c=fxConv(media,'GBP','USD');
+      var cur=srcCurrency(f.name);
+      if(cur && cur!=='USD'){
+        var c=fxConv(media,cur,'USD');
         if(c!=null){ media=c; convertito=true; }
+        else { ignota=true; }
+      } else if(!cur){
+        ignota=true;   /* valuta sconosciuta: la uso ma lo segnalo */
       }
-      somma+=media*n; peso+=n; nomi.push(f.name);
+      somma+=media*n; peso+=n; nomi.push(f.name+(cur?(' ('+cur+')'):' (valuta ignota)'));
     }
     if(peso){
       q.srcNames = nomi.join(', ');
-      if(convertito) q.converted='GBP→USD';
+      if(convertito) q.converted='→USD';
+      if(ignota) q.unverified = true;
       return somma/peso;
     }
   }
   var v=Number(q.avg_usd);
   if(!v) return null;
-  if(srcIsGbp(q.source) || srcIsGbp(q.site) || srcIsGbp(JSON.stringify(src||''))){
-    var c2=fxConv(v,'GBP','USD');
-    if(c2!=null){ q.converted='GBP→USD'; return c2; }
+  var cur1=srcCurrency(q.source)||srcCurrency(q.site)||srcCurrency(JSON.stringify(src||''));
+  if(cur1 && cur1!=='USD'){
+    var c2=fxConv(v,cur1,'USD');
+    if(c2!=null){ q.converted='→USD'; return c2; }
   }
-  q.unverified = true;   /* fonte ignota: valuta non verificabile */
+  if(!cur1) q.unverified = true;   /* fonte ignota: valuta non verificabile */
   return v;
 }
 function greyFor(w){
