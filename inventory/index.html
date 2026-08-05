@@ -109,8 +109,8 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 .hero h1{font-size:1.5rem; font-weight:700}
 .hero h1 .g{color:var(--accent)}
 .hero p{color:var(--dim); margin-top:4px; font-size:.9rem}
-.tiles{display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:14px; margin-bottom:22px}
-@media(max-width:1180px){ .tiles{grid-template-columns:repeat(3,minmax(0,1fr))} }
+.tiles{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-bottom:22px}
+@media(max-width:900px){ .tiles{grid-template-columns:repeat(2,minmax(0,1fr))} }
 .tile{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:18px; cursor:pointer; transition:border-color .15s}
 .tile:hover{border-color:var(--accent-dark)}
 .tile .t-label{font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--dim)}
@@ -363,7 +363,6 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
   h2.sec{font-size:1.15rem}
   .sec-sub{font-size:.8rem; margin-bottom:14px}
   .tiles{grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:16px}
-  .tiles .tile:last-child{grid-column:1 / -1}
   .tile{padding:13px 14px}
   .tile .t-label{font-size:.6rem}
   .tile .t-value{font-size:1.35rem; margin-top:4px}
@@ -436,7 +435,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v7.3</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v7.4</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -466,11 +465,12 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
         <p id="heroDate"></p>
       </div>
       <div class="tiles">
-        <div class="tile" id="tileOpen" data-goto="pur"><div class="t-label" data-i18n="tOpen">Ordini acquisto aperti</div><div class="t-value" id="kpiOpen">–</div><div class="t-note" data-i18n="tOpenN">ordinati o in arrivo, non pagati</div></div>
+        <div class="tile" id="tileOrd" data-goto="pur"><div class="t-label" data-i18n="tOrd">Ordinati</div><div class="t-value" id="kpiOrd">–</div><div class="t-note" data-i18n="tOrdN">ordine trasmesso</div></div>
+        <div class="tile" id="tileArrNp" data-goto="pur"><div class="t-label" data-i18n="tArrNp">Arrivati presso fornitore</div><div class="t-value" id="kpiArrNp">–</div><div class="t-note" data-i18n="tArrNpN">non pagati</div></div>
+        <div class="tile" id="tilePaid" data-goto="pur"><div class="t-label" data-i18n="tPaid">Arrivati presso fornitore</div><div class="t-value" id="kpiPaid">–</div><div class="t-note" data-i18n="tPaidN">pagati, non ritirati</div></div>
         <div class="tile" data-goto="acq"><div class="t-label" data-i18n="tStock">In magazzino</div><div class="t-value" id="kpiStock">–</div><div class="t-note" data-i18n="tStockN">ritirati, non venduti</div></div>
-        <div class="tile" id="tilePaid" data-goto="pur"><div class="t-label" data-i18n="tPaid">Presso fornitore (pagati)</div><div class="t-value" id="kpiPaid">–</div><div class="t-note" data-i18n="tPaidN">pagati, non ritirati</div></div>
-        <div class="tile" data-goto="sales"><div class="t-label" data-i18n="tSold">Vendite anno</div><div class="t-value" id="kpiSold">–</div><div class="t-note" id="kpiSoldN"></div></div>
-        <div class="tile" data-goto="rep"><div class="t-label" data-i18n="tMargin">Utile totale vendite</div><div class="t-value" id="kpiMargin" style="font-size:1.15rem;line-height:1.5">–</div><div class="t-note" data-i18n="tMarginN">tutte le vendite, netto − costo</div></div>
+        <div class="tile" id="tileSaleOpen" data-goto="sales"><div class="t-label" data-i18n="tSaleOpen">Ordini vendita in corso</div><div class="t-value" id="kpiSaleOpen">–</div><div class="t-note" data-i18n="tSaleOpenN">venduti, non ancora incassati</div></div>
+        <div class="tile" id="tileSold" data-goto="sales"><div class="t-label" data-i18n="tSoldAll">Venduti</div><div class="t-value" id="kpiSold">–</div><div class="t-note" id="kpiSoldN"></div></div>
       </div>
       <div class="hgrid">
       <div class="panel">
@@ -516,8 +516,9 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
         <button class="btn" id="btnNewAcq2">+ <span data-i18n="newAcq">Nuovo acquisto</span></button>
         <input type="text" id="purSearch" data-i18n-ph="phSearchAcq" placeholder="Cerca marca, referenza, fornitore…">
         <button class="chip" id="chipDue" data-i18n="onlyDue">Solo da pagare</button>
-        <button class="chip" id="chipOpen" data-i18n="onlyOpen">Solo ordini aperti</button>
         <button class="chip" id="chipPaid" data-i18n="onlyPaid">Solo presso fornitore</button>
+        <button class="chip" id="chipOrd" data-i18n="onlyOrd">Solo ordinati</button>
+        <button class="chip" id="chipArrNp" data-i18n="onlyArrNp">Solo arrivati non pagati</button>
       </div>
       <div id="purList"></div>
     </section>
@@ -538,6 +539,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
       <p class="sec-sub" data-i18n="salesSub">Vendite registrate sugli orologi in archivio, con regime IVA e permuta.</p>
       <div class="toolbar">
         <input type="text" id="salesSearch" data-i18n-ph="phSearchSales" placeholder="Cerca referenza, marca, cliente…">
+        <button class="chip" id="chipSaleOpen" data-i18n="onlySaleOpen">Solo in corso</button>
         <button class="btn" id="btnNewSale">+ <span data-i18n="newSale">Nuova vendita</span></button>
       </div>
       <div id="salesList"></div>
@@ -836,8 +838,12 @@ var I18N = {
     signupCode:'Codice di registrazione', signupBtn:'Registrati', backLogin:'Torna al login',
     recoveryCode:'Codice di recupero', newPass:'Nuova password', resetBtn:'Reimposta password',
     navHome:'Home', navAcq:'Inventario', navPur:'Acquisti', navMag:'Magazzino', navSales:'Vendite', navCp:'Clienti-Fornitori', navRep:'Reports',
-    heroHi:'Bentornato', tOpen:'Ordini acquisto aperti', tPaid:'Presso fornitore (pagati)', atSupplier:'presso fornitore', tPaidN:'pagati, non ritirati', tOpenN:'ordinati o in arrivo, non pagati', tStock:'In magazzino',
-    tStockN:'ritirati, non venduti', tSold:'Vendite anno', tMargin:'Utile totale vendite', tMarginN:'tutte le vendite, netto − costo',
+    heroHi:'Bentornato', atSupplier:'presso fornitore', tStock:'In magazzino',
+    tOrd:'Ordinati', tOrdN:'ordine trasmesso', tArrNp:'Arrivati presso fornitore', tArrNpN:'non pagati',
+    tPaid:'Arrivati presso fornitore', tPaidN:'pagati, non ritirati',
+    tSaleOpen:'Ordini vendita in corso', tSaleOpenN:'venduti, non ancora incassati', tSoldAll:'Venduti',
+    onlyOrd:'Solo ordinati', onlyArrNp:'Solo arrivati non pagati', onlySaleOpen:'Solo in corso',
+    tStockN:'ritirati, non venduti', tSold:'Vendite anno',
     pCur:'Totale acquisti — costo netto', pGrand:'Gran totale', pDue:'Ancora da pagare', allPaid:'Tutto pagato', pUp:'Valore di mercato inventario', upCalc:'Aggiorna',
     upHint:'Interrogo il mercato…', upMkt:'Valore di mercato', upCost:'Costo netto', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'senza quotazione', upNone:'Nessuna quotazione disponibile', upNoStock:'Nessun pezzo in magazzino', onlyDue:'Solo da pagare', onlyOpen:'Solo ordini aperti', onlyPaid:'Solo presso fornitore', seeList:"Vedi l'elenco →", pLast:'Ultimi movimenti',
     purSub:'Registro completo degli acquisti, venduti inclusi.', acqSub:'Gli orologi che sono tuoi e non ancora venduti: in casa o già pagati e fermi dal fornitore.',
@@ -912,8 +918,12 @@ var I18N = {
     signupCode:'Registration code', signupBtn:'Sign up', backLogin:'Back to login',
     recoveryCode:'Recovery code', newPass:'New password', resetBtn:'Reset password',
     navHome:'Home', navAcq:'Inventory', navPur:'Purchases', navMag:'Stock', navSales:'Sales', navCp:'Clients-Suppliers', navRep:'Reports',
-    heroHi:'Welcome back', tOpen:'Open purchase orders', tPaid:'At supplier (paid)', atSupplier:'at supplier', tPaidN:'paid, not collected', tOpenN:'ordered or incoming, unpaid', tStock:'In stock',
-    tStockN:'collected, not sold', tSold:'Sales this year', tMargin:'Total profit on sales', tMarginN:'all sales, net − cost',
+    heroHi:'Welcome back', atSupplier:'at supplier', tStock:'In stock',
+    tOrd:'Ordered', tOrdN:'order placed', tArrNp:'Arrived at supplier', tArrNpN:'unpaid',
+    tPaid:'Arrived at supplier', tPaidN:'paid, not collected',
+    tSaleOpen:'Sales in progress', tSaleOpenN:'sold, not yet collected', tSoldAll:'Sold',
+    onlyOrd:'Only ordered', onlyArrNp:'Only arrived unpaid', onlySaleOpen:'Only in progress',
+    tStockN:'collected, not sold', tSold:'Sales this year',
     pCur:'Total purchases — net cost', pGrand:'Grand total', pDue:'Still to pay', allPaid:'All paid', pUp:'Inventory Market Value', upCalc:'Refresh',
     upHint:'Querying the market…', upMkt:'Market value', upCost:'Net cost', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'without quote', upNone:'No quotes available', upNoStock:'No pieces in stock', onlyDue:'Only unpaid', onlyOpen:'Only open orders', onlyPaid:'Only at supplier', seeList:'See the list →', pLast:'Latest activity',
     purSub:'Full purchase register, sold pieces included.', acqSub:'Watches you own and have not sold: in hand or paid and still at the supplier.',
@@ -1334,37 +1344,25 @@ function renderUpside(){
 }
 
 function renderHome(){
-  var open=0, stock=0, paid=0;
+  var ord=0, arrnp=0, stock=0, paid=0;
   S.watches.forEach(function(w){
     var a=acqByWatch(w.id), sold=!!saleByWatch(w.id);
     if(!a || sold) return;
     if(a.stat==='ritirato') stock++;
-    else if(a.pay==='pagato') paid++;    /* pagato ma ancora dal fornitore */
-    else if(isOpenOrder(a)) open++;
+    else if(a.stat==='ordinato') ord++;                       /* ordine trasmesso */
+    else if(a.pay==='pagato') paid++;                         /* arrivato e pagato */
+    else arrnp++;                                             /* arrivato, non pagato */
   });
   var year = new Date().getFullYear();
   var soldY = S.sales.filter(function(s){ return s.d_sale && String(s.d_sale).slice(0,4)==String(year); });
   var soldAll = S.sales.length;
+  $('kpiOrd').textContent=ord;
+  $('kpiArrNp').textContent=arrnp;
   $('kpiPaid').textContent=paid;
-  $('kpiOpen').textContent=open;
+  $('kpiSaleOpen').textContent=S.sales.filter(isSaleOpen).length;
   $('kpiStock').textContent=stock;
   $('kpiSold').textContent=soldY.length;
   $('kpiSoldN').textContent = soldAll!==soldY.length ? (soldAll+' '+T('pieces')+' tot.') : '';
-  /* utile su TUTTE le vendite, sempre espresso in USD */
-  loadFx(function(){
-    var tot=0, ok=false;
-    S.sales.forEach(function(s2){
-      var a=acqByWatch(s2.watch_id); if(!a) return;
-      var ns=netSale(s2), nc=netCost(a);
-      if(ns==null||nc==null) return;
-      var cs=s2.cur||'CHF', ca=a.cur||'CHF';
-      var nsU=(cs==='USD')?ns:fxConv(ns,cs,'USD');
-      var ncU=(ca==='USD')?nc:fxConv(nc,ca,'USD');
-      if(nsU==null||ncU==null) return;
-      tot += nsU-ncU; ok=true;
-    });
-    $('kpiMargin').textContent = ok ? ('USD '+fmtN(tot,'USD')) : '–';
-  });
   /* totale acquisti per valuta, al costo netto */
   var m = sumByCur(S.acquisitions, function(a){return a.cur;}, function(a){return netCost(a);});
   var html='';
@@ -1469,10 +1467,14 @@ function renderAcq(){
   $('acqList').innerHTML = html || '<div class="empty">'+T('noResults')+'</div>';
 }
 
-var PUR_DUE = false, PUR_OPEN = false, PUR_PAID = false;
+var PUR_DUE = false, PUR_PAID = false, PUR_ORD = false, PUR_ARRNP = false;
+/* vendita in corso: registrata ma non ancora incassata del tutto */
+function isSaleOpen(s2){ return s2 && s2.pay!=='pagato'; }
+function isOrdered(a){ return a && !saleByWatch(a.watch_id) && a.stat==='ordinato'; }
+function isArrivedUnpaid(a){ return a && !saleByWatch(a.watch_id) && a.stat!=='ritirato' && a.stat!=='ordinato' && a.pay!=='pagato'; }
 /* pagato ma non ancora ritirato: il pezzo e' tuo ma sta ancora dal fornitore */
 function isAtSupplier(a){
-  return a && !saleByWatch(a.watch_id) && a.stat!=='ritirato' && a.pay==='pagato';
+  return a && !saleByWatch(a.watch_id) && a.stat!=='ritirato' && a.stat!=='ordinato' && a.pay==='pagato';
 }
 /* ordine aperto: ordinato o arrivato, non ritirato e non ancora pagato */
 function isOpenOrder(a){
@@ -1491,8 +1493,9 @@ function renderPur(){
   var q=$('purSearch').value.trim().toLowerCase();
   var rows = S.acquisitions.slice();
   if(PUR_DUE) rows = rows.filter(function(a){ return dueAmount(a)>0; });
-  if(PUR_OPEN) rows = rows.filter(isOpenOrder);
   if(PUR_PAID) rows = rows.filter(isAtSupplier);
+  if(PUR_ORD) rows = rows.filter(isOrdered);
+  if(PUR_ARRNP) rows = rows.filter(isArrivedUnpaid);
   if(q){
     rows = rows.filter(function(a){
       var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
@@ -1553,9 +1556,11 @@ function renderMag(){
   $('magEmpty').style.display = rows.length?'none':'block';
 }
 
+var SALE_OPEN = false;
 function renderSales(){
   var q=$('salesSearch').value.trim().toLowerCase();
   var rows = S.sales.filter(function(s){
+    if(SALE_OPEN && !isSaleOpen(s)) return false;
     if(!q) return true;
     var w=watchById(s.watch_id)||{}, cp=cpById(s.counterpart_id);
     var hay=((w.brand||'')+' '+(w.ref||'')+' '+(w.model||'')+' '+(cp?cp.name:'')+' '+(s.invoice_no||'')).toLowerCase();
@@ -2681,35 +2686,32 @@ function bind(){
     if(p[0]==='acq'){ gotoView('pur'); openAcqModal(p.slice(1).join(':')); }
     else { gotoView('sales'); openSaleModal(p.slice(1).join(':')); }
   });
-  $('tilePaid').addEventListener('click', function(){
-    PUR_PAID = true; PUR_OPEN = false; PUR_DUE = false;
-    $('chipPaid').classList.add('on'); $('chipOpen').classList.remove('on'); $('chipDue').classList.remove('on');
+  function purOnly(which){
+    PUR_DUE = (which==='due'); PUR_ORD = (which==='ord');
+    PUR_ARRNP = (which==='arrnp'); PUR_PAID = (which==='atsup');
+    $('chipDue').classList.toggle('on', PUR_DUE);
+    $('chipOrd').classList.toggle('on', PUR_ORD);
+    $('chipArrNp').classList.toggle('on', PUR_ARRNP);
+    $('chipPaid').classList.toggle('on', PUR_PAID);
     $('purSearch').value='';
     renderPur();
+  }
+  $('tileSaleOpen').addEventListener('click', function(){
+    SALE_OPEN = true; $('chipSaleOpen').classList.add('on'); $('salesSearch').value=''; renderSales();
   });
-  $('chipPaid').addEventListener('click', function(){
-    PUR_PAID = !PUR_PAID;
-    this.classList.toggle('on', PUR_PAID);
-    renderPur();
+  $('tileSold').addEventListener('click', function(){
+    SALE_OPEN = false; $('chipSaleOpen').classList.remove('on'); $('salesSearch').value=''; renderSales();
   });
-  $('tileOpen').addEventListener('click', function(){
-    PUR_OPEN = true; PUR_DUE = false; PUR_PAID = false;
-    $('chipOpen').classList.add('on'); $('chipDue').classList.remove('on'); $('chipPaid').classList.remove('on');
-    $('purSearch').value='';
-    renderPur();
+  $('chipSaleOpen').addEventListener('click', function(){
+    SALE_OPEN = !SALE_OPEN; this.classList.toggle('on', SALE_OPEN); renderSales();
   });
-  $('chipOpen').addEventListener('click', function(){
-    PUR_OPEN = !PUR_OPEN;
-    this.classList.toggle('on', PUR_OPEN);
-    renderPur();
-  });
-  $('duePanel').addEventListener('click', function(){
-    PUR_DUE = true; PUR_OPEN = false; PUR_PAID = false;
-    $('chipDue').classList.add('on'); $('chipOpen').classList.remove('on'); $('chipPaid').classList.remove('on');
-    $('purSearch').value='';
-    gotoView('pur');
-    renderPur();
-  });
+  $('tileOrd').addEventListener('click', function(){ purOnly('ord'); });
+  $('tileArrNp').addEventListener('click', function(){ purOnly('arrnp'); });
+  $('tilePaid').addEventListener('click', function(){ purOnly('atsup'); });
+  $('chipOrd').addEventListener('click', function(){ purOnly(PUR_ORD?'':'ord'); });
+  $('chipArrNp').addEventListener('click', function(){ purOnly(PUR_ARRNP?'':'arrnp'); });
+  $('chipPaid').addEventListener('click', function(){ purOnly(PUR_PAID?'':'atsup'); });
+  $('duePanel').addEventListener('click', function(){ gotoView('pur'); purOnly('due'); });
   $('chipDue').addEventListener('click', function(){
     PUR_DUE = !PUR_DUE;
     this.classList.toggle('on', PUR_DUE);
