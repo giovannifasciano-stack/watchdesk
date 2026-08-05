@@ -116,6 +116,9 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 .tile .t-label{font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--dim)}
 .tile .t-value{font-size:1.7rem; font-weight:700; margin-top:6px}
 .tile .t-note{font-size:.78rem; color:var(--dim2); margin-top:2px}
+.tile .t-badge{display:inline-flex; align-items:center; font-family:'IBM Plex Mono',monospace; font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; padding:3px 8px; border-radius:999px; margin-bottom:8px}
+.tile .t-badge.b-due{background:rgba(232,176,76,.13); color:var(--warn); border:1px solid rgba(232,176,76,.32)}
+.tile .t-badge.b-paid{background:rgba(106,157,232,.13); color:var(--info); border:1px solid rgba(106,157,232,.32)}
 .panel{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:20px; margin-bottom:20px}
 .panel h3{font-size:.8rem; letter-spacing:.12em; text-transform:uppercase; color:var(--dim); margin-bottom:14px}
 .hgrid{display:grid; grid-template-columns:1fr 1fr; gap:14px}
@@ -367,6 +370,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
   .tile .t-label{font-size:.6rem}
   .tile .t-value{font-size:1.35rem; margin-top:4px}
   .tile .t-note{font-size:.68rem}
+  .tile .t-badge{font-size:.53rem; padding:2px 6px; margin-bottom:6px; letter-spacing:.08em}
   .panel{padding:15px}
   .toolbar{gap:8px}
   .toolbar input,.toolbar select{min-width:0; font-size:.85rem}
@@ -435,7 +439,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v7.5</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v7.7</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -466,8 +470,8 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
       </div>
       <div class="tiles">
         <div class="tile" id="tileOrd" data-goto="pur"><div class="t-label" data-i18n="tOrd">Ordini acquisto</div><div class="t-value" id="kpiOrd">–</div><div class="t-note" data-i18n="tOrdN">ordine trasmesso</div></div>
-        <div class="tile" id="tileArrNp" data-goto="pur"><div class="t-label" data-i18n="tArrNp">Arrivati presso fornitore</div><div class="t-value" id="kpiArrNp">–</div><div class="t-note" data-i18n="tArrNpN">non pagati</div></div>
-        <div class="tile" id="tilePaid" data-goto="pur"><div class="t-label" data-i18n="tPaid">Arrivati presso fornitore</div><div class="t-value" id="kpiPaid">–</div><div class="t-note" data-i18n="tPaidN">pagati, non ritirati</div></div>
+        <div class="tile" id="tileArrNp" data-goto="pur"><div class="t-badge b-due" data-i18n="tArrNpB">Non pagato</div><div class="t-label" data-i18n="tArrNp">Arrivati presso fornitore</div><div class="t-value" id="kpiArrNp">–</div><div class="t-note" data-i18n="tArrNpN">in attesa di pagamento</div></div>
+        <div class="tile" id="tilePaid" data-goto="pur"><div class="t-badge b-paid" data-i18n="tPaidB">Pagato</div><div class="t-label" data-i18n="tPaid">Arrivati presso fornitore</div><div class="t-value" id="kpiPaid">–</div><div class="t-note" data-i18n="tPaidN">in attesa di ritiro</div></div>
         <div class="tile" id="tileStock" data-goto="acq"><div class="t-label" data-i18n="tStock">In magazzino</div><div class="t-value" id="kpiStock">–</div><div class="t-note" data-i18n="tStockN">ritirati, non venduti</div></div>
         <div class="tile" id="tileSaleOpen" data-goto="sales"><div class="t-label" data-i18n="tSaleOpen">Ordini vendita in corso</div><div class="t-value" id="kpiSaleOpen">–</div><div class="t-note" data-i18n="tSaleOpenN">venduti, non ancora incassati</div></div>
         <div class="tile" id="tileSold" data-goto="sales"><div class="t-label" data-i18n="tSoldAll">Venduti</div><div class="t-value" id="kpiSold">–</div><div class="t-note" id="kpiSoldN"></div></div>
@@ -840,13 +844,13 @@ var I18N = {
     recoveryCode:'Codice di recupero', newPass:'Nuova password', resetBtn:'Reimposta password',
     navHome:'Home', navAcq:'Inventario', navPur:'Acquisti', navMag:'Magazzino', navSales:'Vendite', navCp:'Clienti-Fornitori', navRep:'Reports',
     heroHi:'Bentornato', atSupplier:'presso fornitore', tStock:'In magazzino',
-    tOrd:'Ordini acquisto', tOrdN:'ordine trasmesso', tArrNp:'Arrivati presso fornitore', tArrNpN:'non pagati',
-    tPaid:'Arrivati presso fornitore', tPaidN:'pagati, non ritirati',
+    tOrd:'Ordini acquisto', tOrdN:'ordine trasmesso', tArrNp:'Arrivati presso fornitore', tArrNpN:'in attesa di pagamento', tArrNpB:'Non pagato',
+    tPaid:'Arrivati presso fornitore', tPaidN:'in attesa di ritiro', tPaidB:'Pagato',
     tSaleOpen:'Ordini vendita in corso', tSaleOpenN:'venduti, non ancora incassati', tSoldAll:'Venduti',
     onlyOrd:'Solo ordinati', onlyStock:'Solo in magazzino', onlyArrNp:'Solo arrivati non pagati', onlySaleOpen:'Solo in corso',
     tStockN:'ritirati, non venduti', tSold:'Vendite anno',
     pCur:'Totale acquisti — costo netto', pGrand:'Gran totale', pDue:'Ancora da pagare', allPaid:'Tutto pagato', pUp:'Valore di mercato inventario', upCalc:'Aggiorna',
-    upHint:'Interrogo il mercato…', upMkt:'Valore di mercato', upCost:'Costo netto', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'senza quotazione', upNone:'Nessuna quotazione disponibile', upNoStock:'Nessun pezzo in magazzino', onlyDue:'Solo da pagare', onlyOpen:'Solo ordini aperti', onlyPaid:'Solo presso fornitore', seeList:"Vedi l'elenco →", pLast:'Ultimi movimenti',
+    upHint:'Interrogo il mercato…', upMkt:'Valore di mercato', upCost:'Costo netto', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'senza quotazione', upNone:'Nessuna quotazione disponibile', upNoStock:'Nessun pezzo in magazzino', upAt:'aggiornato il', onlyDue:'Solo da pagare', onlyOpen:'Solo ordini aperti', onlyPaid:'Solo presso fornitore', seeList:"Vedi l'elenco →", pLast:'Ultimi movimenti',
     purSub:'Registro completo degli acquisti, venduti inclusi.', acqSub:'Gli orologi che sono tuoi e non ancora venduti: in casa o già pagati e fermi dal fornitore.',
     magSub:'Orologi ritirati e non ancora venduti — quello che hai in casa.',
     salesSub:'Vendite registrate sugli orologi in archivio, con regime IVA e permuta.',
@@ -920,13 +924,13 @@ var I18N = {
     recoveryCode:'Recovery code', newPass:'New password', resetBtn:'Reset password',
     navHome:'Home', navAcq:'Inventory', navPur:'Purchases', navMag:'Stock', navSales:'Sales', navCp:'Clients-Suppliers', navRep:'Reports',
     heroHi:'Welcome back', atSupplier:'at supplier', tStock:'In stock',
-    tOrd:'Purchase orders', tOrdN:'order placed', tArrNp:'Arrived at supplier', tArrNpN:'unpaid',
-    tPaid:'Arrived at supplier', tPaidN:'paid, not collected',
+    tOrd:'Purchase orders', tOrdN:'order placed', tArrNp:'Arrived at supplier', tArrNpN:'awaiting payment', tArrNpB:'Unpaid',
+    tPaid:'Arrived at supplier', tPaidN:'awaiting collection', tPaidB:'Paid',
     tSaleOpen:'Sales in progress', tSaleOpenN:'sold, not yet collected', tSoldAll:'Sold',
     onlyOrd:'Only ordered', onlyStock:'Only in stock', onlyArrNp:'Only arrived unpaid', onlySaleOpen:'Only in progress',
     tStockN:'collected, not sold', tSold:'Sales this year',
     pCur:'Total purchases — net cost', pGrand:'Grand total', pDue:'Still to pay', allPaid:'All paid', pUp:'Inventory Market Value', upCalc:'Refresh',
-    upHint:'Querying the market…', upMkt:'Market value', upCost:'Net cost', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'without quote', upNone:'No quotes available', upNoStock:'No pieces in stock', onlyDue:'Only unpaid', onlyOpen:'Only open orders', onlyPaid:'Only at supplier', seeList:'See the list →', pLast:'Latest activity',
+    upHint:'Querying the market…', upMkt:'Market value', upCost:'Net cost', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'without quote', upNone:'No quotes available', upNoStock:'No pieces in stock', upAt:'updated', onlyDue:'Only unpaid', onlyOpen:'Only open orders', onlyPaid:'Only at supplier', seeList:'See the list →', pLast:'Latest activity',
     purSub:'Full purchase register, sold pieces included.', acqSub:'Watches you own and have not sold: in hand or paid and still at the supplier.',
     magSub:'Watches collected and not yet sold — what you have at home.',
     salesSub:'Sales recorded on archived watches, with VAT regime and trade-ins.',
@@ -1201,8 +1205,31 @@ function gotoView(v){
    ================================================================ */
 function renderAll(){ renderHome(); renderAcq(); renderPur(); renderMag(); renderSales(); renderCp(); }
 
-var MKT_CACHE = {};   /* watchId → prezzo grey USD gia' ottenuto in questa sessione */
-var UP_AUTO = false;  /* la valutazione parte da sola una volta per sessione */
+/* Quotazioni grey gia' ottenute. Persistono nel browser: una quotazione costa
+   una ricerca web a pagamento, e un orologio non cambia prezzo ogni ora.
+   Si svuotano solo col tasto Aggiorna. */
+var MKT_CACHE = (function(){
+  try{ return JSON.parse(localStorage.getItem('wd_mkt_cache')||'{}')||{}; }catch(e){ return {}; }
+})();
+function mktCacheSave(){
+  try{ localStorage.setItem('wd_mkt_cache', JSON.stringify(MKT_CACHE)); }catch(e){}
+}
+
+/* Fotografia dell'ultimo calcolo del pannello, con la firma del magazzino a cui
+   si riferisce. Finche' la firma non cambia il pannello si ridisegna da qui,
+   senza interrogare nessuno. */
+function mktSig(){
+  return S.watches.filter(function(w){ return isInventory(w); })
+    .map(function(w){ return w.id+':'+(w.mkt_lock||'')+':'+(w.mkt_usd==null?'':w.mkt_usd); })
+    .sort().join('|');
+}
+function mktSnapLoad(){
+  try{ return JSON.parse(localStorage.getItem('wd_mkt_snap')||'null'); }catch(e){ return null; }
+}
+function mktSnapSave(o){
+  try{ localStorage.setItem('wd_mkt_snap', JSON.stringify(o)); }catch(e){}
+}
+var UP_BUSY = false;  /* un calcolo alla volta: renderHome viene chiamata spesso */
 
 /* Prende la quotazione grey di un orologio: valore forzato, poi cache,
    poi il Grey Scanner, poi la ricerca sul web. */
@@ -1286,13 +1313,13 @@ function greyFor(w){
         .then(function(q2){ return (q2 && q2.found) ? scannerToUsd(q2) : null; })
         .catch(function(){ return null; });
     })
-    .then(function(v){ if(v!=null) MKT_CACHE[w.id]=v; return v; });
+    .then(function(v){ if(v!=null){ MKT_CACHE[w.id]=v; mktCacheSave(); } return v; });
 }
 
 function renderUpside(){
   var box=$('upBox'), cur=$('upCur').value||'USD';
   var stock=S.watches.filter(function(w){ return isInventory(w); });
-  if(!stock.length){ box.innerHTML='<div class="empty">'+T('upNoStock')+'</div>'; return; }
+  if(!stock.length){ UP_BUSY=false; box.innerHTML='<div class="empty">'+T('upNoStock')+'</div>'; return; }
   UP_ERR='';
   box.innerHTML='<div class="empty">'+T('mktWait')+' 0/'+stock.length+'</div>';
   var fatti=0;
@@ -1314,7 +1341,7 @@ function renderUpside(){
     Promise.all(stock.map(function(w){
       return conTimeout(w).then(function(g){ return {w:w, g:g}; });
     })).catch(function(){ return []; }).then(function(items){
-      if(!items.length){ box.innerHTML='<div class="empty">–</div>'; return; }
+      if(!items.length){ UP_BUSY=false; box.innerHTML='<div class="empty">–</div>'; return; }
       var mkt=0, cost=0, n=0, senza=0;
       items.forEach(function(it){
         var a=acqByWatch(it.w.id), nc=netCost(a);
@@ -1323,25 +1350,44 @@ function renderUpside(){
         if(cU==null){ senza++; return; }
         mkt+=it.g; cost+=cU; n++;
       });
-      function conv(v){ return (cur==='USD')?v:fxConv(v,'USD',cur); }
-      var up=mkt-cost, pct=(cost>0)?(up/cost*100):null;
-      var f=function(v){ var x=conv(v); return (x==null)?'—':fmtN(x,(cur==='HKD')?'USD':cur); };
-      if(!n){   /* nessuna quotazione: meglio dirlo, e dire anche perche' */
-        box.innerHTML='<div class="empty">'+T('upNone')+' ('+senza+' '+T('pieces')+')</div>'+
-          (UP_ERR?('<div class="gt-lbl" style="margin-top:8px;text-transform:none;letter-spacing:0">'+esc(UP_ERR)+'</div>'):'');
-        return;
-      }
-      var su = up>=0;
-      var h='<div class="uprow"><span>'+T('upMkt')+'</span><span class="u">'+f(mkt)+'</span></div>'+
-            '<div class="uprow"><span>'+T('upCost')+'</span><span class="u">'+f(cost)+'</span></div>'+
-            '<div class="uptot"><span>'+T(su?'upGain':'upLoss')+'</span>'+
-              '<span class="'+(su?'pos':'neg')+'"><span class="arw">'+(su?'\u25b2':'\u25bc')+'</span>'+f(up)+
-              (pct!=null?('  <span style="font-size:.85em">('+(pct>=0?'+':'')+pct.toFixed(1)+'%)</span>'):'')+'</span></div>'+
-            '<div class="gt-lbl" style="margin-top:10px">'+n+' '+T('pieces')+
-              (senza?(' · '+senza+' '+T('upNoQuote')):'')+'</div>';
-      box.innerHTML=h;
+      var snap={mkt:mkt, cost:cost, n:n, senza:senza, at:Date.now(), sig:mktSig(), err:UP_ERR};
+      if(n) mktSnapSave(snap);
+      UP_BUSY=false;
+      drawUpside(snap);
     });
   });
+}
+
+/* Disegna il pannello da un risultato gia' calcolato (appena ottenuto oppure
+   ripescato dalla fotografia salvata). Gli importi nella fotografia sono in
+   dollari, quindi cambiare valuta nella tendina non richiede di ricalcolare. */
+function drawUpside(o){
+  var box=$('upBox'), cur=$('upCur').value||'USD';
+  if(!o.n){
+    box.innerHTML='<div class="empty">'+T('upNone')+' ('+o.senza+' '+T('pieces')+')</div>'+
+      (o.err?('<div class="gt-lbl" style="margin-top:8px;text-transform:none;letter-spacing:0">'+esc(o.err)+'</div>'):'');
+    return;
+  }
+  function conv(v){ return (cur==='USD')?v:fxConv(v,'USD',cur); }
+  var up=o.mkt-o.cost, pct=(o.cost>0)?(up/o.cost*100):null;
+  var f=function(v){ var x=conv(v); return (x==null)?'—':fmtN(x,(cur==='HKD')?'USD':cur); };
+  var su = up>=0;
+  var h='<div class="uprow"><span>'+T('upMkt')+'</span><span class="u">'+f(o.mkt)+'</span></div>'+
+        '<div class="uprow"><span>'+T('upCost')+'</span><span class="u">'+f(o.cost)+'</span></div>'+
+        '<div class="uptot"><span>'+T(su?'upGain':'upLoss')+'</span>'+
+          '<span class="'+(su?'pos':'neg')+'"><span class="arw">'+(su?'\u25b2':'\u25bc')+'</span>'+f(up)+
+          (pct!=null?('  <span style="font-size:.85em">('+(pct>=0?'+':'')+pct.toFixed(1)+'%)</span>'):'')+'</span></div>'+
+        '<div class="gt-lbl" style="margin-top:10px">'+o.n+' '+T('pieces')+
+          (o.senza?(' · '+o.senza+' '+T('upNoQuote')):'')+
+          (o.at?(' · '+T('upAt')+' '+fmtStamp(o.at)):'')+'</div>';
+  box.innerHTML=h;
+}
+
+/* data e ora dell'ultimo aggiornamento, corte */
+function fmtStamp(ms){
+  var d=new Date(ms);
+  var p=function(x){ return (x<10?'0':'')+x; };
+  return p(d.getDate())+'/'+p(d.getMonth()+1)+' '+p(d.getHours())+':'+p(d.getMinutes());
 }
 
 function renderHome(){
@@ -1403,12 +1449,17 @@ function renderHome(){
   });
   $('dueBox').innerHTML = hd || '<div class="empty">'+T('allPaid')+'</div>';
 
-  /* Valutazione di mercato: parte da sola, ma solo quando i dati ci sono davvero.
-     Al primo disegno della pagina il magazzino e' ancora vuoto (i dati arrivano
-     dopo), e segnarla "gia' fatta" li' significava non farla partire mai piu'. */
+  /* Valutazione di mercato: NON si interroga piu' a ogni apertura — ogni
+     quotazione e' una ricerca web a pagamento. Si ridisegna l'ultimo risultato
+     salvato e basta. Riparte da sola solo se il magazzino e' cambiato (pezzo
+     aggiunto, venduto, o valore forzato modificato): in quel caso i pezzi gia'
+     quotati arrivano dalla cache, quindi si paga solo quello nuovo. */
   var stockN = S.watches.filter(function(w){ return isInventory(w); }).length;
-  if(stockN && !UP_AUTO){ UP_AUTO = true; setTimeout(renderUpside, 60); }
-  else if(stockN && $('upBox').querySelector('.uprow')) renderUpside();
+  if(stockN){
+    var snap=mktSnapLoad();
+    if(snap && snap.sig===mktSig()) loadFx(function(){ drawUpside(snap); });
+    else if(!UP_BUSY){ UP_BUSY=true; setTimeout(function(){ renderUpside(); }, 60); }
+  }
   /* ultimi movimenti */
   var movs=[];
   S.acquisitions.forEach(function(a){ movs.push({t:'acq', d:a.d_ord||a.updated_at||'', r:a}); });
@@ -2678,9 +2729,14 @@ function bind(){
   $('btnNewAcq2').addEventListener('click',function(){ openAcqModal(null); });
   $('upCur').innerHTML = GRAND.map(function(c){ return optHtml(c, (FLAGS[c]||'')+' '+c); }).join('');
   $('upCur').value='USD';
-  $('upCur').addEventListener('change', function(){ if($('upBox').querySelector('.uprow')) renderUpside(); });
+  $('upCur').addEventListener('change', function(){
+    var snap=mktSnapLoad();
+    if(snap && $('upBox').querySelector('.uprow')) loadFx(function(){ drawUpside(snap); });
+  });
   $('btnUp').addEventListener('click', function(){
-    MKT_CACHE = {};          /* rilegge le quotazioni invece di riusare quelle in cache */
+    MKT_CACHE = {};                              /* rilegge davvero le quotazioni */
+    try{ localStorage.removeItem('wd_mkt_cache'); localStorage.removeItem('wd_mkt_snap'); }catch(e){}
+    UP_BUSY = true;
     renderUpside();
   });
   $('lastBox').addEventListener('click', function(ev){
