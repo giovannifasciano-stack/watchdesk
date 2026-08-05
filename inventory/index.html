@@ -436,7 +436,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v6.6</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v6.7</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -2429,7 +2429,8 @@ function buildRepInv(){
 }
 
 function buildRepMkt(){
-  var rows=S.acquisitions.filter(function(a){ return a.stat==='ritirato' && !saleByWatch(a.watch_id); });
+  /* tutto l'inventario: in casa e pagati fermi dal fornitore */
+  var rows=S.acquisitions.filter(isInvAcq);
   var supF=$('repSup').value;
   if(supF) rows=rows.filter(function(a){ return a.counterpart_id===supF; });
   if(!rows.length){ openPrint(T('rMktT'), sheetHead(T('rMktT'))+'<div class="fxnote">'+T('noResults')+'</div>'); return; }
