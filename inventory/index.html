@@ -436,7 +436,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v7.0</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v7.1</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -1196,6 +1196,22 @@ var UP_AUTO = false;  /* la valutazione parte da sola una volta per sessione */
 /* Prende la quotazione grey di un orologio: valore forzato, poi cache,
    poi il Grey Scanner, poi la ricerca sul web. */
 var UP_ERR = '';   /* ultimo motivo per cui una quotazione non e' arrivata */
+
+/* Il Grey Scanner dichiara avg_usd, ma Official Watches espone i prezzi in
+   STERLINE: se il risultato viene da li', il valore va convertito prima di usarlo. */
+function scannerIsGbp(q){
+  var src = JSON.stringify((q && (q.sources || q.source)) || '').toLowerCase();
+  return src.indexOf('official') > -1;
+}
+function scannerToUsd(q){
+  var v = Number(q.avg_usd);
+  if(!v) return null;
+  if(scannerIsGbp(q)){
+    var c = fxConv(v, 'GBP', 'USD');
+    if(c!=null){ q.converted='GBP→USD'; return c; }
+  }
+  return v;
+}
 function greyFor(w){
   if(w.mkt_lock && Number(w.mkt_lock) && w.mkt_usd!=null && w.mkt_usd!=='')
     return Promise.resolve(Number(w.mkt_usd));
@@ -1214,7 +1230,7 @@ function greyFor(w){
             sterline, quindi quel valore va preso con le pinze. */
       return fetch('https://grey-scanner.owscan.workers.dev/?ref='+encodeURIComponent(ref))
         .then(function(r){ return r.json(); })
-        .then(function(q2){ return (q2 && q2.found) ? Number(q2.avg_usd) : null; })
+        .then(function(q2){ return (q2 && q2.found) ? scannerToUsd(q2) : null; })
         .catch(function(){ return null; });
     })
     .then(function(v){ if(v!=null) MKT_CACHE[w.id]=v; return v; });
@@ -2467,7 +2483,20 @@ function buildRepMkt(){
         /* 2) riserva: il Grey Scanner (Official Watches quota in sterline) */
         return fetch(GREY+'/?ref='+encodeURIComponent(ref))
           .then(function(r){ return r.json(); })
-          .then(function(q2){ if(q2 && q2.found) q2.via='scanner'; return {a:a, w:w, q:(q2 && q2.found)?q2:null, why:(q&&q.reason)||''}; })
+          .then(function(q2){
+            if(q2 && q2.found){
+              q2.via='scanner';
+              var u=scannerToUsd(q2);
+              if(u!=null){
+                if(q2.converted){   /* prezzi in sterline: converto anche la forbice */
+                  if(q2.min_usd) q2.min_usd=fxConv(Number(q2.min_usd),'GBP','USD');
+                  if(q2.max_usd) q2.max_usd=fxConv(Number(q2.max_usd),'GBP','USD');
+                }
+                q2.avg_usd=u;
+              }
+            }
+            return {a:a, w:w, q:(q2 && q2.found)?q2:null, why:(q&&q.reason)||''};
+          })
           .catch(function(){ return {a:a, w:w, q:null, why:'net'}; });
       })
       .then(function(res){ tick(w); return res; });
@@ -2497,7 +2526,7 @@ function buildRepMkt(){
           '<td class="num mono2 appr">'+(q&&q.min_usd?fmtN(q.min_usd, 'USD'):'\u2014')+'</td>'+
           '<td class="num mono2 appr">'+(q&&q.max_usd?fmtN(q.max_usd, 'USD'):'\u2014')+'</td>'+
           '<td class="num">'+(q?((q.used_for_avg||q.listings||'')+(q.via==='ai'?(' <span class="appr">'+(q.basis==='watchcharts'?'WC':'web')+'</span>'):
-            (q.via==='scanner'?' <span class="appr" title="Official Watches / Luxury Bazaar">OW</span>':
+            (q.via==='scanner'?(' <span class="appr" title="Official Watches / Luxury Bazaar">OW'+(q.converted?' £→$':'')+'</span>'):
             (q.via==='manuale'?'<span class="real">'+T('mktMan')+'</span>':'')))):'\u2014')+'</td></tr>';
       });
       var dTot=(totList>0)?((totMkt-totList)/totList*100):null;
@@ -2683,6 +2712,13 @@ function bind(){
   $('aList').addEventListener('input',function(){ if($('aVat').value) calcNetFromVat('aList','aVat','aNet'); });
   $('aAgreed').addEventListener('input',function(){ if($('aVat').value) calcNetFromVat('aList','aVat','aNet'); });
   $('aPay').addEventListener('change',function(){ $('aDepBox').style.display = $('aPay').value==='acconto'?'block':'none'; });
+  $('aStat').addEventListener('change',function(){
+    /* "pagato, non ritirato" implica il saldo: allineo la tendina del pagamento */
+    if(this.value==='pagatonr' && $('aPay').value!=='pagato'){
+      $('aPay').value='pagato';
+      $('aDepBox').style.display='none';
+    }
+  });
   $('aPhotoDrop').addEventListener('click',function(){ $('aPhotoFile').click(); });
   $('aPhotoFile').addEventListener('change',function(){
     var f=$('aPhotoFile').files[0]; if(!f) return;
