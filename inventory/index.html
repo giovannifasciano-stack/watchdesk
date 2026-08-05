@@ -436,7 +436,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v7.1</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v7.2</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -1197,19 +1197,43 @@ var UP_AUTO = false;  /* la valutazione parte da sola una volta per sessione */
    poi il Grey Scanner, poi la ricerca sul web. */
 var UP_ERR = '';   /* ultimo motivo per cui una quotazione non e' arrivata */
 
-/* Il Grey Scanner dichiara avg_usd, ma Official Watches espone i prezzi in
-   STERLINE: se il risultato viene da li', il valore va convertito prima di usarlo. */
-function scannerIsGbp(q){
-  var src = JSON.stringify((q && (q.sources || q.source)) || '').toLowerCase();
-  return src.indexOf('official') > -1;
+/* Il Grey Scanner dichiara tutto come avg_usd, ma le sue fonti non usano la
+   stessa valuta: Official Watches espone i prezzi in STERLINE. Quando la
+   risposta contiene il dettaglio per fonte (sources: name, count, min, max)
+   ricalcolo la media convertendo solo la parte in sterline; se il dettaglio
+   manca, converto l'intero valore quando la fonte in sterline e' l'unica nota. */
+function srcIsGbp(name){
+  return String(name||'').toLowerCase().indexOf('official') > -1;
 }
 function scannerToUsd(q){
-  var v = Number(q.avg_usd);
-  if(!v) return null;
-  if(scannerIsGbp(q)){
-    var c = fxConv(v, 'GBP', 'USD');
-    if(c!=null){ q.converted='GBP→USD'; return c; }
+  var src = q && q.sources;
+  if(src && src.length){
+    var somma=0, peso=0, convertito=false, nomi=[];
+    for(var i=0;i<src.length;i++){
+      var f=src[i];
+      var n=Number(f.count)||1;
+      var mn=Number(f.min), mx=Number(f.max);
+      var media=(isFinite(mn)&&isFinite(mx)&&mn&&mx)?((mn+mx)/2):Number(q.avg_usd);
+      if(!isFinite(media)||!media) continue;
+      if(srcIsGbp(f.name)){
+        var c=fxConv(media,'GBP','USD');
+        if(c!=null){ media=c; convertito=true; }
+      }
+      somma+=media*n; peso+=n; nomi.push(f.name);
+    }
+    if(peso){
+      q.srcNames = nomi.join(', ');
+      if(convertito) q.converted='GBP→USD';
+      return somma/peso;
+    }
   }
+  var v=Number(q.avg_usd);
+  if(!v) return null;
+  if(srcIsGbp(q.source) || srcIsGbp(q.site) || srcIsGbp(JSON.stringify(src||''))){
+    var c2=fxConv(v,'GBP','USD');
+    if(c2!=null){ q.converted='GBP→USD'; return c2; }
+  }
+  q.unverified = true;   /* fonte ignota: valuta non verificabile */
   return v;
 }
 function greyFor(w){
@@ -2488,7 +2512,7 @@ function buildRepMkt(){
               q2.via='scanner';
               var u=scannerToUsd(q2);
               if(u!=null){
-                if(q2.converted){   /* prezzi in sterline: converto anche la forbice */
+                if(q2.converted){   /* la forbice va convertita insieme alla media */
                   if(q2.min_usd) q2.min_usd=fxConv(Number(q2.min_usd),'GBP','USD');
                   if(q2.max_usd) q2.max_usd=fxConv(Number(q2.max_usd),'GBP','USD');
                 }
@@ -2526,7 +2550,7 @@ function buildRepMkt(){
           '<td class="num mono2 appr">'+(q&&q.min_usd?fmtN(q.min_usd, 'USD'):'\u2014')+'</td>'+
           '<td class="num mono2 appr">'+(q&&q.max_usd?fmtN(q.max_usd, 'USD'):'\u2014')+'</td>'+
           '<td class="num">'+(q?((q.used_for_avg||q.listings||'')+(q.via==='ai'?(' <span class="appr">'+(q.basis==='watchcharts'?'WC':'web')+'</span>'):
-            (q.via==='scanner'?(' <span class="appr" title="Official Watches / Luxury Bazaar">OW'+(q.converted?' £→$':'')+'</span>'):
+            (q.via==='scanner'?(' <span class="appr" title="'+esc(q.srcNames||'Official Watches / Luxury Bazaar')+'">OW'+(q.converted?' £→$':(q.unverified?' ?':''))+'</span>'):
             (q.via==='manuale'?'<span class="real">'+T('mktMan')+'</span>':'')))):'\u2014')+'</td></tr>';
       });
       var dTot=(totList>0)?((totMkt-totList)/totList*100):null;
