@@ -165,6 +165,8 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 .chip{padding:6px 14px; border-radius:20px; font-size:.82rem; border:1px solid var(--line); color:var(--dim)}
 .chip.on{border-color:var(--accent-dark); color:var(--accent); background:rgba(212,185,130,.08)}
 
+.rowcard.atsup{border-color:#3a53a8; box-shadow:inset 3px 0 0 #7a9eff}
+.atsup-tag{color:#9db4ff; font-weight:600}
 .rowcard{
   display:flex; gap:14px; align-items:center; background:var(--card);
   border:1px solid var(--line); border-radius:var(--r); padding:13px 16px; margin-bottom:10px;
@@ -434,7 +436,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v6.5</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v6.6</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -498,7 +500,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
     <!-- ACQUISTI -->
     <section class="view" id="view-acq">
       <h2 class="sec" data-i18n="navAcq">Inventario</h2>
-      <p class="sec-sub" data-i18n="acqSub">Gli orologi ritirati e non ancora venduti: quello che hai in casa.</p>
+      <p class="sec-sub" data-i18n="acqSub">Gli orologi che sono tuoi e non ancora venduti: in casa o già pagati e fermi dal fornitore.</p>
       <div class="toolbar">
         <input type="text" id="acqSearch" data-i18n-ph="phSearch" placeholder="Cerca referenza, marca, fornitore…">
         <select id="acqBrand"></select>
@@ -577,7 +579,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
         <div class="repcard" id="repSales"><div class="ri">📤</div><div class="rt" data-i18n="rSalesT">Estratto conto vendite</div><div class="rd" data-i18n="rSalesD">Le vendite del periodo con regime IVA, permute e incassi.</div></div>
         <div class="repcard" id="repMargin"><div class="ri">📈</div><div class="rt" data-i18n="rMarT">Margini</div><div class="rd" data-i18n="rMarD">Margine per pezzo con giorni di giacenza, più totali per marca e cliente.</div></div>
         <div class="repcard" id="repStock"><div class="ri">🏛</div><div class="rt" data-i18n="rStockT">Valore magazzino</div><div class="rd" data-i18n="rStockD">Gli orologi in casa al costo netto, con giacenza a oggi.</div></div>
-        <div class="repcard" id="repInv"><div class="ri">🗂</div><div class="rt" data-i18n="rInvT">Inventario</div><div class="rd" data-i18n="rInvD">Gli orologi ritirati e non ancora venduti, con fornitore e costo netto.</div></div>
+        <div class="repcard" id="repInv"><div class="ri">🗂</div><div class="rt" data-i18n="rInvT">Inventario</div><div class="rd" data-i18n="rInvD">Gli orologi tuoi non venduti, in casa o pagati dal fornitore, con costo netto.</div></div>
         <div class="repcard" id="repMkt"><div class="ri">📊</div><div class="rt" data-i18n="rMktT">Inventory Market Price Valuation</div><div class="rd" data-i18n="rMktD">Ogni pezzo in inventario col prezzo medio del grey market e lo scarto dal costo sostenuto.</div></div>
         <div class="repcard" id="repCsv"><div class="ri">📄</div><div class="rt" data-i18n="rCsvT">Esporta CSV</div><div class="rd" data-i18n="rCsvD">Acquisti e vendite filtrati, in un file per Excel/Numbers.</div></div>
         <div class="repcard" id="repJson"><div class="ri">💾</div><div class="rt" data-i18n="rJsonT">Backup JSON</div><div class="rd" data-i18n="rJsonD">Copia completa dell'archivio, foto incluse.</div></div>
@@ -834,11 +836,11 @@ var I18N = {
     signupCode:'Codice di registrazione', signupBtn:'Registrati', backLogin:'Torna al login',
     recoveryCode:'Codice di recupero', newPass:'Nuova password', resetBtn:'Reimposta password',
     navHome:'Home', navAcq:'Inventario', navPur:'Acquisti', navMag:'Magazzino', navSales:'Vendite', navCp:'Clienti-Fornitori', navRep:'Reports',
-    heroHi:'Bentornato', tOpen:'Ordini acquisto aperti', tPaid:'Presso fornitore (pagati)', tPaidN:'pagati, non ritirati', tOpenN:'ordinati o in arrivo, non pagati', tStock:'In magazzino',
+    heroHi:'Bentornato', tOpen:'Ordini acquisto aperti', tPaid:'Presso fornitore (pagati)', atSupplier:'presso fornitore', tPaidN:'pagati, non ritirati', tOpenN:'ordinati o in arrivo, non pagati', tStock:'In magazzino',
     tStockN:'ritirati, non venduti', tSold:'Vendite anno', tMargin:'Utile totale vendite', tMarginN:'tutte le vendite, netto − costo',
     pCur:'Totale acquisti — costo netto', pGrand:'Gran totale', pDue:'Ancora da pagare', allPaid:'Tutto pagato', pUp:'Valore di mercato inventario', upCalc:'Aggiorna',
     upHint:'Interrogo il mercato…', upMkt:'Valore di mercato', upCost:'Costo netto', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'senza quotazione', upNone:'Nessuna quotazione disponibile', upNoStock:'Nessun pezzo in magazzino', onlyDue:'Solo da pagare', onlyOpen:'Solo ordini aperti', onlyPaid:'Solo presso fornitore', seeList:"Vedi l'elenco →", pLast:'Ultimi movimenti',
-    purSub:'Registro completo degli acquisti, venduti inclusi.', acqSub:'Gli orologi ritirati e non ancora venduti: quello che hai in casa.',
+    purSub:'Registro completo degli acquisti, venduti inclusi.', acqSub:'Gli orologi che sono tuoi e non ancora venduti: in casa o già pagati e fermi dal fornitore.',
     magSub:'Orologi ritirati e non ancora venduti — quello che hai in casa.',
     salesSub:'Vendite registrate sugli orologi in archivio, con regime IVA e permuta.',
     cpSub:'Fornitori e clienti, divisi: chi \u201centrambi\u201d compare nelle due liste.',
@@ -869,7 +871,7 @@ var I18N = {
     rAcqT:'Estratto conto acquisti', rAcqD:'Tutte le acquisizioni del periodo, con costi netti e stato pagamenti.',
     rSalesT:'Estratto conto vendite', rSalesD:'Le vendite del periodo con regime IVA, permute e incassi.',
     rMarT:'Margini', rMarD:'Margine per pezzo con giorni di giacenza, più totali per marca e cliente.',
-    rStockT:'Valore magazzino', rStockD:'Gli orologi in casa al costo netto, con giacenza a oggi.', rInvT:'Inventario', rInvD:'Gli orologi ritirati e non ancora venduti, con fornitore e costo netto.',
+    rStockT:'Valore magazzino', rStockD:'Gli orologi in casa al costo netto, con giacenza a oggi.', rInvT:'Inventario', rInvD:'Gli orologi tuoi non venduti, in casa o pagati dal fornitore, con costo netto.',
     rCsvT:'Esporta CSV', rCsvD:'Acquisti e vendite filtrati, in un file per Excel/Numbers.',
     rJsonT:'Backup JSON', rJsonD:'Copia completa dell\'archivio, foto incluse.',
     stat_ordinato:'Ordinato', stat_arrivato:'Arrivato dal fornitore', stat_pagatonr:'Pagato, non ritirato', stat_ritirato:'Ritirato',
@@ -910,11 +912,11 @@ var I18N = {
     signupCode:'Registration code', signupBtn:'Sign up', backLogin:'Back to login',
     recoveryCode:'Recovery code', newPass:'New password', resetBtn:'Reset password',
     navHome:'Home', navAcq:'Inventory', navPur:'Purchases', navMag:'Stock', navSales:'Sales', navCp:'Clients-Suppliers', navRep:'Reports',
-    heroHi:'Welcome back', tOpen:'Open purchase orders', tPaid:'At supplier (paid)', tPaidN:'paid, not collected', tOpenN:'ordered or incoming, unpaid', tStock:'In stock',
+    heroHi:'Welcome back', tOpen:'Open purchase orders', tPaid:'At supplier (paid)', atSupplier:'at supplier', tPaidN:'paid, not collected', tOpenN:'ordered or incoming, unpaid', tStock:'In stock',
     tStockN:'collected, not sold', tSold:'Sales this year', tMargin:'Total profit on sales', tMarginN:'all sales, net − cost',
     pCur:'Total purchases — net cost', pGrand:'Grand total', pDue:'Still to pay', allPaid:'All paid', pUp:'Inventory Market Value', upCalc:'Refresh',
     upHint:'Querying the market…', upMkt:'Market value', upCost:'Net cost', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'without quote', upNone:'No quotes available', upNoStock:'No pieces in stock', onlyDue:'Only unpaid', onlyOpen:'Only open orders', onlyPaid:'Only at supplier', seeList:'See the list →', pLast:'Latest activity',
-    purSub:'Full purchase register, sold pieces included.', acqSub:'Watches collected and not yet sold: what you have in hand.',
+    purSub:'Full purchase register, sold pieces included.', acqSub:'Watches you own and have not sold: in hand or paid and still at the supplier.',
     magSub:'Watches collected and not yet sold — what you have at home.',
     salesSub:'Sales recorded on archived watches, with VAT regime and trade-ins.',
     cpSub:'Suppliers and clients, split: \u201cboth\u201d appears in both lists.',
@@ -945,7 +947,7 @@ var I18N = {
     rAcqT:'Purchases statement', rAcqD:'All acquisitions in the period, with net costs and payment status.',
     rSalesT:'Sales statement', rSalesD:'Sales in the period with VAT regime, trade-ins and collections.',
     rMarT:'Margins', rMarD:'Margin per piece with days in stock, plus totals by brand and client.',
-    rStockT:'Stock value', rStockD:'Watches at home at net cost, with days in stock to date.', rInvT:'Inventory', rInvD:'Watches collected and not yet sold, with supplier and net cost.',
+    rStockT:'Stock value', rStockD:'Watches at home at net cost, with days in stock to date.', rInvT:'Inventory', rInvD:'Your unsold watches, in hand or paid at the supplier, with net cost.',
     rCsvT:'Export CSV', rCsvD:'Filtered purchases and sales, in a file for Excel/Numbers.',
     rJsonT:'JSON backup', rJsonD:'Full copy of the archive, photos included.',
     stat_ordinato:'Ordered', stat_arrivato:'Arrived from supplier', stat_pagatonr:'Paid, not collected', stat_ritirato:'Collected',
@@ -1067,6 +1069,10 @@ function saleByWatch(wid){ for(var i=0;i<S.sales.length;i++) if(S.sales[i].watch
 function netCost(a){ if(!a) return null; if(a.net!=null) return a.net; if(a.agreed!=null) return a.agreed; return a.list!=null?a.list:null; }
 function netSale(s){ if(!s) return null; if(s.net!=null) return s.net; return s.price!=null?s.price:null; }
 function isStock(w){ var a=acqByWatch(w.id); return a && a.stat==='ritirato' && !saleByWatch(w.id); }
+/* Inventario: quello che e' tuo, che sia in casa o gia' pagato e fermo dal fornitore.
+   isStock resta il solo posseduto fisicamente (KPI "In magazzino" e Valore magazzino). */
+function isInvAcq(a){ return a && !saleByWatch(a.watch_id) && (a.stat==='ritirato' || isAtSupplier(a)); }
+function isInventory(w){ return isInvAcq(acqByWatch(w.id)); }
 function watchTitle(w){ return (w.brand||'')+(w.ref?' ':'')+(w.ref||'')+(w.model?' — '+w.model:''); }
 
 /* ---------- i18n render ---------- */
@@ -1215,7 +1221,7 @@ function greyFor(w){
 
 function renderUpside(){
   var box=$('upBox'), cur=$('upCur').value||'USD';
-  var stock=S.watches.filter(function(w){ return isStock(w); });
+  var stock=S.watches.filter(function(w){ return isInventory(w); });
   if(!stock.length){ box.innerHTML='<div class="empty">'+T('upNoStock')+'</div>'; return; }
   UP_ERR='';
   box.innerHTML='<div class="empty">'+T('mktWait')+' 0/'+stock.length+'</div>';
@@ -1342,7 +1348,7 @@ function renderHome(){
   /* Valutazione di mercato: parte da sola, ma solo quando i dati ci sono davvero.
      Al primo disegno della pagina il magazzino e' ancora vuoto (i dati arrivano
      dopo), e segnarla "gia' fatta" li' significava non farla partire mai piu'. */
-  var stockN = S.watches.filter(function(w){ return isStock(w); }).length;
+  var stockN = S.watches.filter(function(w){ return isInventory(w); }).length;
   if(stockN && !UP_AUTO){ UP_AUTO = true; setTimeout(renderUpside, 60); }
   else if(stockN && $('upBox').querySelector('.uprow')) renderUpside();
   /* ultimi movimenti */
@@ -1366,7 +1372,7 @@ function renderHome(){
 function acqMatches(a, q, brand, stat){
   var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
   if(saleByWatch(a.watch_id)) return false; /* i venduti vivono nella sezione Vendite */
-  if(a.stat!=='ritirato') return false;      /* solo quelli davvero in casa; ordinati e in arrivo stanno in Acquisti */
+  if(!isInvAcq(a)) return false;   /* in casa oppure gia' pagati e fermi dal fornitore */
   if(brand && w.brand!==brand) return false;
   if(stat && a.stat!==stat) return false;
   if(q){
@@ -1384,11 +1390,12 @@ function renderAcq(){
   rows.forEach(function(a){
     var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
     var net=num(a.list);   /* in inventario si guarda il listino, non quanto e' costato */
-    html += '<div class="rowcard" data-acq="'+esc(a.id)+'">'+
+    var atSup = isAtSupplier(a);
+    html += '<div class="rowcard'+(atSup?' atsup':'')+'" data-acq="'+esc(a.id)+'">'+
       '<div class="thumb">'+(w.photo?'<img src="'+w.photo+'" alt="">':'⌚')+'</div>'+
       '<div class="rc-main">'+
         '<div class="rc-title">'+esc(w.brand||'')+' <span class="ref">'+esc(w.ref||'')+'</span>'+(w.model?' · '+esc(w.model):'')+'</div>'+
-        '<div class="rc-sub">'+(cp?esc(cp.name):T('noSup'))+(a.d_ord?' · '+fmtDate(a.d_ord):'')+'</div>'+
+        '<div class="rc-sub">'+(cp?esc(cp.name):T('noSup'))+(atSup?' · <span class="atsup-tag">'+T('atSupplier')+'</span>':'')+(a.d_ord?' · '+fmtDate(a.d_ord):'')+'</div>'+
       '</div>'+
       '<div class="rc-right">'+
         '<div class="rc-amt mono"><span class="cur">'+esc(a.cur||'CHF')+'</span>'+(net!=null?fmtN(net,a.cur||'CHF'):'—')+'</div>'+
@@ -2392,8 +2399,8 @@ function buildRepStock(){
 }
 
 function buildRepInv(){
-  /* solo i pezzi ritirati e non venduti: quello che hai davvero in casa */
-  var rows=S.acquisitions.filter(function(a){ return a.stat==='ritirato' && !saleByWatch(a.watch_id); });
+  /* in casa oppure gia' pagati e fermi dal fornitore */
+  var rows=S.acquisitions.filter(isInvAcq);
   var cpF=$('repSup').value;
   if(cpF) rows=rows.filter(function(a){ return a.counterpart_id===cpF; });
   rows.sort(function(x,y){ return String(x.stat||'').localeCompare(String(y.stat||'')) || String(y.d_ord||'').localeCompare(String(x.d_ord||'')); });
