@@ -435,7 +435,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v7.4</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v7.5</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -465,10 +465,10 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
         <p id="heroDate"></p>
       </div>
       <div class="tiles">
-        <div class="tile" id="tileOrd" data-goto="pur"><div class="t-label" data-i18n="tOrd">Ordinati</div><div class="t-value" id="kpiOrd">–</div><div class="t-note" data-i18n="tOrdN">ordine trasmesso</div></div>
+        <div class="tile" id="tileOrd" data-goto="pur"><div class="t-label" data-i18n="tOrd">Ordini acquisto</div><div class="t-value" id="kpiOrd">–</div><div class="t-note" data-i18n="tOrdN">ordine trasmesso</div></div>
         <div class="tile" id="tileArrNp" data-goto="pur"><div class="t-label" data-i18n="tArrNp">Arrivati presso fornitore</div><div class="t-value" id="kpiArrNp">–</div><div class="t-note" data-i18n="tArrNpN">non pagati</div></div>
         <div class="tile" id="tilePaid" data-goto="pur"><div class="t-label" data-i18n="tPaid">Arrivati presso fornitore</div><div class="t-value" id="kpiPaid">–</div><div class="t-note" data-i18n="tPaidN">pagati, non ritirati</div></div>
-        <div class="tile" data-goto="acq"><div class="t-label" data-i18n="tStock">In magazzino</div><div class="t-value" id="kpiStock">–</div><div class="t-note" data-i18n="tStockN">ritirati, non venduti</div></div>
+        <div class="tile" id="tileStock" data-goto="acq"><div class="t-label" data-i18n="tStock">In magazzino</div><div class="t-value" id="kpiStock">–</div><div class="t-note" data-i18n="tStockN">ritirati, non venduti</div></div>
         <div class="tile" id="tileSaleOpen" data-goto="sales"><div class="t-label" data-i18n="tSaleOpen">Ordini vendita in corso</div><div class="t-value" id="kpiSaleOpen">–</div><div class="t-note" data-i18n="tSaleOpenN">venduti, non ancora incassati</div></div>
         <div class="tile" id="tileSold" data-goto="sales"><div class="t-label" data-i18n="tSoldAll">Venduti</div><div class="t-value" id="kpiSold">–</div><div class="t-note" id="kpiSoldN"></div></div>
       </div>
@@ -504,6 +504,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
       <div class="toolbar">
         <input type="text" id="acqSearch" data-i18n-ph="phSearch" placeholder="Cerca referenza, marca, fornitore…">
         <select id="acqBrand"></select>
+        <button class="chip" id="chipStock" data-i18n="onlyStock">Solo in magazzino</button>
       </div>
       <div id="acqList"></div>
     </section>
@@ -839,10 +840,10 @@ var I18N = {
     recoveryCode:'Codice di recupero', newPass:'Nuova password', resetBtn:'Reimposta password',
     navHome:'Home', navAcq:'Inventario', navPur:'Acquisti', navMag:'Magazzino', navSales:'Vendite', navCp:'Clienti-Fornitori', navRep:'Reports',
     heroHi:'Bentornato', atSupplier:'presso fornitore', tStock:'In magazzino',
-    tOrd:'Ordinati', tOrdN:'ordine trasmesso', tArrNp:'Arrivati presso fornitore', tArrNpN:'non pagati',
+    tOrd:'Ordini acquisto', tOrdN:'ordine trasmesso', tArrNp:'Arrivati presso fornitore', tArrNpN:'non pagati',
     tPaid:'Arrivati presso fornitore', tPaidN:'pagati, non ritirati',
     tSaleOpen:'Ordini vendita in corso', tSaleOpenN:'venduti, non ancora incassati', tSoldAll:'Venduti',
-    onlyOrd:'Solo ordinati', onlyArrNp:'Solo arrivati non pagati', onlySaleOpen:'Solo in corso',
+    onlyOrd:'Solo ordinati', onlyStock:'Solo in magazzino', onlyArrNp:'Solo arrivati non pagati', onlySaleOpen:'Solo in corso',
     tStockN:'ritirati, non venduti', tSold:'Vendite anno',
     pCur:'Totale acquisti — costo netto', pGrand:'Gran totale', pDue:'Ancora da pagare', allPaid:'Tutto pagato', pUp:'Valore di mercato inventario', upCalc:'Aggiorna',
     upHint:'Interrogo il mercato…', upMkt:'Valore di mercato', upCost:'Costo netto', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'senza quotazione', upNone:'Nessuna quotazione disponibile', upNoStock:'Nessun pezzo in magazzino', onlyDue:'Solo da pagare', onlyOpen:'Solo ordini aperti', onlyPaid:'Solo presso fornitore', seeList:"Vedi l'elenco →", pLast:'Ultimi movimenti',
@@ -919,10 +920,10 @@ var I18N = {
     recoveryCode:'Recovery code', newPass:'New password', resetBtn:'Reset password',
     navHome:'Home', navAcq:'Inventory', navPur:'Purchases', navMag:'Stock', navSales:'Sales', navCp:'Clients-Suppliers', navRep:'Reports',
     heroHi:'Welcome back', atSupplier:'at supplier', tStock:'In stock',
-    tOrd:'Ordered', tOrdN:'order placed', tArrNp:'Arrived at supplier', tArrNpN:'unpaid',
+    tOrd:'Purchase orders', tOrdN:'order placed', tArrNp:'Arrived at supplier', tArrNpN:'unpaid',
     tPaid:'Arrived at supplier', tPaidN:'paid, not collected',
     tSaleOpen:'Sales in progress', tSaleOpenN:'sold, not yet collected', tSoldAll:'Sold',
-    onlyOrd:'Only ordered', onlyArrNp:'Only arrived unpaid', onlySaleOpen:'Only in progress',
+    onlyOrd:'Only ordered', onlyStock:'Only in stock', onlyArrNp:'Only arrived unpaid', onlySaleOpen:'Only in progress',
     tStockN:'collected, not sold', tSold:'Sales this year',
     pCur:'Total purchases — net cost', pGrand:'Grand total', pDue:'Still to pay', allPaid:'All paid', pUp:'Inventory Market Value', upCalc:'Refresh',
     upHint:'Querying the market…', upMkt:'Market value', upCost:'Net cost', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'without quote', upNone:'No quotes available', upNoStock:'No pieces in stock', onlyDue:'Only unpaid', onlyOpen:'Only open orders', onlyPaid:'Only at supplier', seeList:'See the list →', pLast:'Latest activity',
@@ -1430,6 +1431,7 @@ function acqMatches(a, q, brand, stat){
   var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
   if(saleByWatch(a.watch_id)) return false; /* i venduti vivono nella sezione Vendite */
   if(!isInvAcq(a)) return false;   /* in casa oppure gia' pagati e fermi dal fornitore */
+  if(INV_STOCK && a.stat!=='ritirato') return false;   /* solo quelli davvero ritirati */
   if(brand && w.brand!==brand) return false;
   if(stat && a.stat!==stat) return false;
   if(q){
@@ -1439,6 +1441,7 @@ function acqMatches(a, q, brand, stat){
   return true;
 }
 
+var INV_STOCK = false;
 function renderAcq(){
   var q=$('acqSearch').value.trim(), brand=$('acqBrand').value, stat='';
   var rows = S.acquisitions.filter(function(a){ return acqMatches(a,q,brand,stat); });
@@ -2704,6 +2707,13 @@ function bind(){
   });
   $('chipSaleOpen').addEventListener('click', function(){
     SALE_OPEN = !SALE_OPEN; this.classList.toggle('on', SALE_OPEN); renderSales();
+  });
+  $('tileStock').addEventListener('click', function(){
+    INV_STOCK = true; $('chipStock').classList.add('on');
+    $('acqSearch').value=''; renderAcq();
+  });
+  $('chipStock').addEventListener('click', function(){
+    INV_STOCK = !INV_STOCK; this.classList.toggle('on', INV_STOCK); renderAcq();
   });
   $('tileOrd').addEventListener('click', function(){ purOnly('ord'); });
   $('tileArrNp').addEventListener('click', function(){ purOnly('arrnp'); });
