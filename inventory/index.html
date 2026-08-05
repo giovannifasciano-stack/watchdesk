@@ -436,7 +436,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v6.9</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v7.0</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -899,7 +899,7 @@ var I18N = {
     thPrice:'Prezzo', thNetSale:'Netto vendita', thRegime:'Regime', thTrade:'Permuta', thInv:'Fattura',
     thCost:'Costo netto', thList:'Listino', thMkt:'Grey medio', thDelta:'Scarto', thMin:'Min', thMax:'Max', thAds:'Annunci',
     rMktT:'Inventory Market Price Valuation', rMktD:'Ogni pezzo in inventario col prezzo medio del grey market e lo scarto dal costo sostenuto.',
-    mktWait:'Interrogo il grey market…', mktNote:'Prezzi grey in USD. Prima fonte il Grey Market Scanner (Official Watches, Luxury Bazaar); dove non trova nulla subentra la ricerca sul web (segnata AI), che privilegia il valore di scambio di WatchCharts — marcato WC — e usa gli annunci Chrono24 per la forbice min/max. Lo scarto confronta il grey col costo netto realmente sostenuto, convertito in USD', thMargin:'Margine', thDays:'Giac. gg', thSerial:'Seriale', thPick:'Ritirato il',
+    mktWait:'Interrogo il grey market…', mktNote:'Prezzi grey in USD. Prima fonte la ricerca sul web: valore di scambio WatchCharts (righe marcate WC) e annunci Chrono24 per la forbice. Solo dove non trova nulla subentra il Grey Market Scanner (righe marcate OW): attenzione, Official Watches espone i prezzi in sterline, quindi quei valori vanno verificati. Lo scarto confronta il grey col costo netto realmente sostenuto, convertito in USD', thMargin:'Margine', thDays:'Giac. gg', thSerial:'Seriale', thPick:'Ritirato il',
     byBrand:'Totali per marca', byCp:'Totali per cliente', multiCur:'valute diverse',
     thProfit:'Utile', thPct:'Utile %', fxOn:'utile convertito ai cambi', fxMissing:'cambi non disponibili: utile solo a valute uguali',
     fxSaleDay:'Utile in grassetto = valuta di incasso, importo reale. Gli altri (≈) sono indicativi, convertiti al cambio del giorno della vendita',
@@ -975,7 +975,7 @@ var I18N = {
     thPrice:'Price', thNetSale:'Net sale', thRegime:'Regime', thTrade:'Trade-in', thInv:'Invoice',
     thCost:'Net cost', thList:'List price', thMkt:'Grey avg', thDelta:'Delta', thMin:'Min', thMax:'Max', thAds:'Listings',
     rMktT:'Inventory Market Price Valuation', rMktD:'Every piece in stock with its grey market average and the gap to the cost paid.',
-    mktWait:'Querying the grey market…', mktNote:'Grey prices in USD. First source is the Grey Market Scanner (Official Watches, Luxury Bazaar); where it finds nothing, web search takes over (marked AI), preferring the WatchCharts secondary market value — marked WC — and using Chrono24 listings for the min/max range. Delta compares grey with the net cost actually paid, converted to USD', thMargin:'Margin', thDays:'Days', thSerial:'Serial', thPick:'Collected on',
+    mktWait:'Querying the grey market…', mktNote:'Grey prices in USD. First source is web search: WatchCharts secondary market value (rows marked WC) and Chrono24 listings for the range. Only where nothing is found does the Grey Market Scanner step in (rows marked OW): note that Official Watches quotes in GBP, so those figures need checking. Delta compares grey with the net cost actually paid, converted to USD', thMargin:'Margin', thDays:'Days', thSerial:'Serial', thPick:'Collected on',
     byBrand:'Totals by brand', byCp:'Totals by client', multiCur:'mixed currencies',
     thProfit:'Profit', thPct:'Profit %', fxOn:'profit converted at rates of', fxMissing:'rates unavailable: profit only when currencies match',
     fxSaleDay:'Bold profit = currency actually received, real amount. The others (≈) are indicative, converted at the exchange rate of the sale date',
@@ -1202,20 +1202,20 @@ function greyFor(w){
   if(MKT_CACHE[w.id]!=null) return Promise.resolve(MKT_CACHE[w.id]);
   var ref=(w.ref||'').trim();
   if(!ref){ UP_ERR='referenza mancante'; return Promise.resolve(null); }
-  return fetch('https://grey-scanner.owscan.workers.dev/?ref='+encodeURIComponent(ref))
-    .then(function(r){ return r.json(); })
-    .catch(function(e){ UP_ERR='scanner: '+(e&&e.message?e.message:'non raggiungibile'); return null; })
+  /* 1) ricerca sul web: WatchCharts (valore di scambio) e Chrono24. E' la fonte
+        migliore e soprattutto e' sempre in dollari. */
+  return api('/greyprice?ref='+encodeURIComponent(ref)+'&brand='+encodeURIComponent(w.brand||'')+
+             '&model='+encodeURIComponent(w.model||''))
+    .catch(function(e){ UP_ERR='ricerca web: '+(e&&e.message?e.message:'errore'); return null; })
     .then(function(q){
       if(q && q.found) return Number(q.avg_usd);
-      if(q && q.reason) UP_ERR='scanner: '+q.reason;
-      return api('/greyprice?ref='+encodeURIComponent(ref)+'&brand='+encodeURIComponent(w.brand||'')+
-                 '&model='+encodeURIComponent(w.model||''))
-        .then(function(q2){
-          if(q2 && q2.found) return Number(q2.avg_usd);
-          UP_ERR='ricerca web: '+((q2&&q2.reason)||'nessun prezzo');
-          return null;
-        })
-        .catch(function(e){ UP_ERR='ricerca web: '+(e&&e.message?e.message:'errore'); return null; });
+      if(q && q.reason) UP_ERR='ricerca web: '+q.reason;
+      /* 2) riserva: il Grey Scanner. Attenzione, Official Watches quota in
+            sterline, quindi quel valore va preso con le pinze. */
+      return fetch('https://grey-scanner.owscan.workers.dev/?ref='+encodeURIComponent(ref))
+        .then(function(r){ return r.json(); })
+        .then(function(q2){ return (q2 && q2.found) ? Number(q2.avg_usd) : null; })
+        .catch(function(){ return null; });
     })
     .then(function(v){ if(v!=null) MKT_CACHE[w.id]=v; return v; });
 }
@@ -2458,16 +2458,16 @@ function buildRepMkt(){
       return Promise.resolve({a:a, w:w, q:{found:true, avg_usd:Number(w.mkt_usd), via:'manuale'}});
     }
     if(!ref){ tick(w); return Promise.resolve({a:a, w:w, q:null}); }
-    /* 1) il Grey Scanner: veloce e gratuito */
-    return fetch(GREY+'/?ref='+encodeURIComponent(ref))
-      .then(function(r){ return r.json(); })
+    /* 1) ricerca sul web: WatchCharts e Chrono24, sempre in dollari */
+    return api('/greyprice?ref='+encodeURIComponent(ref)+'&brand='+encodeURIComponent(w.brand||'')+
+               '&model='+encodeURIComponent(w.model||''))
       .catch(function(){ return null; })
       .then(function(q){
-        if(q && q.found){ q.via='scanner'; return {a:a, w:w, q:q}; }
-        /* 2) riserva: ricerca sul web, che raggiunge anche i siti bloccati */
-        return api('/greyprice?ref='+encodeURIComponent(ref)+'&brand='+encodeURIComponent(w.brand||'')+
-                   '&model='+encodeURIComponent(w.model||''))
-          .then(function(q2){ return {a:a, w:w, q:(q2 && q2.found)?q2:null, why:(q2&&q2.reason)||''}; })
+        if(q && q.found){ q.via='ai'; return {a:a, w:w, q:q}; }
+        /* 2) riserva: il Grey Scanner (Official Watches quota in sterline) */
+        return fetch(GREY+'/?ref='+encodeURIComponent(ref))
+          .then(function(r){ return r.json(); })
+          .then(function(q2){ if(q2 && q2.found) q2.via='scanner'; return {a:a, w:w, q:(q2 && q2.found)?q2:null, why:(q&&q.reason)||''}; })
           .catch(function(){ return {a:a, w:w, q:null, why:'net'}; });
       })
       .then(function(res){ tick(w); return res; });
@@ -2496,7 +2496,9 @@ function buildRepMkt(){
           '<td class="num mono2 '+(delta!=null?(delta>=0?'pos':'neg'):'')+'">'+(delta!=null?((delta>=0?'+':'')+delta.toFixed(1)+'%'):'\u2014')+'</td>'+
           '<td class="num mono2 appr">'+(q&&q.min_usd?fmtN(q.min_usd, 'USD'):'\u2014')+'</td>'+
           '<td class="num mono2 appr">'+(q&&q.max_usd?fmtN(q.max_usd, 'USD'):'\u2014')+'</td>'+
-          '<td class="num">'+(q?((q.used_for_avg||q.listings||'')+(q.via==='ai'?(' <span class="appr">AI'+(q.basis==='watchcharts'?' · WC':'')+'</span>'):(q.via==='manuale'?'<span class="real">'+T('mktMan')+'</span>':''))):'\u2014')+'</td></tr>';
+          '<td class="num">'+(q?((q.used_for_avg||q.listings||'')+(q.via==='ai'?(' <span class="appr">'+(q.basis==='watchcharts'?'WC':'web')+'</span>'):
+            (q.via==='scanner'?' <span class="appr" title="Official Watches / Luxury Bazaar">OW</span>':
+            (q.via==='manuale'?'<span class="real">'+T('mktMan')+'</span>':'')))):'\u2014')+'</td></tr>';
       });
       var dTot=(totList>0)?((totMkt-totList)/totList*100):null;
       h+='<tr class="tot"><td colspan="4">'+T('totRow')+' \u2014 '+items.length+' '+T('pieces')+'</td>'+
