@@ -436,7 +436,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v6.7</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v6.8</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -1208,7 +1208,8 @@ function greyFor(w){
     .then(function(q){
       if(q && q.found) return Number(q.avg_usd);
       if(q && q.reason) UP_ERR='scanner: '+q.reason;
-      return api('/greyprice?ref='+encodeURIComponent(ref)+'&brand='+encodeURIComponent(w.brand||''))
+      return api('/greyprice?ref='+encodeURIComponent(ref)+'&brand='+encodeURIComponent(w.brand||'')+
+                 '&model='+encodeURIComponent(w.model||''))
         .then(function(q2){
           if(q2 && q2.found) return Number(q2.avg_usd);
           UP_ERR='ricerca web: '+((q2&&q2.reason)||'nessun prezzo');
@@ -1230,7 +1231,7 @@ function renderUpside(){
   function conTimeout(w){
     return new Promise(function(res){
       var chiuso=false;
-      var t=setTimeout(function(){ if(!chiuso){ chiuso=true; res(null); } }, 15000);
+      var t=setTimeout(function(){ if(!chiuso){ chiuso=true; res(null); } }, 75000);
       greyFor(w).then(function(g){ if(!chiuso){ chiuso=true; clearTimeout(t); res(g); } })
                 .catch(function(){ if(!chiuso){ chiuso=true; clearTimeout(t); res(null); } });
     }).then(function(g){
@@ -2464,7 +2465,8 @@ function buildRepMkt(){
       .then(function(q){
         if(q && q.found){ q.via='scanner'; return {a:a, w:w, q:q}; }
         /* 2) riserva: ricerca sul web, che raggiunge anche i siti bloccati */
-        return api('/greyprice?ref='+encodeURIComponent(ref)+'&brand='+encodeURIComponent(w.brand||''))
+        return api('/greyprice?ref='+encodeURIComponent(ref)+'&brand='+encodeURIComponent(w.brand||'')+
+                   '&model='+encodeURIComponent(w.model||''))
           .then(function(q2){ return {a:a, w:w, q:(q2 && q2.found)?q2:null, why:(q2&&q2.reason)||''}; })
           .catch(function(){ return {a:a, w:w, q:null, why:'net'}; });
       })
