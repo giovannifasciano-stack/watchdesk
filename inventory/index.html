@@ -253,6 +253,21 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 .sr-item .r1{font-family:'IBM Plex Mono',monospace; color:var(--accent2)}
 .sr-item .r2{color:var(--dim); font-size:.78rem; margin-top:2px}
 .doclist{margin-top:10px}
+/* tre zone di allegati affiancate: fatture, copia acconto, copia saldo */
+.docs3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:14px}
+.docbox{background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:13px}
+.docbox.dep{border-color:rgba(232,176,76,.35)}
+.docbox.bal{border-color:rgba(76,208,138,.32)}
+.docbox>label{display:block; font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; color:var(--dim); margin-bottom:9px}
+.docbox.dep>label{color:var(--warn)}
+.docbox.bal>label{color:var(--ok)}
+.docbox .doclist{margin-top:9px}
+/* acconto e saldo nella riga acquisto */
+.paylines{margin-top:7px; font-size:.72rem; line-height:1.5; color:var(--dim)}
+.paylines div{display:flex; gap:10px; justify-content:flex-end}
+.paylines .v{font-family:'IBM Plex Mono',monospace; min-width:78px; text-align:right; color:var(--txt)}
+.paylines .dep .v{color:var(--ok)}
+.paylines .bal .v{color:var(--warn); font-weight:500}
 .doc-item{display:flex; align-items:center; gap:10px; padding:8px 10px; background:var(--bg2); border:1px solid var(--line); border-radius:9px; margin-bottom:6px; font-size:.84rem}
 .doc-item .dn{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; cursor:pointer; color:var(--accent2)}
 .doc-item .dx{color:var(--bad); font-size:1rem}
@@ -348,6 +363,9 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 }
 
 @media(max-width:640px){
+  .docs3{grid-template-columns:1fr}
+  .paylines{font-size:.68rem}
+  .paylines .v{min-width:70px}
   main{padding:16px 12px 70px}
   header.app{padding:10px 12px; gap:8px}
   header.app .logo{font-size:1.05rem}
@@ -439,7 +457,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v7.9</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v8.0</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -668,10 +686,22 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
     </div>
     <div class="field"><label data-i18n="fNotes">Note</label><textarea id="aNotes" rows="2"></textarea></div>
 
-    <div class="field" id="aDocsBox" style="display:none"><label data-i18n="fDocs">Documenti / fatture</label>
-      <button class="btn dark sm" id="btnAddDocA">+ <span data-i18n="addDoc">Aggiungi file</span></button>
-      <input type="file" id="aDocFile" multiple style="display:none">
-      <div class="doclist" id="aDocList"></div>
+    <div class="docs3" id="aDocsBox" style="display:none">
+      <div class="docbox"><label data-i18n="fDocs">Documenti / fatture</label>
+        <button class="btn dark sm" id="btnAddDocA">+ <span data-i18n="addDoc">Aggiungi file</span></button>
+        <input type="file" id="aDocFile" multiple style="display:none">
+        <div class="doclist" id="aDocList"></div>
+      </div>
+      <div class="docbox dep"><label data-i18n="fDocDep">Copia pagamento acconto</label>
+        <button class="btn dark sm" id="btnAddDocDep">+ <span data-i18n="addDoc">Aggiungi file</span></button>
+        <input type="file" id="aDepFile" multiple style="display:none">
+        <div class="doclist" id="aDepList"></div>
+      </div>
+      <div class="docbox bal"><label data-i18n="fDocBal">Copia pagamento saldo</label>
+        <button class="btn dark sm" id="btnAddDocBal">+ <span data-i18n="addDoc">Aggiungi file</span></button>
+        <input type="file" id="aBalFile" multiple style="display:none">
+        <div class="doclist" id="aBalList"></div>
+      </div>
     </div>
 
     <div class="m-actions">
@@ -867,7 +897,7 @@ var I18N = {
     fYear:'Anno', fCond:'Condizioni', fSet:'Corredo', fMkt:'Valore grey USD', fMktUse:'Usa questo valore invece della quotazione trovata', mktMan:'mio', fPhoto:'Foto', fCp:'Cliente / Fornitore', fSup:'Fornitore', fCpSell:'Cliente',
     fCur:'Valuta', fList:'Prezzo listino', fAgreed:'Prezzo pagato', fVat:'IVA %', fNet:'Prezzo netto detax',
     fPay:'Pagamento', fDep:'Acconto versato', fPayDate:'Data pagamento', fStat:'Stato', fDOrd:'Data ordine',
-    fDRec:'Arrivato dal fornitore il', fDPick:'Data ritiro', fNotes:'Note', fDocs:'Documenti / fatture', toUpload:'da caricare al salvataggio', noPreview:'Anteprima non disponibile per questo formato — usa Scarica.', download:'Scarica', close:'Chiudi',
+    fDRec:'Arrivato dal fornitore il', fDPick:'Data ritiro', fNotes:'Note', fDocs:'Documenti / fatture', fDocDep:'Copia pagamento acconto', fDocBal:'Copia pagamento saldo', rDep:'Acconto', rBal:'Saldo', toUpload:'da caricare al salvataggio', noPreview:'Anteprima non disponibile per questo formato — usa Scarica.', download:'Scarica', close:'Chiudi',
     addDoc:'Aggiungi file', fWatch:'Orologio', fPrice:'Prezzo vendita', fNetSale:'Netto vendita',
     fVatMode:'Regime', fInvoice:'Fattura n.', fTradeDesc:'Permuta — descrizione', fTradeVal:'Permuta — valore',
     fDSale:'Data vendita', fName:'Nome / ragione sociale', fAddr:'Indirizzo', fZip:'CAP', fCity:'Città',
@@ -947,7 +977,7 @@ var I18N = {
     fYear:'Year', fCond:'Condition', fSet:'Set', fMkt:'Grey value USD', fMktUse:'Use this value instead of the quote found online', mktMan:'mine', fPhoto:'Photo', fCp:'Client / Supplier', fSup:'Supplier', fCpSell:'Client',
     fCur:'Currency', fList:'List price', fAgreed:'Price paid', fVat:'VAT %', fNet:'Net detax price',
     fPay:'Payment', fDep:'Deposit paid', fPayDate:'Payment date', fStat:'Status', fDOrd:'Order date',
-    fDRec:'Arrived from supplier on', fDPick:'Collection date', fNotes:'Notes', fDocs:'Documents / invoices', toUpload:'uploads on save', noPreview:'No preview for this format — use Download.', download:'Download', close:'Close',
+    fDRec:'Arrived from supplier on', fDPick:'Collection date', fNotes:'Notes', fDocs:'Documents / invoices', fDocDep:'Deposit payment copy', fDocBal:'Balance payment copy', rDep:'Deposit', rBal:'Balance', toUpload:'uploads on save', noPreview:'No preview for this format — use Download.', download:'Download', close:'Close',
     addDoc:'Add files', fWatch:'Watch', fPrice:'Sale price', fNetSale:'Net sale',
     fVatMode:'Regime', fInvoice:'Invoice no.', fTradeDesc:'Trade-in — description', fTradeVal:'Trade-in — value',
     fDSale:'Sale date', fName:'Name / company', fAddr:'Address', fZip:'ZIP', fCity:'City',
@@ -1563,6 +1593,17 @@ function renderPur(){
     var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
     var sold=!!saleByWatch(a.watch_id);
     var net=netCost(a);
+    /* acconto versato: si mostra quanto e' gia' uscito e quanto resta da versare.
+       Il conto e' sul netto — e' l'importo che il fornitore aspetta davvero. */
+    var dep = num(a.dep)||0;
+    var pl = '';
+    if(dep>0 && net!=null && !sold){
+      var bal = net - dep;
+      pl = '<div class="paylines">'+
+             '<div class="dep"><span>'+T('rDep')+'</span><span class="v">'+fmtN(dep,a.cur||'CHF')+'</span></div>'+
+             '<div class="bal"><span>'+T('rBal')+'</span><span class="v">'+fmtN(bal>0?bal:0,a.cur||'CHF')+'</span></div>'+
+           '</div>';
+    }
     html += '<div class="rowcard" data-acq="'+esc(a.id)+'">'+
       '<div class="thumb">'+(w.photo?'<img src="'+w.photo+'" alt="">':'\u231a')+'</div>'+
       '<div class="rc-main">'+
@@ -1571,6 +1612,7 @@ function renderPur(){
       '</div>'+
       '<div class="rc-right">'+
         '<div class="rc-amt mono"><span class="cur">'+esc(a.cur||'CHF')+'</span>'+fmtN(net,a.cur||'CHF')+'</div>'+
+        pl+
         '<div class="rc-chips">'+
           (sold?'<span class="st venduto">'+T('venduto')+'</span>':'<span class="st '+esc(a.stat||'')+'">'+esc(statLabel(a.stat))+'</span>')+
           '<span class="st '+esc(a.pay||'')+'">'+esc(payLabel(a.pay))+'</span>'+
@@ -1727,9 +1769,11 @@ function openAcqModal(acqId, presetWatchId){
   $('aNotes').value = a.notes||'';
   $('refResults').className='searchres'; $('refStatus').style.display='none';
   if($('scanStatus')) $('scanStatus').style.display='none';
-  $('aDocsBox').style.display = 'block';
-  PENDING_DOCS.acq = [];
-  if(EDIT.acq) loadDocs('acquisition', EDIT.acq.id, 'aDocList'); else $('aDocList').innerHTML='';
+  $('aDocsBox').style.display = 'grid';   /* e' la griglia a tre riquadri, non un blocco */
+  DOCG.forEach(function(g){
+    PENDING_DOCS[g.k] = [];
+    if(EDIT.acq) loadDocs(g.t, EDIT.acq.id, g.list); else $(g.list).innerHTML='';
+  });
   $('ovAcq').classList.add('on');
 }
 
@@ -1763,16 +1807,33 @@ function saveAcq(){
   $('btnSaveAcq').textContent=T('saving');
   api('/watches/'+wid, {method:'PUT', body:wBody})
     .then(function(){ return api('/acquisitions/'+aid, {method:'PUT', body:aBody}); })
-    .then(function(){ return pushPendingDocs('acq','acquisition',aid); })
+    .then(function(){
+      return Promise.all(DOCG.map(function(g){ return pushPendingDocs(g.k, g.t, aid); }));
+    })
     .then(function(){ $('ovAcq').classList.remove('on'); return loadData(); })
     .catch(function(e){ showMsg('acqMsg', e.message); })
     .then(function(){ $('btnSaveAcq').textContent=T('save'); });
 }
 
+/* Il Worker, cancellando un orologio, ripulisce i documenti di tipo
+   'acquisition' ma non conosce i due gruppi nuovi: li togliamo da qui, per non
+   lasciare allegati orfani in archivio. */
+function dropExtraDocs(acqId){
+  return Promise.all(['acq_dep','acq_bal'].map(function(t){
+    return api('/docs/'+encodeURIComponent(t)+'/'+encodeURIComponent(acqId))
+      .then(function(rows){
+        return Promise.all((rows||[]).map(function(d){
+          return api('/docs/'+encodeURIComponent(d.id), {method:'DELETE'}).catch(function(){});
+        }));
+      }).catch(function(){});
+  }));
+}
+
 function deleteAcq(){
   if(!EDIT.acq) return;
   if(!window.confirm(T('confirmDelAcq'))) return;
-  api('/watches/'+EDIT.acq.watch_id, {method:'DELETE'})
+  dropExtraDocs(EDIT.acq.id)
+    .then(function(){ return api('/watches/'+EDIT.acq.watch_id, {method:'DELETE'}); })
     .then(function(){ $('ovAcq').classList.remove('on'); return loadData(); })
     .catch(function(e){ showMsg('acqMsg', e.message); });
 }
@@ -2122,7 +2183,15 @@ function doLookup(){
 /* ================================================================
    DOCUMENTI
    ================================================================ */
-var PENDING_DOCS = {acq:[], sale:[]};
+var PENDING_DOCS = {acq:[], sale:[], acqDep:[], acqBal:[]};
+/* i tre gruppi di allegati di un acquisto: fatture, copia acconto, copia saldo.
+   Il tipo distingue le liste sul server; il Worker non lo valida, quindi non
+   serve nessuna modifica lato API. */
+var DOCG = [
+  {k:'acq',    t:'acquisition', list:'aDocList', inp:'aDocFile'},
+  {k:'acqDep', t:'acq_dep',     list:'aDepList', inp:'aDepFile'},
+  {k:'acqBal', t:'acq_bal',     list:'aBalList', inp:'aBalFile'}
+];
 function readFiles(fileInput){
   var files = Array.prototype.slice.call(fileInput.files||[]);
   return Promise.all(files.map(function(f){
@@ -2842,13 +2911,19 @@ function bind(){
     openSaleModal(null, wid);
   });
   $('btnDelAcq').addEventListener('click', deleteAcq);
-  $('btnAddDocA').addEventListener('click',function(){ $('aDocFile').click(); });
-  $('aDocFile').addEventListener('change',function(){
-    if(EDIT.acq){ uploadDocs('acquisition', EDIT.acq.id, $('aDocFile'), 'aDocList', 'acqMsg'); return; }
-    readFiles($('aDocFile')).then(function(fs){
-      PENDING_DOCS.acq = PENDING_DOCS.acq.concat(fs);
-      $('aDocFile').value='';
-      renderPending('acq','aDocList');
+  /* stessi gesti per i tre gruppi di allegati */
+  [['btnAddDocA','aDocFile'],['btnAddDocDep','aDepFile'],['btnAddDocBal','aBalFile']]
+    .forEach(function(pair){
+      $(pair[0]).addEventListener('click', function(){ $(pair[1]).click(); });
+    });
+  DOCG.forEach(function(g){
+    $(g.inp).addEventListener('change', function(){
+      if(EDIT.acq){ uploadDocs(g.t, EDIT.acq.id, $(g.inp), g.list, 'acqMsg'); return; }
+      readFiles($(g.inp)).then(function(fs){
+        PENDING_DOCS[g.k] = PENDING_DOCS[g.k].concat(fs);
+        $(g.inp).value='';
+        renderPending(g.k, g.list);
+      });
     });
   });
 
