@@ -157,6 +157,25 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 .gt .gtc.main{border-color:var(--accent-dark)}
 .gt .gtc.main .v{color:var(--accent)}
 .currow{display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--line); font-size:.95rem}
+/* Valore virtuale portafoglio: tabella con tutte le valute alla pari */
+#vvPanel .vv-head{display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:0}
+#vvPanel .vv-pcs{font-family:'IBM Plex Mono',monospace; font-size:.66rem; letter-spacing:.08em; color:var(--accent); background:rgba(212,185,130,.1); border:1px solid rgba(212,185,130,.3); padding:3px 10px; border-radius:999px; text-transform:uppercase}
+#vvPanel .vlist{margin-top:14px}
+#vvPanel .vrow{display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--line)}
+#vvPanel .vrow:last-child{border-bottom:0}
+#vvPanel .vrow .vf{font-size:.94rem; font-weight:500; color:var(--txt); display:flex; align-items:center; gap:10px}
+#vvPanel .vrow .vamt{font-family:'IBM Plex Mono',monospace; font-size:1.1rem; font-weight:600; color:var(--txt); white-space:nowrap}
+#vvPanel .vrow .vamt small{color:var(--dim2); font-size:.62em; font-weight:400; margin-right:6px; letter-spacing:.08em}
+#vvPanel .vv-break{display:flex; gap:0; margin-top:18px; border-top:1px solid var(--line); padding-top:14px}
+#vvPanel .vv-break .b{flex:1; text-align:center; padding:0 4px; min-width:0}
+#vvPanel .vv-break .b+.b{border-left:1px solid var(--line)}
+#vvPanel .vv-break .bl{font-size:.62rem; letter-spacing:.09em; text-transform:uppercase; color:var(--dim2); line-height:1.3}
+#vvPanel .vv-break .bv{font-family:'IBM Plex Mono',monospace; font-size:1.1rem; font-weight:600; margin-top:5px}
+#vvPanel .vv-break .b.ord .bv{color:var(--dim)}
+#vvPanel .vv-break .b.arr .bv{color:var(--info)}
+#vvPanel .vv-break .b.stk .bv{color:var(--accent)}
+#vvPanel .vv-appr{font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--dim2); margin-top:14px; text-align:right}
+#vvPanel .vempty{color:var(--dim2); font-size:.85rem; padding:6px 0}
 .currow:last-child{border-bottom:none}
 .currow .amt{font-weight:600}
 
@@ -366,6 +385,10 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
   .docs3{grid-template-columns:1fr}
   .paylines{font-size:.68rem}
   .paylines .v{min-width:70px}
+  #vvPanel .vrow .vf{font-size:.85rem}
+  #vvPanel .vrow .vamt{font-size:1rem}
+  #vvPanel .vv-break .bv{font-size:1rem}
+  #vvPanel .vv-break .bl{font-size:.55rem}
   main{padding:16px 12px 70px}
   header.app{padding:10px 12px; gap:8px}
   header.app .logo{font-size:1.05rem}
@@ -457,7 +480,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v8.0</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v8.1</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -511,7 +534,16 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
       <div class="panel clickable" id="duePanel">
         <h3 data-i18n="pDue">Ancora da pagare</h3>
         <div id="dueBox"></div>
-        <div class="gt-lbl" style="margin-top:12px" data-i18n="seeList">Vedi l'elenco →</div>
+        <div class="gt-lbl" style="margin-top:12px" data-i18n="seeList">Vedi l'elenco &rarr;</div>
+      </div>
+      <div class="panel" id="vvPanel">
+        <div class="vv-head">
+          <h3 data-i18n="pVV" style="margin:0">Valore virtuale portafoglio</h3>
+          <span class="vv-pcs" id="vvPcs"></span>
+        </div>
+        <div class="vlist" id="vvList"></div>
+        <div class="vv-break" id="vvBreak"></div>
+        <div class="vv-appr" data-i18n="vvAppr">tassi indicativi &middot; aggiornati settimanalmente</div>
       </div>
       <div class="panel">
         <h3 data-i18n="pLast">Ultimi movimenti</h3>
@@ -879,7 +911,7 @@ var I18N = {
     tSaleOpen:'Ordini vendita in corso', tSaleOpenN:'venduti, non ancora incassati', tSoldAll:'Venduti',
     onlyOrd:'Solo ordinati', onlyStock:'Solo in magazzino', onlyArrNp:'Solo arrivati non pagati', onlySaleOpen:'Solo in corso',
     tStockN:'ritirati, non venduti', tSold:'Vendite anno',
-    pCur:'Totale acquisti — costo netto', pGrand:'Gran totale', pDue:'Ancora da pagare', allPaid:'Tutto pagato', pUp:'Valore di mercato inventario', upCalc:'Aggiorna',
+    pCur:'Totale acquisti — costo netto', pGrand:'Gran totale', pDue:'Ancora da pagare', pVV:'Valore virtuale portafoglio', vvOrd:'Ordinati', vvArr:'Presso fornitore', vvStk:'In magazzino', vvNone:'Nessun orologio in portafoglio', vvAppr:'tassi indicativi · aggiornati settimanalmente', vvCur_CHF:'Franchi svizzeri', vvCur_EUR:'Euro', vvCur_USD:'Dollari', vvCur_GBP:'Sterline', vvCur_HKD:'Hong Kong', allPaid:'Tutto pagato', pUp:'Valore di mercato inventario', upCalc:'Aggiorna',
     upHint:'Interrogo il mercato…', upMkt:'Valore di mercato', upCost:'Costo netto', upGain:'Utile non realizzato', upLoss:'Perdita non realizzata', upNoQuote:'senza quotazione', upNone:'Nessuna quotazione disponibile', upNoStock:'Nessun pezzo in magazzino', upAt:'aggiornato il', onlyDue:'Solo da pagare', onlyOpen:'Solo ordini aperti', onlyPaid:'Solo presso fornitore', seeList:"Vedi l'elenco →", pLast:'Ultimi movimenti',
     purSub:'Registro completo degli acquisti, venduti inclusi.', acqSub:'Gli orologi che sono tuoi e non ancora venduti: in casa o già pagati e fermi dal fornitore.',
     magSub:'Orologi ritirati e non ancora venduti — quello che hai in casa.',
@@ -959,7 +991,7 @@ var I18N = {
     tSaleOpen:'Sales in progress', tSaleOpenN:'sold, not yet collected', tSoldAll:'Sold',
     onlyOrd:'Only ordered', onlyStock:'Only in stock', onlyArrNp:'Only arrived unpaid', onlySaleOpen:'Only in progress',
     tStockN:'collected, not sold', tSold:'Sales this year',
-    pCur:'Total purchases — net cost', pGrand:'Grand total', pDue:'Still to pay', allPaid:'All paid', pUp:'Inventory Market Value', upCalc:'Refresh',
+    pCur:'Total purchases — net cost', pGrand:'Grand total', pDue:'Still to pay', pVV:'Portfolio virtual value', vvOrd:'On order', vvArr:'At supplier', vvStk:'In stock', vvNone:'No watches in portfolio', vvAppr:'indicative rates · updated weekly', vvCur_CHF:'Swiss francs', vvCur_EUR:'Euro', vvCur_USD:'US dollars', vvCur_GBP:'Pounds', vvCur_HKD:'Hong Kong', allPaid:'All paid', pUp:'Inventory Market Value', upCalc:'Refresh',
     upHint:'Querying the market…', upMkt:'Market value', upCost:'Net cost', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'without quote', upNone:'No quotes available', upNoStock:'No pieces in stock', upAt:'updated', onlyDue:'Only unpaid', onlyOpen:'Only open orders', onlyPaid:'Only at supplier', seeList:'See the list →', pLast:'Latest activity',
     purSub:'Full purchase register, sold pieces included.', acqSub:'Watches you own and have not sold: in hand or paid and still at the supplier.',
     magSub:'Watches collected and not yet sold — what you have at home.',
@@ -1478,6 +1510,42 @@ function renderHome(){
     hd += '<div class="currow"><span>'+(FLAGS[c]||'')+' '+c+'</span><span class="amt mono">'+fmtN(d[c],c)+'</span></div>';
   });
   $('dueBox').innerHTML = hd || '<div class="empty">'+T('allPaid')+'</div>';
+
+  /* Valore virtuale portafoglio: tutti i pezzi non venduti, indipendentemente
+     da stato o pagamento, letti a costo netto e convertiti nelle cinque valute
+     abituali (CHF/EUR/USD/GBP/HKD). I tassi si aggiornano ogni sette giorni. */
+  var vvAcq = S.acquisitions.filter(function(a){ return !saleByWatch(a.watch_id); });
+  var vvByCur = sumByCur(vvAcq, function(a){return a.cur;}, function(a){return netCost(a);});
+  var vvCount = vvAcq.length;
+  var vvOrd=0, vvArr=0, vvStk=0;
+  vvAcq.forEach(function(a){
+    if(a.stat==='ordinato') vvOrd++;
+    else if(a.stat==='ritirato') vvStk++;
+    else vvArr++;                       /* tutti gli stati intermedi: presso fornitore */
+  });
+  $('vvPcs').textContent = vvCount ? (vvCount+' '+T('pieces')) : '';
+  $('vvBreak').innerHTML = vvCount
+    ? '<div class="b ord"><div class="bl">'+T('vvOrd')+'</div><div class="bv">'+vvOrd+'</div></div>'+
+      '<div class="b arr"><div class="bl">'+T('vvArr')+'</div><div class="bv">'+vvArr+'</div></div>'+
+      '<div class="b stk"><div class="bl">'+T('vvStk')+'</div><div class="bv">'+vvStk+'</div></div>'
+    : '';
+  if(!vvCount){
+    $('vvList').innerHTML = '<div class="vempty">'+T('vvNone')+'</div>';
+  } else {
+    loadFx(function(){
+      var vh = '';
+      GRAND.forEach(function(t){
+        var tot=0, ok=true;
+        Object.keys(vvByCur).forEach(function(c){
+          var v=(c===t)?vvByCur[c]:fxConv(vvByCur[c],c,t);
+          if(v==null) ok=false; else tot+=v;
+        });
+        vh += '<div class="vrow"><div class="vf">'+(FLAGS[t]||'')+' '+T('vvCur_'+t)+'</div>'+
+              '<div class="vamt"><small>'+t+'</small>'+(ok?fmtN(tot,(t==='HKD')?'USD':t):'—')+'</div></div>';
+      });
+      $('vvList').innerHTML = vh;
+    });
+  }
 
   /* Valutazione di mercato: NON si interroga piu' a ogni apertura — ogni
      quotazione e' una ricerca web a pagamento. Si ridisegna l'ultimo risultato
@@ -2323,7 +2391,7 @@ var FX = null; /* {rates:{CHF:1,...}, date:'', ts:0} */
 function loadFx(cb){
   try{
     var c = JSON.parse(localStorage.getItem('wd_fx')||'null');
-    if(c && c.rates && (Date.now()-c.ts) < 6*3600*1000){ FX=c; cb(); return; }
+    if(c && c.rates && (Date.now()-c.ts) < 7*86400*1000){ FX=c; cb(); return; }  /* aggiornati ogni 7 giorni */
   }catch(e){}
   fetch('https://open.er-api.com/v6/latest/CHF')
     .then(function(r){ return r.json(); })
