@@ -496,7 +496,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v8.4</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v8.5</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -2870,7 +2870,7 @@ function bind(){
   document.querySelectorAll('.navbtn').forEach(function(b){
     b.addEventListener('click',function(){ gotoView(b.getAttribute('data-view')); });
   });
-  document.querySelectorAll('.tile[data-goto]').forEach(function(t){
+  document.querySelectorAll('.tile[data-goto],.pnode[data-goto]').forEach(function(t){
     t.addEventListener('click',function(){ gotoView(t.getAttribute('data-goto')); });
   });
 
