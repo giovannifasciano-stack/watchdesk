@@ -482,7 +482,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v8.2</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v8.3</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -560,6 +560,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
       <div class="toolbar">
         <input type="text" id="acqSearch" data-i18n-ph="phSearch" placeholder="Cerca referenza, marca, fornitore…">
         <select id="acqBrand"></select>
+        <button class="chip" id="chipAcqAll" data-i18n="chipAll">Tutti</button>
         <button class="chip" id="chipStock" data-i18n="onlyStock">Solo in magazzino</button>
       </div>
       <div id="acqList"></div>
@@ -572,6 +573,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
       <div class="toolbar">
         <button class="btn" id="btnNewAcq2">+ <span data-i18n="newAcq">Nuovo acquisto</span></button>
         <input type="text" id="purSearch" data-i18n-ph="phSearchAcq" placeholder="Cerca marca, referenza, fornitore…">
+        <button class="chip" id="chipPurAll" data-i18n="chipAll">Tutti</button>
         <button class="chip" id="chipDue" data-i18n="onlyDue">Solo da pagare</button>
         <button class="chip" id="chipPaid" data-i18n="onlyPaid">Solo presso fornitore</button>
         <button class="chip" id="chipOrd" data-i18n="onlyOrd">Solo ordinati</button>
@@ -596,6 +598,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
       <p class="sec-sub" data-i18n="salesSub">Vendite registrate sugli orologi in archivio, con regime IVA e permuta.</p>
       <div class="toolbar">
         <input type="text" id="salesSearch" data-i18n-ph="phSearchSales" placeholder="Cerca referenza, marca, cliente…">
+        <button class="chip" id="chipSaleAll" data-i18n="chipAll">Tutti</button>
         <button class="chip" id="chipSaleOpen" data-i18n="onlySaleOpen">Solo in corso</button>
         <button class="btn" id="btnNewSale">+ <span data-i18n="newSale">Nuova vendita</span></button>
       </div>
@@ -914,7 +917,7 @@ var I18N = {
     onlyOrd:'Solo ordinati', onlyStock:'Solo in magazzino', onlyArrNp:'Solo arrivati non pagati', onlySaleOpen:'Solo in corso',
     tStockN:'ritirati, non venduti', tSold:'Vendite anno',
     pCur:'Totale acquisti — costo netto', pGrand:'Gran totale', pDue:'Ancora da pagare', pVV:'Valore virtuale portafoglio', vvOrd:'Ordinati', vvArr:'Presso fornitore', vvStk:'In magazzino', vvNone:'Nessun orologio in portafoglio', vvAppr:'tassi indicativi · aggiornati settimanalmente', vvCur_CHF:'Franchi svizzeri', vvCur_EUR:'Euro', vvCur_USD:'Dollari', vvCur_GBP:'Sterline', vvCur_HKD:'Hong Kong', allPaid:'Tutto pagato', pUp:'Valore di mercato inventario', upCalc:'Aggiorna',
-    upHint:'Interrogo il mercato…', upMkt:'Valore di mercato', upCost:'Costo netto', upGain:'Utile non realizzato', upLoss:'Perdita non realizzata', upNoQuote:'senza quotazione', upNone:'Nessuna quotazione disponibile', upNoStock:'Nessun pezzo in magazzino', upAt:'aggiornato il', onlyDue:'Solo da pagare', onlyOpen:'Solo ordini aperti', onlyPaid:'Solo presso fornitore', seeList:"Vedi l'elenco →", pLast:'Ultimi movimenti',
+    upHint:'Interrogo il mercato…', upMkt:'Valore di mercato', upCost:'Costo netto', upGain:'Utile non realizzato', upLoss:'Perdita non realizzata', upNoQuote:'senza quotazione', upNone:'Nessuna quotazione disponibile', upNoStock:'Nessun pezzo in magazzino', upAt:'aggiornato il', onlyDue:'Solo da pagare', onlyOpen:'Solo ordini aperti', onlyPaid:'Solo presso fornitore', chipAll:'Tutti', seeList:"Vedi l'elenco →", pLast:'Ultimi movimenti',
     purSub:'Registro completo degli acquisti, venduti inclusi.', acqSub:'Gli orologi che sono tuoi e non ancora venduti: in casa o già pagati e fermi dal fornitore.',
     magSub:'Orologi ritirati e non ancora venduti — quello che hai in casa.',
     salesSub:'Vendite registrate sugli orologi in archivio, con regime IVA e permuta.',
@@ -994,7 +997,7 @@ var I18N = {
     onlyOrd:'Only ordered', onlyStock:'Only in stock', onlyArrNp:'Only arrived unpaid', onlySaleOpen:'Only in progress',
     tStockN:'collected, not sold', tSold:'Sales this year',
     pCur:'Total purchases — net cost', pGrand:'Grand total', pDue:'Still to pay', pVV:'Portfolio virtual value', vvOrd:'On order', vvArr:'At supplier', vvStk:'In stock', vvNone:'No watches in portfolio', vvAppr:'indicative rates · updated weekly', vvCur_CHF:'Swiss francs', vvCur_EUR:'Euro', vvCur_USD:'US dollars', vvCur_GBP:'Pounds', vvCur_HKD:'Hong Kong', allPaid:'All paid', pUp:'Inventory Market Value', upCalc:'Refresh',
-    upHint:'Querying the market…', upMkt:'Market value', upCost:'Net cost', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'without quote', upNone:'No quotes available', upNoStock:'No pieces in stock', upAt:'updated', onlyDue:'Only unpaid', onlyOpen:'Only open orders', onlyPaid:'Only at supplier', seeList:'See the list →', pLast:'Latest activity',
+    upHint:'Querying the market…', upMkt:'Market value', upCost:'Net cost', upGain:'Unrealized profit', upLoss:'Unrealized loss', upNoQuote:'without quote', upNone:'No quotes available', upNoStock:'No pieces in stock', upAt:'updated', onlyDue:'Only unpaid', onlyOpen:'Only open orders', onlyPaid:'Only at supplier', chipAll:'All', seeList:'See the list →', pLast:'Latest activity',
     purSub:'Full purchase register, sold pieces included.', acqSub:'Watches you own and have not sold: in hand or paid and still at the supplier.',
     magSub:'Watches collected and not yet sold — what you have at home.',
     salesSub:'Sales recorded on archived watches, with VAT regime and trade-ins.',
@@ -1582,7 +1585,11 @@ function renderHome(){
 function acqMatches(a, q, brand, stat){
   var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
   if(saleByWatch(a.watch_id)) return false; /* i venduti vivono nella sezione Vendite */
-  if(!isInvAcq(a)) return false;   /* in casa oppure gia' pagati e fermi dal fornitore */
+  /* Il chip "Tutti" allarga la lista a chiunque sia in portafoglio, ordinati
+     compresi. Senza il chip resta il comportamento di prima: solo pezzi in casa
+     o pagati fermi dal fornitore, cioe' quelli che sono a un passo dall'essere
+     miei fisicamente. */
+  if(!INV_ALL && !isInvAcq(a)) return false;
   if(INV_STOCK && a.stat!=='ritirato') return false;   /* solo quelli davvero ritirati */
   if(brand && w.brand!==brand) return false;
   if(stat && a.stat!==stat) return false;
@@ -1593,7 +1600,7 @@ function acqMatches(a, q, brand, stat){
   return true;
 }
 
-var INV_STOCK = false;
+var INV_STOCK = false, INV_ALL = false;
 function renderAcq(){
   var q=$('acqSearch').value.trim(), brand=$('acqBrand').value, stat='';
   var rows = S.acquisitions.filter(function(a){ return acqMatches(a,q,brand,stat); });
@@ -1622,7 +1629,7 @@ function renderAcq(){
   $('acqList').innerHTML = html || '<div class="empty">'+T('noResults')+'</div>';
 }
 
-var PUR_DUE = false, PUR_PAID = false, PUR_ORD = false, PUR_ARRNP = false, PUR_SUP = false;
+var PUR_DUE = false, PUR_PAID = false, PUR_ORD = false, PUR_ARRNP = false, PUR_SUP = false, PUR_ALL = false;
 /* vendita in corso: registrata ma non ancora incassata del tutto */
 function isSaleOpen(s2){ return s2 && s2.pay!=='pagato'; }
 function isOrdered(a){ return a && !saleByWatch(a.watch_id) && a.stat==='ordinato'; }
@@ -1648,6 +1655,7 @@ function dueAmount(a){
 function renderPur(){
   var q=$('purSearch').value.trim().toLowerCase();
   var rows = S.acquisitions.slice();
+  if(PUR_ALL) rows = rows.filter(function(a){ return !saleByWatch(a.watch_id); });  /* solo il portafoglio */
   if(PUR_DUE) rows = rows.filter(function(a){ return dueAmount(a)>0; });
   if(PUR_PAID) rows = rows.filter(isAtSupplier);
   if(PUR_ORD) rows = rows.filter(isOrdered);
@@ -2888,9 +2896,11 @@ function bind(){
     else { gotoView('sales'); openSaleModal(p.slice(1).join(':')); }
   });
   function purOnly(which){
+    PUR_ALL = (which==='all');
     PUR_DUE = (which==='due'); PUR_ORD = (which==='ord');
     PUR_ARRNP = (which==='arrnp'); PUR_PAID = (which==='atsup');
     PUR_SUP = (which==='sup');
+    $('chipPurAll').classList.toggle('on', PUR_ALL);
     $('chipDue').classList.toggle('on', PUR_DUE);
     $('chipOrd').classList.toggle('on', PUR_ORD);
     $('chipArrNp').classList.toggle('on', PUR_ARRNP);
@@ -2908,6 +2918,30 @@ function bind(){
       INV_STOCK = true; $('chipStock').classList.add('on');
       $('acqSearch').value=''; renderAcq(); gotoView('acq');
     }
+  });
+  /* Chip "Tutti" — tre viste, un'idea sola: mostrare tutto quello che ho o
+     sto per avere, cioe' escludere i venduti. In Vendite invece serve a
+     spegnere il filtro "Solo in corso" e vedere tutte le vendite. */
+  $('chipPurAll').addEventListener('click', function(){
+    purOnly(PUR_ALL ? '' : 'all');
+  });
+  $('chipAcqAll').addEventListener('click', function(){
+    INV_ALL = !INV_ALL;
+    this.classList.toggle('on', INV_ALL);
+    if(INV_ALL){ INV_STOCK = false; $('chipStock').classList.remove('on'); }
+    renderAcq();
+  });
+  $('chipSaleAll').addEventListener('click', function(){
+    SALE_OPEN = false;
+    $('chipSaleOpen').classList.remove('on');
+    $('chipSaleAll').classList.add('on');
+    setTimeout(function(){ $('chipSaleAll').classList.remove('on'); }, 180); /* lampeggio breve */
+    $('salesSearch').value='';
+    renderSales();
+  });
+  /* Cliccando gli altri filtri Inventario, il chip "Tutti" si spegne. */
+  $('chipStock').addEventListener('click', function(){
+    if(INV_ALL){ INV_ALL = false; $('chipAcqAll').classList.remove('on'); }
   });
   $('tileSaleOpen').addEventListener('click', function(){
     SALE_OPEN = true; $('chipSaleOpen').classList.add('on'); $('salesSearch').value=''; renderSales();
