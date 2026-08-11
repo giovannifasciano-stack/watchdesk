@@ -386,6 +386,9 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 .sheet .fxgrand .flag{margin-right:4px}
 .sheet .fxnote{margin-top:7px; font-size:10px; color:#8a91a6}
 .sheet .mono2{overflow-wrap:anywhere; white-space:normal; font-family:'IBM Plex Mono',monospace; font-size:11px}
+/* le referenze lunghe si spezzano, gli importi no: senza questa regola
+   .mono2 vince su .num e i decimali finiscono a capo */
+.sheet .num.mono2, .sheet td.num, .sheet th.num{white-space:nowrap; overflow-wrap:normal; word-break:keep-all}
 .sheet .tot td{border-top:2px solid #14161f; border-bottom:none; font-weight:700; padding-top:9px}
 .sheet .neg{color:#c0392b}
 .sheet .pos{color:#1e8e5a}
@@ -496,7 +499,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v8.5</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v8.6</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -2532,7 +2535,10 @@ function buildRepSales(){
   });
   h+=totRowsByCur(rows,function(s){return s.cur;},function(s){return netSale(s);},11,T('totRow'));
   h+='</table>';
-  openPrint(T('rSalesT'), h);
+  var ms=sumByCur(rows,function(s){return s.cur;},function(s){return netSale(s);});
+  loadFx(function(){
+    openPrint(T('rSalesT'), h + fxTotalsBlock(ms));
+  });
 }
 
 
@@ -2686,7 +2692,10 @@ function buildRepStock(){
       '<td class="num mono2">'+fmtN(m[c],c)+'</td><td>'+c+'</td></tr>';
   });
   h+='</table>';
-  openPrint(T('rStockT'), h);
+  /* totale in tutte le valute, come negli altri report */
+  loadFx(function(){
+    openPrint(T('rStockT'), h + fxTotalsBlock(m));
+  });
 }
 
 function buildRepInv(){
