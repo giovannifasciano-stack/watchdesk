@@ -390,7 +390,11 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
    .mono2 vince su .num e i decimali finiscono a capo */
 /* gli importi non si spezzano mai; le intestazioni invece vanno a capo
    volentieri, altrimenti si sovrappongono fra colonne strette */
-.sheet .num.mono2, .sheet td.num{white-space:nowrap; overflow-wrap:normal; word-break:keep-all}
+.sheet .num.mono2, .sheet td.num{white-space:nowrap; overflow-wrap:normal; word-break:keep-all;
+  /* mai troncare un importo: .sheet td ha overflow:hidden + ellipsis, che con
+     table-layout:fixed taglia il numero se la colonna e' stretta. Meglio farlo
+     sbordare che mostrare "603.01…" */
+  overflow:visible; text-overflow:clip}
 .sheet th.num{white-space:normal; overflow-wrap:break-word; vertical-align:bottom}
 /* se un importo non entrasse comunque, meglio rimpicciolirlo che troncarlo */
 .sheet td.num.mono2{font-size:10.5px; letter-spacing:-.2px}
@@ -504,7 +508,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v8.7</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v8.8</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
