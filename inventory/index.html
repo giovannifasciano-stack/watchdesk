@@ -127,6 +127,12 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 .pnode.info .pcirc{border-color:rgba(106,157,232,.42); color:var(--info); background:rgba(106,157,232,.08)}
 .pnode.ok   .pcirc{border-color:rgba(76,208,138,.5); color:var(--ok); background:rgba(76,208,138,.09)}
 .pnode.sale .pcirc{border-color:rgba(212,185,130,.45); color:var(--accent); background:rgba(212,185,130,.08)}
+/* Nodo conclusivo: non e' una fase del ciclo ma la somma, quindi sta dopo un
+   filetto, e' in oro e non porta da nessuna parte. */
+.pnode.tot{flex:0 0 auto; padding-left:20px; margin-left:10px; border-left:1px solid var(--line); cursor:default}
+.pnode.tot::before{display:none}
+.pnode.tot .pcirc{width:58px; height:58px; font-size:24px; border-color:rgba(212,185,130,.5); color:var(--accent); background:rgba(212,185,130,.1)}
+.pnode.tot .plbl{color:var(--accent-dark)}
 .tile{display:none}                                     /* residui del vecchio layout, non piu' usati */
 .tile:hover{border-color:var(--accent-dark)}
 .tile .t-label{font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--dim)}
@@ -438,6 +444,8 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
   .sec-sub{font-size:.8rem; margin-bottom:14px}
   .pipe{padding:16px 10px 14px}
   .pnode .pcirc{width:44px; height:44px; font-size:18px}
+  .pnode.tot{padding-left:12px; margin-left:6px}
+  .pnode.tot .pcirc{width:48px; height:48px; font-size:19px}
   .pnode .plbl{font-size:.56rem; letter-spacing:.04em; margin-top:9px}
   .pnode+.pnode::before{top:22px}
   .panel{padding:15px}
@@ -508,7 +516,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v8.8</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v8.9</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -544,6 +552,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
           <div class="pnode bad"  id="tileArrNp" data-goto="pur"><div class="pcirc" id="kpiArrNp">–</div><div class="plbl" data-i18n-html="tArrNp">Ricevuti dal fornitore<br>saldo pendente</div></div>
           <div class="pnode info" id="tilePaid"  data-goto="pur"><div class="pcirc" id="kpiPaid">–</div><div class="plbl" data-i18n-html="tPaid">Saldati<br>in attesa di ritiro</div></div>
           <div class="pnode ok"   id="tileStock" data-goto="acq"><div class="pcirc" id="kpiStock">–</div><div class="plbl" data-i18n-html="tStock">Disponibili<br>in magazzino</div></div>
+          <div class="pnode tot" id="totPur"><div class="pcirc" id="kpiTotPur">–</div><div class="plbl" data-i18n-html="tTotPcs">Totale<br>pezzi</div></div>
         </div>
       </div>
       <div class="pipe" style="margin-top:12px">
@@ -551,6 +560,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
         <div class="pipe-row">
           <div class="pnode"      id="tileSaleOpen" data-goto="sales"><div class="pcirc" id="kpiSaleOpen">–</div><div class="plbl" data-i18n-html="tSaleOpen">Ordini di vendita<br>aperti</div></div>
           <div class="pnode sale" id="tileSold"     data-goto="sales"><div class="pcirc" id="kpiSold">–</div><div class="plbl" data-i18n="tSoldAll">Venduti quest'anno</div><div class="pnote" id="kpiSoldN"></div></div>
+          <div class="pnode tot" id="totSale"><div class="pcirc" id="kpiTotSale">–</div><div class="plbl" data-i18n-html="tTotPcs">Totale<br>pezzi</div></div>
         </div>
       </div>
       <div class="hgrid">
@@ -945,7 +955,7 @@ var I18N = {
     recoveryCode:'Codice di recupero', newPass:'Nuova password', resetBtn:'Reimposta password',
     navHome:'Home', navAcq:'Inventario', navPur:'Acquisti', navMag:'Magazzino', navSales:'Vendite', navCp:'Clienti-Fornitori', navRep:'Reports',
     heroHi:'Bentornato', atSupplier:'presso fornitore', tStock:'Disponibili<br>in magazzino',
-    tOrd:'Ordini emessi', tArrNp:'Ricevuti dal fornitore<br>saldo pendente', tPaid:'Saldati<br>in attesa di ritiro', cyclePur:'Ciclo acquisto', cycleSale:'Ciclo vendita',
+    tOrd:'Ordini emessi', tArrNp:'Ricevuti dal fornitore<br>saldo pendente', tPaid:'Saldati<br>in attesa di ritiro', cyclePur:'Ciclo acquisto', cycleSale:'Ciclo vendita', tTotPcs:'Totale<br>pezzi',
     tSaleOpen:'Ordini di vendita<br>aperti', tSoldAll:'Venduti',
     onlyOrd:'Solo ordinati', onlyStock:'Solo in magazzino', onlyArrNp:'Solo arrivati non pagati', onlySaleOpen:'Solo in corso',
     tSold:'Vendite anno',
@@ -1024,7 +1034,7 @@ var I18N = {
     recoveryCode:'Recovery code', newPass:'New password', resetBtn:'Reset password',
     navHome:'Home', navAcq:'Inventory', navPur:'Purchases', navMag:'Stock', navSales:'Sales', navCp:'Clients-Suppliers', navRep:'Reports',
     heroHi:'Welcome back', atSupplier:'at supplier', tStock:'Available<br>in stock',
-    tOrd:'Orders placed', tArrNp:'At supplier<br>payment due', tPaid:'Paid<br>awaiting collection', cyclePur:'Purchase cycle', cycleSale:'Sales cycle',
+    tOrd:'Orders placed', tArrNp:'At supplier<br>payment due', tPaid:'Paid<br>awaiting collection', cyclePur:'Purchase cycle', cycleSale:'Sales cycle', tTotPcs:'Total<br>pieces',
     tSaleOpen:'Sales in progress', tSaleOpenN:'sold, not yet collected', tSoldAll:'Sold',
     onlyOrd:'Only ordered', onlyStock:'Only in stock', onlyArrNp:'Only arrived unpaid', onlySaleOpen:'Only in progress',
     tStockN:'collected, not sold', tSold:'Sales this year',
@@ -1512,6 +1522,10 @@ function renderHome(){
   $('kpiStock').textContent=stock;
   $('kpiSold').textContent=soldY.length;
   $('kpiSoldN').textContent = soldAll!==soldY.length ? (soldAll+' '+T('pieces')+' tot.') : '';
+  /* nodo conclusivo di ogni fascia: la somma dei nodi che ha davanti */
+  var saleOpenN = S.sales.filter(isSaleOpen).length;
+  $('kpiTotPur').textContent  = ord + arrnp + paid + stock;
+  $('kpiTotSale').textContent = saleOpenN + soldY.length;
   /* totale acquisti per valuta, al costo netto */
   var m = sumByCur(S.acquisitions, function(a){return a.cur;}, function(a){return netCost(a);});
   var html='';
