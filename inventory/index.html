@@ -129,7 +129,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 .pnode.sale .pcirc{border-color:rgba(212,185,130,.45); color:var(--accent); background:rgba(212,185,130,.08)}
 /* Nodo conclusivo: non e' una fase del ciclo ma la somma, quindi sta dopo un
    filetto, e' in oro e non porta da nessuna parte. */
-.pnode.tot{flex:0 0 auto; padding-left:20px; margin-left:10px; border-left:1px solid var(--line); cursor:default}
+.pnode.tot{flex:0 0 auto; padding-left:20px; margin-left:10px; border-left:1px solid var(--line); cursor:pointer}
 .pnode.tot::before{display:none}
 .pnode.tot .pcirc{width:58px; height:58px; font-size:24px; border-color:rgba(212,185,130,.5); color:var(--accent); background:rgba(212,185,130,.1)}
 .pnode.tot .plbl{color:var(--accent-dark)}
@@ -516,7 +516,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v8.9</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.0</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -1523,9 +1523,11 @@ function renderHome(){
   $('kpiSold').textContent=soldY.length;
   $('kpiSoldN').textContent = soldAll!==soldY.length ? (soldAll+' '+T('pieces')+' tot.') : '';
   /* nodo conclusivo di ogni fascia: la somma dei nodi che ha davanti */
-  var saleOpenN = S.sales.filter(isSaleOpen).length;
   $('kpiTotPur').textContent  = ord + arrnp + paid + stock;
-  $('kpiTotSale').textContent = saleOpenN + soldY.length;
+  /* NON la somma dei due nodi: una vendita non ancora incassata sta in
+     entrambi (aperta E venduta quest'anno) e verrebbe contata due volte.
+     Il totale e' il numero di vendite, cioe' le righe che il clic apre. */
+  $('kpiTotSale').textContent = S.sales.length;
   /* totale acquisti per valuta, al costo netto */
   var m = sumByCur(S.acquisitions, function(a){return a.cur;}, function(a){return netCost(a);});
   var html='';
@@ -3013,6 +3015,16 @@ function bind(){
   });
   $('chipStock').addEventListener('click', function(){
     INV_STOCK = !INV_STOCK; this.classList.toggle('on', INV_STOCK); renderAcq();
+  });
+  /* Il cerchio Totale apre la lista completa da cui e' nato: per l'acquisto e'
+     il portafoglio (chip Tutti = non venduti), per la vendita tutte le vendite. */
+  $('totPur').addEventListener('click', function(){ gotoView('pur'); purOnly('all'); });
+  $('totSale').addEventListener('click', function(){
+    SALE_OPEN = false;
+    $('chipSaleOpen').classList.remove('on');
+    $('salesSearch').value='';
+    renderSales();
+    gotoView('sales');
   });
   $('tileOrd').addEventListener('click', function(){ purOnly('ord'); });
   $('tileArrNp').addEventListener('click', function(){ purOnly('arrnp'); });
