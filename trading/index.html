@@ -253,7 +253,7 @@
     #printSheet .ps-srow .v.blu{color:#0668c7}
     #printSheet .ps-srow .v.ora{color:#c66a00}
     #printSheet .ps-total{display:flex;justify-content:space-between;align-items:flex-end;padding-top:14px;margin-bottom:20px;border-top:2px solid #1a1a1f}
-    #printSheet .ps-sign{display:flex;gap:34px;margin-top:38px;padding-top:6px;break-inside:avoid;page-break-inside:avoid}
+    #printSheet .ps-sign{display:flex;gap:34px;margin-top:32px;padding-top:6px;break-inside:avoid;page-break-inside:avoid}
     #printSheet .ps-sign-col{flex:1}
     #printSheet .ps-sign-col.date{flex:0 0 34%}
     #printSheet .ps-sign-line{height:34px;border-bottom:1px solid #1a1a1f}
@@ -314,7 +314,7 @@
 <style>
 /* Riquadro firma: due colonne, ciascuna con una riga su cui scrivere e
    l'etichetta sotto. Compare solo se l'interruttore e' acceso. */
-.ps-sign{display:flex;gap:34px;margin-top:34px;padding-top:6px}
+.ps-sign{display:flex;gap:34px;margin-top:30px;padding-top:6px}
 .ps-sign-col{flex:1}
 .ps-sign-col.date{flex:0 0 34%}
 .ps-sign-line{height:34px;border-bottom:1px solid rgba(0,0,0,.35)}
@@ -361,7 +361,7 @@ body.sell-mode.no-rate #vatRateWrap{display:none}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
       <div style="display:flex;align-items:center;gap:7px;min-width:0">
         <span class="eye" data-i18n="eyebrow" style="margin-bottom:0">Horology · Finance</span>
-        <span class="ver-pill" id="verPill">v2.1</span>
+        <span class="ver-pill" id="verPill">v2.2</span>
       </div>
       <div class="langtog" id="langTog">
         <button class="lt" data-lang="it">ITA</button>
@@ -717,7 +717,7 @@ body.sell-mode.no-rate #vatRateWrap{display:none}
 
 <script>
 const FLAGS={EUR:'🇪🇺',CHF:'🇨🇭',USD:'🇺🇸',GBP:'🇬🇧',JPY:'🇯🇵',CAD:'🇨🇦',AUD:'🇦🇺',CNY:'🇨🇳',AED:'🇦🇪',HKD:'🇭🇰'};
-const APP_VERSION='v2.1';
+const APP_VERSION='v2.2';
 const SYM={EUR:'€',CHF:'CHF ',USD:'$',GBP:'£',JPY:'¥',CAD:'CA$',AUD:'A$',CNY:'¥',AED:'AED ',HKD:'HK$'};
 const FB={EUR:1,CHF:.9276,USD:1.1478,GBP:.8418,JPY:162.5,CAD:1.559,AUD:1.764,CNY:8.315,AED:4.214,HKD:8.951};
 const COUNTIES={
@@ -1912,6 +1912,7 @@ function doPrint(){
     </div>
   </div>
   ${payHtml}
+  ${(delTermTxt||payTermTxt)?`<div class="ps-termsbox">${delTermTxt?`<div class="ps-terms"><span class="ps-terms-lbl">${L.delTerms}</span><span class="ps-terms-v">${delTermTxt}</span></div>`:''}${payTermTxt?`<div class="ps-terms"><span class="ps-terms-lbl">${L.payTerms}</span><span class="ps-terms-v">${payTermTxt}</span></div>`:''}</div>`:''}
   ${signOn?`<div class="ps-sign">
     <div class="ps-sign-col">
       <div class="ps-sign-line"></div>
@@ -1922,7 +1923,6 @@ function doPrint(){
       <div class="ps-sign-lbl">${L.pSignDate}</div>
     </div>
   </div>`:''}
-  ${(delTermTxt||payTermTxt)?`<div class="ps-termsbox">${delTermTxt?`<div class="ps-terms"><span class="ps-terms-lbl">${L.delTerms}</span><span class="ps-terms-v">${delTermTxt}</span></div>`:''}${payTermTxt?`<div class="ps-terms"><span class="ps-terms-lbl">${L.payTerms}</span><span class="ps-terms-v">${payTermTxt}</span></div>`:''}</div>`:''}
   <div class="ps-foot"><span>${rateInfo}</span></div>
   `;
 
