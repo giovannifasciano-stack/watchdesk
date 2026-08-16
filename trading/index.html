@@ -302,6 +302,16 @@
 <div class="wrap">
 
 <style>
+/* Data documento, numero fattura e termini di pagamento */
+.docgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.docgrid{grid-template-columns:1fr}}
+.docsel{width:100%;font-size:13px;padding:8px 10px;border-radius:8px;
+  background-color:rgba(212,185,130,0.06);border:1px solid rgba(212,185,130,0.28);color:var(--text)}
+/* riga dei termini sul foglio stampato */
+.ps-terms{display:flex;gap:10px;align-items:baseline;margin-top:14px;padding-top:10px;
+  border-top:1px solid rgba(0,0,0,.12)}
+.ps-terms-lbl{font-size:8px;letter-spacing:.16em;text-transform:uppercase;opacity:.55;white-space:nowrap}
+.ps-terms-v{font-size:11px;font-weight:500}
 /* Interruttore Acquisto | Vendita: cambia il verso dell'operazione, quindi sta
    in cima, prima di ogni altra cosa. */
 .modetog{display:flex;gap:0;margin:.55rem 0 .1rem;background:rgba(212,185,130,0.05);
@@ -329,7 +339,7 @@ body.sell-mode.no-rate #vatRateWrap{display:none}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
       <div style="display:flex;align-items:center;gap:7px;min-width:0">
         <span class="eye" data-i18n="eyebrow" style="margin-bottom:0">Horology · Finance</span>
-        <span class="ver-pill" id="verPill">v1.1</span>
+        <span class="ver-pill" id="verPill">v1.7</span>
       </div>
       <div class="langtog" id="langTog">
         <button class="lt" data-lang="it">ITA</button>
@@ -388,11 +398,36 @@ body.sell-mode.no-rate #vatRateWrap{display:none}
     </div>
   </div>
 
-  <!-- Document date -->
+  <!-- Document date, invoice number, payment terms -->
   <div class="card" style="padding:0.8rem 1.25rem">
-    <div>
-      <span class="ilabel" data-i18n="docDate" style="margin-bottom:4px">Document date</span>
-      <div class="igroup"><input type="date" id="orderDate" style="flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--mono);font-size:14px;font-weight:300;padding:7px 11px;width:100%;color-scheme:dark"/></div>
+    <div class="docgrid">
+      <div>
+        <span class="ilabel" data-i18n="docDate" style="margin-bottom:4px">Document date</span>
+        <div class="igroup"><input type="date" id="orderDate" style="flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--mono);font-size:14px;font-weight:300;padding:7px 11px;width:100%;color-scheme:dark"/></div>
+      </div>
+      <div>
+        <span class="ilabel" data-i18n="invoiceNo" style="margin-bottom:4px">Invoice no.</span>
+        <div class="igroup"><input type="text" id="invoiceNo" data-i18n-ph="ph_invoiceNo" placeholder="INV-0001" autocomplete="off"/></div>
+      </div>
+    </div>
+    <div style="margin-top:.7rem">
+      <span class="ilabel" data-i18n="payTerms" style="margin-bottom:4px">Payment terms</span>
+      <select id="payTerm" class="docsel">
+        <option value="" data-i18n="pt_none">— nessuno —</option>
+        <option value="wire" data-i18n="pt_wire">Bonifico bancario</option>
+        <option value="cash" data-i18n="pt_cash">Contanti</option>
+        <option value="card" data-i18n="pt_card">Carta di credito</option>
+        <option value="crypto" data-i18n="pt_crypto">Criptovaluta</option>
+        <option value="check" data-i18n="pt_check">Assegno</option>
+        <option value="onaccount" data-i18n="pt_onaccount">Conto aperto</option>
+        <option value="onpickup" data-i18n="pt_onpickup">Pagamento al ritiro</option>
+        <option value="dep50" data-i18n="pt_dep50">50% acconto, saldo alla consegna</option>
+        <option value="net30" data-i18n="pt_net30">Pagamento a 30 giorni</option>
+        <option value="other" data-i18n="pt_other">Altro (scrivo io)</option>
+      </select>
+      <div class="igroup" id="payTermOtherWrap" style="display:none;margin-top:6px">
+        <input type="text" id="payTermOther" data-i18n-ph="ph_payTermOther" placeholder="termini di pagamento…" autocomplete="off"/>
+      </div>
     </div>
   </div>
 
@@ -641,7 +676,7 @@ body.sell-mode.no-rate #vatRateWrap{display:none}
 
 <script>
 const FLAGS={EUR:'🇪🇺',CHF:'🇨🇭',USD:'🇺🇸',GBP:'🇬🇧',JPY:'🇯🇵',CAD:'🇨🇦',AUD:'🇦🇺',CNY:'🇨🇳',AED:'🇦🇪',HKD:'🇭🇰'};
-const APP_VERSION='v1.6';
+const APP_VERSION='v1.7';
 const SYM={EUR:'€',CHF:'CHF ',USD:'$',GBP:'£',JPY:'¥',CAD:'CA$',AUD:'A$',CNY:'¥',AED:'AED ',HKD:'HK$'};
 const FB={EUR:1,CHF:.9276,USD:1.1478,GBP:.8418,JPY:162.5,CAD:1.559,AUD:1.764,CNY:8.315,AED:4.214,HKD:8.951};
 const COUNTIES={
@@ -654,8 +689,8 @@ const COUNTIES={
 
 // ---- i18n ----
 const I18N={
-  en:{eyebrow:'Horology · Finance',client:'Client',vendor:'Vendor',manual:'Manual entry',ph_vendorSearch:'supplier name…',vsBtn:'Search the web',vsSearching:'searching…',vsDetail:'fetching address…',vsNoResults:'not found — try adding the city or use manual entry',vsError:'search unavailable — use manual entry',ph_name:'name…',ph_addr:'address…',ph_city:'city / country…',ph_citystate:'city / state…',ph_country:'country…',orderNo:'Order no.',orderDate:'Order date',docDate:'Document date',pDate:'Date',pOrderShort:'Order',ph_orderNo:'#0001',exchange:'Currency exchange',from:'From',to:'To',products:'New Product(s)',ph_model:'model / ref…',addProduct:'+ Add product',tradeins:'Trade-in(s)',addTrade:'+ Add trade-in',tradeItem:'Trade-in',ti1:'Trade-in 1',ti2:'Trade-in 2',ti3:'Trade-in 3',openAcct:'Open Acct',openBal:'Open Account Balance',addOpenAcct:'+ Add open account',oaDebitHint:'added to the total (+)',oaCreditHint:'deducted from the total (−)',ph_note:'note…',salesTax:'🇺🇸 US Sales Tax',state:'State',ph_state:'Select state…',stateTaxNote:'state tax',county:'🏛 County / Local Surtax',ph_county:'Select county…',countySurtaxNote:'county surtax',cap:'⚠ cap $5,000',discount:'Discount',fixedDisc:'Fixed disc.',vat:'VAT Deduction',deposit:'Deposit / Down payment and/or Balance',depositShort:'Deposit',payCopy:'Payment copy',payUpload:'Upload payment copy',balancePayment:'Balance Payment',addDeposit:'+ Add payment / deposit',resultBalance:'Result — Balance',copy:'⎘ copy',copied:'✓ copied',print:'🖨 Print / Save PDF',fetching:'Fetching rates…',refresh:'↻ refresh',bdProducts:'Products',bdProdDisc:'Product discounts',bdProdNet:'Net after discounts',bdAfterAdj:'After adjustments',bdDiscount:'Discount',bdFixedDisc:'Fixed discount',bdYouSave:'You save',bdAfterDisc:'After discount',bdPriceBeforeTax:'Price before tax',bdStateTax:'State tax',bdCountySurtax:'County surtax',bdOnFirst:'on first',bdAfterTax:'After tax',bdGross:'Gross (incl. VAT)',bdVat:'VAT',bdNet:'Net ex-VAT',bdFinal:'Final amount',bdDeposit:'Deposit',bdBalanceDue:'Balance due',bdOpenAccount:'Open Account',base:'Base:',pOrder:'Order',pProduct:'Product',pProducts:'Products',pClient:'Client',pVendor:'Vendor',pResult:'Result — Balance',wsearch:'Watch search',ph_wsQ:'reference, name or collection… (e.g. 15500ST, Nautilus, Royal Oak)',wsNote:'AP & Patek only — other brands: manual entry',wsNo:'not found — enter manually',wsErr:'search unavailable — enter manually',wsRetail:'Retail',wsMarket:'Market (est.)',wsUse:'→ product', modeBuy:'Purchase', modeSell:'Sale', vatSell:'VAT regime', vatBuy:'VAT Deduction', vm_ivach:'Swiss VAT', vm_ivaue:'EU VAT', vm_export:'Export exempt', vm_margine:'Margin scheme', nBuyProducts:'New Product(s)', nSellProducts:'Product(s) sold', nBuyVendor:'Vendor', nBuyClient:'Client', nSellVendor:'Client', nSellClient:'Vendor', bdVatAdd:'VAT', noteExport:'Zero-rated — export', noteMargine:'Margin scheme — VAT not shown separately', noteIva:'VAT added to the taxable amount', phBuyer:'client name…', phSeller:'supplier name…'},
-  it:{eyebrow:'Horology · Finance',client:'Cliente',vendor:'Venditore',manual:'Inserimento manuale',ph_vendorSearch:'nome fornitore…',vsBtn:'Cerca sul web',vsSearching:'ricerca…',vsDetail:'recupero indirizzo…',vsNoResults:'non trovato — prova ad aggiungere la città o usa inserimento manuale',vsError:'ricerca non disponibile — usa inserimento manuale',ph_name:'nome…',ph_addr:'indirizzo…',ph_city:'città / paese…',ph_citystate:'città / stato…',ph_country:'paese…',orderNo:'N. ordine',orderDate:'Data ordine',docDate:'Data documento',pDate:'Data',pOrderShort:'Ordine',ph_orderNo:'#0001',exchange:'Cambio valuta',from:'Da',to:'A',products:'Nuovo Prodotto/i',ph_model:'modello / ref…',addProduct:'+ Aggiungi prodotto',tradeins:'Permuta/e',addTrade:'+ Aggiungi permuta',tradeItem:'Permuta',ti1:'Permuta 1',ti2:'Permuta 2',ti3:'Permuta 3',openAcct:'Conto aperto',openBal:'Saldo aperto',addOpenAcct:'+ Aggiungi conto aperto',oaDebitHint:'aggiunto al totale (+)',oaCreditHint:'detratto dal totale (−)',ph_note:'nota…',salesTax:'🇺🇸 Sales Tax USA',state:'Stato',ph_state:'Seleziona stato…',stateTaxNote:'tassa stato',county:'🏛 Contea / Sovrattassa',ph_county:'Seleziona contea…',countySurtaxNote:'sovrattassa contea',cap:'⚠ tetto $5.000',discount:'Sconto',fixedDisc:'Sconto fisso',vat:'Deduzione IVA',deposit:'Acconto / Caparra e/o Pagamento Saldo',depositShort:'Acconto',payCopy:'Copia pagamento',payUpload:'Carica copia pagamento',balancePayment:'Pagamento Saldo',addDeposit:'+ Aggiungi pagamento / acconto',resultBalance:'Risultato — Saldo',copy:'⎘ copia',copied:'✓ copiato',print:'🖨 Stampa / Salva PDF',fetching:'Aggiornamento tassi…',refresh:'↻ aggiorna',bdProducts:'Prodotti',bdProdDisc:'Sconti prodotto',bdProdNet:'Netto dopo sconti',bdAfterAdj:'Dopo aggiustamenti',bdDiscount:'Sconto',bdFixedDisc:'Sconto fisso',bdYouSave:'Risparmio',bdAfterDisc:'Dopo sconto',bdPriceBeforeTax:'Prezzo ante imposta',bdStateTax:'Imposta stato',bdCountySurtax:'Sovrattassa contea',bdOnFirst:'su primi',bdAfterTax:'Dopo imposta',bdGross:'Lordo (IVA incl.)',bdVat:'IVA',bdNet:'Netto IVA escl.',bdFinal:'Importo finale',bdDeposit:'Acconto',bdBalanceDue:'Saldo dovuto',bdOpenAccount:'Conto aperto',base:'Base:',pOrder:'Ordine',pProduct:'Prodotto',pProducts:'Prodotti',pClient:'Cliente',pVendor:'Venditore',pResult:'Risultato — Saldo',wsearch:'Ricerca orologi',ph_wsQ:'referenza, nome o collezione… (es. 15500ST, Nautilus, Royal Oak)',wsNote:'Solo AP e Patek — altre marche: inserimento manuale',wsNo:'non trovato — inserisci a mano',wsErr:'ricerca non disponibile — inserisci a mano',wsRetail:'Listino',wsMarket:'Mercato (stima)',wsUse:'→ prodotto', modeBuy:'Acquisto', modeSell:'Vendita', vatSell:'Regime IVA', vatBuy:'Deduzione IVA', vm_ivach:'IVA Svizzera', vm_ivaue:'IVA UE', vm_export:'Export esente', vm_margine:'Regime del margine', nBuyProducts:'Nuovo Prodotto/i', nSellProducts:'Prodotto/i venduto/i', nBuyVendor:'Venditore', nBuyClient:'Cliente', nSellVendor:'Cliente', nSellClient:'Venditore', bdVatAdd:'IVA', noteExport:'Operazione non imponibile — esportazione', noteMargine:'Regime del margine — IVA non esposta', noteIva:'IVA aggiunta all\'imponibile', phBuyer:'nome cliente…', phSeller:'nome fornitore…'}
+  en:{eyebrow:'Horology · Finance',client:'Client',vendor:'Vendor',manual:'Manual entry',ph_vendorSearch:'supplier name…',vsBtn:'Search the web',vsSearching:'searching…',vsDetail:'fetching address…',vsNoResults:'not found — try adding the city or use manual entry',vsError:'search unavailable — use manual entry',ph_name:'name…',ph_addr:'address…',ph_city:'city / country…',ph_citystate:'city / state…',ph_country:'country…',orderNo:'Order no.',orderDate:'Order date',docDate:'Document date',pDate:'Date',pOrderShort:'Order',ph_orderNo:'#0001',exchange:'Currency exchange',from:'From',to:'To',products:'New Product(s)',ph_model:'model / ref…',addProduct:'+ Add product',tradeins:'Trade-in(s)',addTrade:'+ Add trade-in',tradeItem:'Trade-in',ti1:'Trade-in 1',ti2:'Trade-in 2',ti3:'Trade-in 3',openAcct:'Open Acct',openBal:'Open Account Balance',addOpenAcct:'+ Add open account',oaDebitHint:'added to the total (+)',oaCreditHint:'deducted from the total (−)',ph_note:'note…',salesTax:'🇺🇸 US Sales Tax',state:'State',ph_state:'Select state…',stateTaxNote:'state tax',county:'🏛 County / Local Surtax',ph_county:'Select county…',countySurtaxNote:'county surtax',cap:'⚠ cap $5,000',discount:'Discount',fixedDisc:'Fixed disc.',vat:'VAT Deduction',deposit:'Deposit / Down payment and/or Balance',depositShort:'Deposit',payCopy:'Payment copy',payUpload:'Upload payment copy',balancePayment:'Balance Payment',addDeposit:'+ Add payment / deposit',resultBalance:'Result — Balance',copy:'⎘ copy',copied:'✓ copied',print:'🖨 Print / Save PDF',fetching:'Fetching rates…',refresh:'↻ refresh',bdProducts:'Products',bdProdDisc:'Product discounts',bdProdNet:'Net after discounts',bdAfterAdj:'After adjustments',bdDiscount:'Discount',bdFixedDisc:'Fixed discount',bdYouSave:'You save',bdAfterDisc:'After discount',bdPriceBeforeTax:'Price before tax',bdStateTax:'State tax',bdCountySurtax:'County surtax',bdOnFirst:'on first',bdAfterTax:'After tax',bdGross:'Gross (incl. VAT)',bdVat:'VAT',bdNet:'Net ex-VAT',bdFinal:'Final amount',bdDeposit:'Deposit',bdBalanceDue:'Balance due',bdOpenAccount:'Open Account',base:'Base:',pOrder:'Order',pProduct:'Product',pProducts:'Products',pClient:'Client',pVendor:'Vendor',pResult:'Result — Balance',wsearch:'Watch search',ph_wsQ:'reference, name or collection… (e.g. 15500ST, Nautilus, Royal Oak)',wsNote:'AP & Patek only — other brands: manual entry',wsNo:'not found — enter manually',wsErr:'search unavailable — enter manually',wsRetail:'Retail',wsMarket:'Market (est.)',wsUse:'→ product', modeBuy:'Purchase', modeSell:'Sale', vatSell:'VAT regime', vatBuy:'VAT Deduction', vm_ivach:'Swiss VAT', vm_ivaue:'EU VAT', vm_export:'Export exempt', vm_margine:'Margin scheme', nBuyProducts:'New Product(s)', nSellProducts:'Product(s) sold', nBuyVendor:'Vendor', nBuyClient:'Client', nSellVendor:'Client', nSellClient:'Vendor', bdVatAdd:'VAT', noteExport:'Zero-rated — export', noteMargine:'Margin scheme — VAT not shown separately', noteIva:'VAT added to the taxable amount', phBuyer:'client name…', phSeller:'supplier name…', invoiceNo:'Invoice no.', ph_invoiceNo:'INV-0001', payTerms:'Payment terms', pInvoiceNo:'Invoice no.', pt_none:'— none —', pt_wire:'Bank wire transfer', pt_cash:'Cash', pt_card:'Credit card', pt_crypto:'Cryptocurrency', pt_check:'Check', pt_onaccount:'On account', pt_onpickup:'Payment on collection', pt_dep50:'50% deposit, balance on delivery', pt_net30:'Net 30 days', pt_other:'Other (I will write it)', ph_payTermOther:'payment terms…'},
+  it:{eyebrow:'Horology · Finance',client:'Cliente',vendor:'Venditore',manual:'Inserimento manuale',ph_vendorSearch:'nome fornitore…',vsBtn:'Cerca sul web',vsSearching:'ricerca…',vsDetail:'recupero indirizzo…',vsNoResults:'non trovato — prova ad aggiungere la città o usa inserimento manuale',vsError:'ricerca non disponibile — usa inserimento manuale',ph_name:'nome…',ph_addr:'indirizzo…',ph_city:'città / paese…',ph_citystate:'città / stato…',ph_country:'paese…',orderNo:'N. ordine',orderDate:'Data ordine',docDate:'Data documento',pDate:'Data',pOrderShort:'Ordine',ph_orderNo:'#0001',exchange:'Cambio valuta',from:'Da',to:'A',products:'Nuovo Prodotto/i',ph_model:'modello / ref…',addProduct:'+ Aggiungi prodotto',tradeins:'Permuta/e',addTrade:'+ Aggiungi permuta',tradeItem:'Permuta',ti1:'Permuta 1',ti2:'Permuta 2',ti3:'Permuta 3',openAcct:'Conto aperto',openBal:'Saldo aperto',addOpenAcct:'+ Aggiungi conto aperto',oaDebitHint:'aggiunto al totale (+)',oaCreditHint:'detratto dal totale (−)',ph_note:'nota…',salesTax:'🇺🇸 Sales Tax USA',state:'Stato',ph_state:'Seleziona stato…',stateTaxNote:'tassa stato',county:'🏛 Contea / Sovrattassa',ph_county:'Seleziona contea…',countySurtaxNote:'sovrattassa contea',cap:'⚠ tetto $5.000',discount:'Sconto',fixedDisc:'Sconto fisso',vat:'Deduzione IVA',deposit:'Acconto / Caparra e/o Pagamento Saldo',depositShort:'Acconto',payCopy:'Copia pagamento',payUpload:'Carica copia pagamento',balancePayment:'Pagamento Saldo',addDeposit:'+ Aggiungi pagamento / acconto',resultBalance:'Risultato — Saldo',copy:'⎘ copia',copied:'✓ copiato',print:'🖨 Stampa / Salva PDF',fetching:'Aggiornamento tassi…',refresh:'↻ aggiorna',bdProducts:'Prodotti',bdProdDisc:'Sconti prodotto',bdProdNet:'Netto dopo sconti',bdAfterAdj:'Dopo aggiustamenti',bdDiscount:'Sconto',bdFixedDisc:'Sconto fisso',bdYouSave:'Risparmio',bdAfterDisc:'Dopo sconto',bdPriceBeforeTax:'Prezzo ante imposta',bdStateTax:'Imposta stato',bdCountySurtax:'Sovrattassa contea',bdOnFirst:'su primi',bdAfterTax:'Dopo imposta',bdGross:'Lordo (IVA incl.)',bdVat:'IVA',bdNet:'Netto IVA escl.',bdFinal:'Importo finale',bdDeposit:'Acconto',bdBalanceDue:'Saldo dovuto',bdOpenAccount:'Conto aperto',base:'Base:',pOrder:'Ordine',pProduct:'Prodotto',pProducts:'Prodotti',pClient:'Cliente',pVendor:'Venditore',pResult:'Risultato — Saldo',wsearch:'Ricerca orologi',ph_wsQ:'referenza, nome o collezione… (es. 15500ST, Nautilus, Royal Oak)',wsNote:'Solo AP e Patek — altre marche: inserimento manuale',wsNo:'non trovato — inserisci a mano',wsErr:'ricerca non disponibile — inserisci a mano',wsRetail:'Listino',wsMarket:'Mercato (stima)',wsUse:'→ prodotto', modeBuy:'Acquisto', modeSell:'Vendita', vatSell:'Regime IVA', vatBuy:'Deduzione IVA', vm_ivach:'IVA Svizzera', vm_ivaue:'IVA UE', vm_export:'Export esente', vm_margine:'Regime del margine', nBuyProducts:'Nuovo Prodotto/i', nSellProducts:'Prodotto/i venduto/i', nBuyVendor:'Venditore', nBuyClient:'Cliente', nSellVendor:'Cliente', nSellClient:'Venditore', bdVatAdd:'IVA', noteExport:'Operazione non imponibile — esportazione', noteMargine:'Regime del margine — IVA non esposta', noteIva:'IVA aggiunta all\'imponibile', phBuyer:'nome cliente…', phSeller:'nome fornitore…', invoiceNo:'N. fattura', ph_invoiceNo:'INV-0001', payTerms:'Termini di pagamento', pInvoiceNo:'N. fattura', pt_none:'— nessuno —', pt_wire:'Bonifico bancario', pt_cash:'Contanti', pt_card:'Carta di credito', pt_crypto:'Criptovaluta', pt_check:'Assegno', pt_onaccount:'Conto aperto', pt_onpickup:'Pagamento al ritiro', pt_dep50:'50% acconto, saldo alla consegna', pt_net30:'Pagamento a 30 giorni', pt_other:'Altro (scrivo io)', ph_payTermOther:'termini di pagamento…'}
 };
 let lang='en';
 const t=()=>I18N[lang];
@@ -1565,6 +1600,9 @@ document.querySelectorAll('#modeTog .mt').forEach(b=>b.addEventListener('click',
   MODE=b.dataset.mode; applyMode();
 }));
 if($('vatRegime')) $('vatRegime').addEventListener('change',function(){ syncRegime(true); calc(); });
+if($('payTerm')) $('payTerm').addEventListener('change',function(){
+  $('payTermOtherWrap').style.display = (this.value==='other') ? 'flex' : 'none';
+});
 applyMode();
 
 $('tradeToggle').addEventListener('click',()=>{
@@ -1740,11 +1778,25 @@ function doPrint(){
   const fnDate=(orderDateRaw?new Date(orderDateRaw+'T00:00:00'):new Date()).toLocaleDateString(dloc(),{day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\//g,'-');
   const fileTitle=`WDP ${fnDate}`;
 
+  const invNo=($('invoiceNo')&&$('invoiceNo').value.trim())||'';
+  const ptSel=$('payTerm');
+  let payTermTxt='';
+  if(ptSel && ptSel.value){
+    payTermTxt = ptSel.value==='other'
+      ? (($('payTermOther')&&$('payTermOther').value.trim())||'')
+      : (L['pt_'+ptSel.value]||'');
+  }
   const itemHdr=lang==='it'?'Articolo':'Item';
   const amtHdr=lang==='it'?'Prezzo unitario':'Unit price';
 
   const mkParty=(label,name,addr,city,country)=>`<div class="ps-party"><div class="ps-party-lbl">${label}</div>${name?`<div class="ps-party-name">${name}</div>`:''}${addr?`<div class="ps-party-line">${addr}</div>`:''}${city?`<div class="ps-party-line">${city}</div>`:''}${country?`<div class="ps-party-line">${country}</div>`:''}</div>`;
-  const partyHtml=(hasClient||hasVendor)?`<div class="ps-parties">${hasVendor?mkParty(L.pVendor,vendorName,vendorAddr,vendorCity,vendorCountry):''}${hasClient?mkParty(L.pClient,clientName,clientAddr,clientCity,clientCountry):''}</div>`:'';
+  /* La colonna di sinistra e' sempre la controparte e quella di destra sono io:
+     in acquisto la controparte VENDE, in vendita COMPRA. Le etichette della
+     stampa devono seguire il verso, altrimenti si scrive "venditore" sopra chi
+     sta comprando. */
+  const lblSx = isSell() ? L.pClient : L.pVendor;
+  const lblDx = isSell() ? L.pVendor : L.pClient;
+  const partyHtml=(hasClient||hasVendor)?`<div class="ps-parties">${hasVendor?mkParty(lblSx,vendorName,vendorAddr,vendorCity,vendorCountry):''}${hasClient?mkParty(lblDx,clientName,clientAddr,clientCity,clientCountry):''}</div>`:'';
 
   const summaryHtml=rows.map(r=>{
     const thumb=r.img?`<img src="${r.img}"/>`:'';
@@ -1764,6 +1816,7 @@ function doPrint(){
     <div class="ps-ord">
       <div class="ps-ord-lbl">${L.pDate}</div>
       <div class="ps-ord-no">${orderDate||dateStr}</div>
+      ${invNo?`<div class="ps-ord-lbl" style="margin-top:7px">${L.pInvoiceNo}</div><div class="ps-ord-no">${invNo}</div>`:''}
     </div>
   </div>
   <div class="ps-goldline"></div>
@@ -1778,6 +1831,7 @@ function doPrint(){
     </div>
   </div>
   ${payHtml}
+  ${payTermTxt?`<div class="ps-terms"><span class="ps-terms-lbl">${L.payTerms}</span><span class="ps-terms-v">${payTermTxt}</span></div>`:''}
   <div class="ps-foot"><span>${rateInfo}</span></div>
   `;
 
