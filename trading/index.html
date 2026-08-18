@@ -375,7 +375,7 @@ body.sell-mode.no-rate #vatRateWrap{display:none}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
       <div style="display:flex;align-items:center;gap:7px;min-width:0">
         <span class="eye" data-i18n="eyebrow" style="margin-bottom:0">Horology · Finance</span>
-        <span class="ver-pill" id="verPill">v3.0</span>
+        <span class="ver-pill" id="verPill">v3.1</span>
       </div>
       <div class="langtog" id="langTog">
         <button class="lt" data-lang="it">ITA</button>
@@ -731,7 +731,7 @@ body.sell-mode.no-rate #vatRateWrap{display:none}
 
 <script>
 const FLAGS={EUR:'🇪🇺',CHF:'🇨🇭',USD:'🇺🇸',GBP:'🇬🇧',JPY:'🇯🇵',CAD:'🇨🇦',AUD:'🇦🇺',CNY:'🇨🇳',AED:'🇦🇪',HKD:'🇭🇰'};
-const APP_VERSION='v3.0';
+const APP_VERSION='v3.1';
 const SYM={EUR:'€',CHF:'CHF ',USD:'$',GBP:'£',JPY:'¥',CAD:'CA$',AUD:'A$',CNY:'¥',AED:'AED ',HKD:'HK$'};
 const FB={EUR:1,CHF:.9276,USD:1.1478,GBP:.8418,JPY:162.5,CAD:1.559,AUD:1.764,CNY:8.315,AED:4.214,HKD:8.951};
 const COUNTIES={
@@ -1523,6 +1523,10 @@ function calc(){
     }
     setText('bv-dep','− '+fmt(totalDeposit,from));
     setText('bv-bal',fmt(finalVal,from));
+    /* Sul documento il saldo dovuto va in rosso, ma solo se c'e' davvero
+       qualcosa da incassare: a conto chiuso il rosso sarebbe fuorviante.
+       La classe non ha stile a schermo, la legge solo doPrint(). */
+    $('bv-bal').classList.toggle('redprint', finalVal>0.005);
   }
   row('br-fp',hasDep); row('br-dep',hasDep); row('br-bal',hasDep);
 
@@ -1899,7 +1903,8 @@ function doPrint(){
     const lbl=br.querySelector('.bl'), val=br.querySelector('.bv');
     if(!lbl||!val) return;
     let colorClass='';
-    if(val.classList.contains('grn')) colorClass='grn';
+    if(val.classList.contains('redprint')) colorClass='red';   /* saldo dovuto */
+    else if(val.classList.contains('grn')) colorClass='grn';
     else if(val.classList.contains('red')) colorClass='red';
     else if(val.classList.contains('ora')) colorClass='ora';
     else if(val.classList.contains('blu')) colorClass='blu';
