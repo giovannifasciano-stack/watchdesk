@@ -383,7 +383,7 @@ body.sell-mode.no-rate #vatRateWrap{display:none}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
       <div style="display:flex;align-items:center;gap:7px;min-width:0">
         <span class="eye" data-i18n="eyebrow" style="margin-bottom:0">Horology · Finance</span>
-        <span class="ver-pill" id="verPill">v2.4</span>
+        <span class="ver-pill" id="verPill">v2.5</span>
       </div>
       <div class="langtog" id="langTog">
         <button class="lt" data-lang="it">ITA</button>
@@ -754,7 +754,7 @@ body.sell-mode.no-rate #vatRateWrap{display:none}
 
 <script>
 const FLAGS={EUR:'🇪🇺',CHF:'🇨🇭',USD:'🇺🇸',GBP:'🇬🇧',JPY:'🇯🇵',CAD:'🇨🇦',AUD:'🇦🇺',CNY:'🇨🇳',AED:'🇦🇪',HKD:'🇭🇰'};
-const APP_VERSION='v2.4';
+const APP_VERSION='v2.5';
 const SYM={EUR:'€',CHF:'CHF ',USD:'$',GBP:'£',JPY:'¥',CAD:'CA$',AUD:'A$',CNY:'¥',AED:'AED ',HKD:'HK$'};
 const FB={EUR:1,CHF:.9276,USD:1.1478,GBP:.8418,JPY:162.5,CAD:1.559,AUD:1.764,CNY:8.315,AED:4.214,HKD:8.951};
 const COUNTIES={
@@ -1318,6 +1318,14 @@ function toBase(amount,cur){
   if(!amount||isNaN(amount)||amount===0) return 0;
   const from=$('fromCur').value;
   if(cur===from) return amount;
+  const to=$('toCur').value;
+  /* Fra la valuta in cui prezzo e quella in cui il cliente paga vale il tasso
+     CONCORDATO, non quello di mercato: e' il senso stesso dell'accordo. Vale
+     per gli acconti e per ogni importo gia' pagato in quella valuta. */
+  if(cur===to && from!==to){
+    const r=fxRate();
+    if(r) return amount/r;
+  }
   const rFrom=rates[from]||FB[from]||1;
   const rCur=rates[cur]||FB[cur]||1;
   return amount*(rFrom/rCur);
