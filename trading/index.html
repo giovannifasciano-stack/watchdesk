@@ -384,7 +384,7 @@ body.sell-mode.no-rate #vatRateWrap{display:none}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
       <div style="display:flex;align-items:center;gap:7px;min-width:0">
         <span class="eye" data-i18n="eyebrow" style="margin-bottom:0">Horology · Finance</span>
-        <span class="ver-pill" id="verPill">v2.6</span>
+        <span class="ver-pill" id="verPill">v2.7</span>
       </div>
       <div class="langtog" id="langTog">
         <button class="lt" data-lang="it">ITA</button>
@@ -756,7 +756,7 @@ body.sell-mode.no-rate #vatRateWrap{display:none}
 
 <script>
 const FLAGS={EUR:'🇪🇺',CHF:'🇨🇭',USD:'🇺🇸',GBP:'🇬🇧',JPY:'🇯🇵',CAD:'🇨🇦',AUD:'🇦🇺',CNY:'🇨🇳',AED:'🇦🇪',HKD:'🇭🇰'};
-const APP_VERSION='v2.6';
+const APP_VERSION='v2.7';
 const SYM={EUR:'€',CHF:'CHF ',USD:'$',GBP:'£',JPY:'¥',CAD:'CA$',AUD:'A$',CNY:'¥',AED:'AED ',HKD:'HK$'};
 const FB={EUR:1,CHF:.9276,USD:1.1478,GBP:.8418,JPY:162.5,CAD:1.559,AUD:1.764,CNY:8.315,AED:4.214,HKD:8.951};
 const COUNTIES={
@@ -1410,6 +1410,13 @@ function calc(){
   const prodGross=prods.reduce((s,p)=>s+lineGrossBase(p),0);
   const prodNet=prods.reduce((s,p)=>s+lineNetBase(p),0);
   const lineDisc=prodGross-prodNet;
+  /* La valuta del documento e' quella in cui hai prezzato l'orologio, non
+     quella che capita a sinistra nel convertitore. Cosi' l'ordine di FROM e TO
+     non cambia piu' il risultato: si puo' impostare la coppia nel verso che
+     serve per forzare il cambio senza sbagliare il riepilogo. */
+  const invCur = (prods.find(p=>(p.amt||0)>0)||{}).cur || from;
+  const invR = (invCur===from) ? 1 : ((invCur===to && r) ? r : (rates[invCur]&&rates[from] ? rates[invCur]/rates[from] : 1));
+  const IV = v => fmt(v*invR, invCur);
   const has=prodGross>0;
 
   // Product label in breakdown
@@ -1418,9 +1425,9 @@ function calc(){
   } else {
     setText('bl-prods',`${t().bdProducts} (${prods.filter(p=>p.amt>0).length})`);
   }
-  setText('bv-prods',fmt(prodGross,from));
+  setText('bv-prods',IV(prodGross));
   row('br-prods',has);
-  if(lineDisc>0.005){ setText('bv-pdisc','− '+fmt(lineDisc,from)); setText('bv-pnet',fmt(prodNet,from)); }
+  if(lineDisc>0.005){ setText('bv-pdisc','− '+IV(lineDisc)); setText('bv-pnet',IV(prodNet)); }
   row('br-pdisc',lineDisc>0.005);
   row('br-pnet',lineDisc>0.005);
 
@@ -1453,7 +1460,7 @@ function calc(){
     return `<div class="br"><span class="bl">${lbl}</span><span class="bv ${it.credit?'grn':'red'}">${val}</span></div>`;
   }).join('');
   const oaRowsEl=$('oaRows'); if(oaRowsEl) oaRowsEl.innerHTML=oaHtml;
-  row('br-adj',hasAdj); if(hasAdj) setText('bv-adj',fmt(adjusted,from));
+  row('br-adj',hasAdj); if(hasAdj) setText('bv-adj',IV(adjusted));
 
   const afterDisc=adjusted;
 
@@ -1465,10 +1472,10 @@ function calc(){
     const cap=(COUNTIES[code]&&COUNTIES[code].cap)||null;
     const ctyAmt=(cap?Math.min(afterDisc,cap):afterDisc)*ctyPct/100;
     afterTax=afterDisc+stateAmt+ctyAmt;
-    setText('bv-t1',fmt(afterDisc,from));
-    setText('bl-t2',`${t().bdStateTax} (${pf(statePct)}%)`); setText('bv-t2','+ '+fmt(stateAmt,from));
+    setText('bv-t1',IV(afterDisc));
+    setText('bl-t2',`${t().bdStateTax} (${pf(statePct)}%)`); setText('bv-t2','+ '+IV(stateAmt));
     setText('bl-t3',cap?`${t().bdCountySurtax} (${pf(ctyPct)}% ${t().bdOnFirst} ${fmt(cap,'USD')})`:`${t().bdCountySurtax} (${pf(ctyPct)}%)`);
-    setText('bv-t3','+ '+fmt(ctyAmt,from)); setText('bv-t4',fmt(afterTax,from));
+    setText('bv-t3','+ '+IV(ctyAmt)); setText('bv-t4',IV(afterTax));
   }
   row('br-t1',doTax); row('br-t2',doTax&&statePct>0); row('br-t3',doTax&&ctyPct>0); row('br-t4',doTax);
 
@@ -1481,15 +1488,15 @@ function calc(){
     mostraVat = vatOn && has && g!=='export' && g!=='margine' && vatPct>0;
     if(mostraVat){
       const vAmt=afterTax*vatPct/100; final=afterTax+vAmt;
-      setText('bv-v1',fmt(afterTax,from));
+      setText('bv-v1',IV(afterTax));
       setText('bl-v2',`${t().bdVatAdd} (${pf(vatPct)}%)`);
-      setText('bv-v2','+ '+fmt(vAmt,from));
-      setText('bv-v3',fmt(final,from));
+      setText('bv-v2','+ '+IV(vAmt));
+      setText('bv-v3',IV(final));
     }
   } else if(doVat){
     const vAmt=afterTax*vatPct/100/(1+vatPct/100); final=afterTax-vAmt;
-    setText('bv-v1',fmt(afterTax,from));
-    setText('bl-v2',`${t().bdVat} (${pf(vatPct)}%)`); setText('bv-v2','− '+fmt(vAmt,from)); setText('bv-v3',fmt(final,from));
+    setText('bv-v1',IV(afterTax));
+    setText('bl-v2',`${t().bdVat} (${pf(vatPct)}%)`); setText('bv-v2','− '+IV(vAmt)); setText('bv-v3',IV(final));
   }
   row('br-v1',mostraVat); row('br-v2',mostraVat); row('br-v3',mostraVat);
 
@@ -1503,7 +1510,7 @@ function calc(){
   const hasDep=totalDeposit>0;
   const finalVal=balanceBefore-totalDeposit;
   if(hasDep){
-    setText('bv-fp',fmt(balanceBefore,from));
+    setText('bv-fp',IV(balanceBefore));
     const fullPaid=finalVal<=0.005;
     if(fullPaid){
       const payNotes=prods.filter(p=>(p.depBase||0)>0 && p.depNote && p.depNote.trim()).map(p=>p.depNote.trim()).join('; ');
@@ -1511,8 +1518,8 @@ function calc(){
     } else {
       setText('bl-dep','− '+t().bdDeposit);
     }
-    setText('bv-dep','− '+fmt(totalDeposit,from));
-    setText('bv-bal',fmt(finalVal,from));
+    setText('bv-dep','− '+IV(totalDeposit));
+    setText('bv-bal',IV(finalVal));
   }
   row('br-fp',hasDep); row('br-dep',hasDep); row('br-bal',hasDep);
 
@@ -1521,18 +1528,26 @@ function calc(){
      visibile sotto. In acquisto vale l'opposto: il senso e' "quanto mi costa
      nella mia valuta". */
   const secondo=$('ramt2');
-  if(r===null){
-    ra.textContent=fmt(finalVal,from);
-    $('toFlag').textContent=FLAGS[from]||'💱'; $('toCode').textContent=from;
-    secondo.textContent='';
-  } else if(isSell() && from!==to){
-    ra.textContent=fmt(finalVal,from);
-    $('toFlag').textContent=FLAGS[from]||'💱'; $('toCode').textContent=from;
-    secondo.textContent='\u2248 '+fmt(finalVal*r,to)+((to==='CHF'||to==='HKD')?'':' '+to);
+  /* Il totale sta nella stessa valuta del riepilogo — quella del documento.
+     Sotto, l'equivalente nell'altra valuta della coppia, per dire al cliente
+     quanto sono nella sua moneta. */
+  /* In VENDITA il totale e' quello della fattura, quindi nella valuta del
+     documento. In ACQUISTO la domanda e' un'altra — "quanto mi costa nella mia
+     valuta" — quindi resta la conversione, che e' il senso del convertitore. */
+  const altra = (invCur===from) ? to : from;
+  if(isSell() || from===to){
+    ra.textContent = IV(finalVal);
+    $('toFlag').textContent = FLAGS[invCur]||'💱';
+    $('toCode').textContent = invCur;
+    if(altra && altra!==invCur && r){
+      const valAltra = (altra===to) ? finalVal*r : finalVal;
+      secondo.textContent = '\u2248 '+fmt(valAltra,altra)+((altra==='CHF'||altra==='HKD')?'':' '+altra);
+    } else secondo.textContent='';
   } else {
-    ra.textContent=fmt(finalVal*r,to);
-    $('toFlag').textContent=FLAGS[to]||'💱'; $('toCode').textContent=to;
-    secondo.textContent = (from!==to) ? ('\u2248 '+fmt(finalVal,from)+((from==='CHF'||from==='HKD')?'':' '+from)) : '';
+    ra.textContent = (r!==null) ? fmt(finalVal*r,to) : fmt(finalVal,from);
+    $('toFlag').textContent = FLAGS[to]||'💱';
+    $('toCode').textContent = to;
+    secondo.textContent = (invCur!==to) ? ('\u2248 '+IV(finalVal)+((invCur==='CHF'||invCur==='HKD')?'':' '+invCur)) : '';
   }
 }
 
