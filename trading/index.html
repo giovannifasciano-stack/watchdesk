@@ -187,6 +187,7 @@
     .rlbl{font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent);opacity:.7;margin-bottom:5px}
     .ramt{font-size:34px;font-weight:300;color:var(--accent);letter-spacing:-0.02em}
     .ramt.ph{opacity:.1}
+    .ramt2{font-size:13px;font-weight:400;color:var(--muted);letter-spacing:.02em;margin-top:2px;min-height:1em}
     .fwrap{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
     .flag{font-size:26px;line-height:1}
     .tcode{font-size:11px;color:var(--muted)}
@@ -383,7 +384,7 @@ body.sell-mode.no-rate #vatRateWrap{display:none}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
       <div style="display:flex;align-items:center;gap:7px;min-width:0">
         <span class="eye" data-i18n="eyebrow" style="margin-bottom:0">Horology · Finance</span>
-        <span class="ver-pill" id="verPill">v2.5</span>
+        <span class="ver-pill" id="verPill">v2.6</span>
       </div>
       <div class="langtog" id="langTog">
         <button class="lt" data-lang="it">ITA</button>
@@ -729,6 +730,7 @@ body.sell-mode.no-rate #vatRateWrap{display:none}
     <div>
       <p class="rlbl" data-i18n="resultBalance">Result — Balance</p>
       <p class="ramt ph" id="ramt">0.00</p>
+      <p class="ramt2" id="ramt2"></p>
     </div>
     <div class="fwrap">
       <span class="flag" id="toFlag">🇺🇸</span>
@@ -754,7 +756,7 @@ body.sell-mode.no-rate #vatRateWrap{display:none}
 
 <script>
 const FLAGS={EUR:'🇪🇺',CHF:'🇨🇭',USD:'🇺🇸',GBP:'🇬🇧',JPY:'🇯🇵',CAD:'🇨🇦',AUD:'🇦🇺',CNY:'🇨🇳',AED:'🇦🇪',HKD:'🇭🇰'};
-const APP_VERSION='v2.5';
+const APP_VERSION='v2.6';
 const SYM={EUR:'€',CHF:'CHF ',USD:'$',GBP:'£',JPY:'¥',CAD:'CA$',AUD:'A$',CNY:'¥',AED:'AED ',HKD:'HK$'};
 const FB={EUR:1,CHF:.9276,USD:1.1478,GBP:.8418,JPY:162.5,CAD:1.559,AUD:1.764,CNY:8.315,AED:4.214,HKD:8.951};
 const COUNTIES={
@@ -1401,8 +1403,7 @@ function calc(){
   const ctyPct=taxOn?(parseFloat($('countyRate').value)||0):0;
   const vatPct=vatOn?(parseFloat($('vatRate').value)||0):0;
 
-  $('toFlag').textContent=FLAGS[to]||'💱';
-  $('toCode').textContent=to;
+  /* bandiera e sigla le imposta il blocco del totale, in fondo a calc() */
 
   // Products total
   const prods=getProducts();
@@ -1515,7 +1516,24 @@ function calc(){
   }
   row('br-fp',hasDep); row('br-dep',hasDep); row('br-bal',hasDep);
 
-  ra.textContent=r!==null?fmt(finalVal*r,to):fmt(finalVal,from);
+  /* In vendita il documento e' una fattura: il totale va nella valuta in cui
+     fatturi (from), non in quella in cui il cliente paga. L'equivalente resta
+     visibile sotto. In acquisto vale l'opposto: il senso e' "quanto mi costa
+     nella mia valuta". */
+  const secondo=$('ramt2');
+  if(r===null){
+    ra.textContent=fmt(finalVal,from);
+    $('toFlag').textContent=FLAGS[from]||'💱'; $('toCode').textContent=from;
+    secondo.textContent='';
+  } else if(isSell() && from!==to){
+    ra.textContent=fmt(finalVal,from);
+    $('toFlag').textContent=FLAGS[from]||'💱'; $('toCode').textContent=from;
+    secondo.textContent='\u2248 '+fmt(finalVal*r,to)+((to==='CHF'||to==='HKD')?'':' '+to);
+  } else {
+    ra.textContent=fmt(finalVal*r,to);
+    $('toFlag').textContent=FLAGS[to]||'💱'; $('toCode').textContent=to;
+    secondo.textContent = (from!==to) ? ('\u2248 '+fmt(finalVal,from)+((from==='CHF'||from==='HKD')?'':' '+from)) : '';
+  }
 }
 
 async function fetchRate(){
