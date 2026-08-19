@@ -297,10 +297,12 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 .sr-item .r2{color:var(--dim); font-size:.78rem; margin-top:2px}
 .doclist{margin-top:10px}
 /* tre zone di allegati affiancate: fatture, copia acconto, copia saldo */
-.docs3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:14px}
+.docs3{display:grid; grid-template-columns:repeat(auto-fit,minmax(178px,1fr)); gap:12px; margin-bottom:14px}
 .docbox{background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:13px}
 .docbox.dep{border-color:rgba(232,176,76,.35)}
 .docbox.bal{border-color:rgba(76,208,138,.32)}
+.docbox.war{border-color:rgba(212,185,130,.4)}
+.docbox.war>label{color:var(--accent)}
 .docbox>label{display:block; font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; color:var(--dim); margin-bottom:9px}
 .docbox.dep>label{color:var(--warn)}
 .docbox.bal>label{color:var(--ok)}
@@ -367,6 +369,18 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 .sheet h1{font-size:19px; letter-spacing:.1em; font-weight:800}
 .sheet h1 .g{color:#a8905f}
 .sheet .sh-sub{color:#666e85; font-size:11px; letter-spacing:.2em; text-transform:uppercase; margin:2px 0 4px}
+/* Scheda del singolo orologio */
+.sheet .wcard{display:flex; gap:16px; align-items:center; margin:16px 0 6px; padding-bottom:14px; border-bottom:1px solid #d9dbe6}
+.sheet .wph{width:96px; height:96px; flex:0 0 96px; border:1px solid #d9dbe6; border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#fafbfd}
+.sheet .wph img{max-width:100%; max-height:100%; object-fit:contain}
+.sheet .wtit{font-size:17px; font-weight:700; letter-spacing:-.01em}
+.sheet .wmod{font-size:12px; color:#666e85; margin-top:3px}
+.sheet .wsec{font-size:9.5px; letter-spacing:.18em; text-transform:uppercase; color:#a8905f; font-weight:600; margin:18px 0 6px}
+.sheet .wtab{width:100%; border-collapse:collapse; table-layout:fixed}
+.sheet .wtab td{padding:7px 0; border-bottom:1px solid #eceef4; vertical-align:top; font-size:11.5px}
+.sheet .wtab .wk{width:34%; color:#666e85; letter-spacing:.04em; text-transform:uppercase; font-size:9.5px; padding-top:9px}
+.sheet .wtab .wv{font-weight:500; overflow-wrap:anywhere}
+.sheet .wnote{font-size:11.5px; line-height:1.55; white-space:pre-wrap; overflow-wrap:anywhere}
 .sheet .sh-meta{color:#666e85; font-size:11px; margin-bottom:16px}
 .sheet table{width:100%; border-collapse:collapse; table-layout:fixed; margin-top:10px}
 .sheet th{
@@ -516,7 +530,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.0</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.1</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -783,11 +797,17 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
         <input type="file" id="aBalFile" multiple style="display:none">
         <div class="doclist" id="aBalList"></div>
       </div>
+      <div class="docbox war"><label data-i18n="fDocWar">Certificato di garanzia</label>
+        <button class="btn dark sm" id="btnAddDocWar">+ <span data-i18n="addDoc">Aggiungi file</span></button>
+        <input type="file" id="aWarFile" multiple style="display:none">
+        <div class="doclist" id="aWarList"></div>
+      </div>
     </div>
 
     <div class="m-actions">
       <button class="btn danger sm" id="btnDelAcq" style="display:none" data-i18n="delete">Elimina</button>
       <button class="btn sm" id="btnSellAcq" style="display:none">💰 <span data-i18n="sellThis">Vendi questo orologio</span> →</button>
+      <button class="btn sm ghost" id="btnPrintAcq" style="display:none">🖨 <span data-i18n="printCard">Stampa scheda</span></button>
       <div class="spacer"></div>
       <button class="btn ghost" data-close="ovAcq" data-i18n="cancel">Annulla</button>
       <button class="btn" id="btnSaveAcq" data-i18n="save">Salva</button>
@@ -977,7 +997,7 @@ var I18N = {
     fYear:'Anno', fCond:'Condizioni', fSet:'Corredo', fMkt:'Valore grey USD', fMktUse:'Usa questo valore invece della quotazione trovata', mktMan:'mio', fPhoto:'Foto', fCp:'Cliente / Fornitore', fSup:'Fornitore', fCpSell:'Cliente',
     fCur:'Valuta', fList:'Prezzo listino', fAgreed:'Prezzo pagato', fVat:'IVA %', fNet:'Prezzo netto detax',
     fPay:'Pagamento', fDep:'Acconto versato', fPayDate:'Data pagamento', fStat:'Stato', fDOrd:'Data ordine',
-    fDRec:'Arrivato dal fornitore il', fDPick:'Data ritiro', fNotes:'Note', fDocs:'Documenti / fatture', fDocDep:'Copia pagamento acconto', fDocBal:'Copia pagamento saldo', rDep:'Acconto', rBal:'Saldo', toUpload:'da caricare al salvataggio', noPreview:'Anteprima non disponibile per questo formato — usa Scarica.', download:'Scarica', close:'Chiudi',
+    fDRec:'Arrivato dal fornitore il', fDPick:'Data ritiro', fNotes:'Note', fDocs:'Documenti / fatture', fDocDep:'Copia pagamento acconto', fDocBal:'Copia pagamento saldo', fDocWar:'Certificato di garanzia', printCard:'Stampa scheda', rWatchT:'Scheda orologio', rWatchBuy:'Acquisto', rWatchDocs:'Allegati', rDep:'Acconto', rBal:'Saldo', toUpload:'da caricare al salvataggio', noPreview:'Anteprima non disponibile per questo formato — usa Scarica.', download:'Scarica', close:'Chiudi',
     addDoc:'Aggiungi file', fWatch:'Orologio', fPrice:'Prezzo vendita', fNetSale:'Netto vendita',
     fVatMode:'Regime', fInvoice:'Fattura n.', fTradeDesc:'Permuta — descrizione', fTradeVal:'Permuta — valore',
     fDSale:'Data vendita', fName:'Nome / ragione sociale', fAddr:'Indirizzo', fZip:'CAP', fCity:'Città',
@@ -1056,7 +1076,7 @@ var I18N = {
     fYear:'Year', fCond:'Condition', fSet:'Set', fMkt:'Grey value USD', fMktUse:'Use this value instead of the quote found online', mktMan:'mine', fPhoto:'Photo', fCp:'Client / Supplier', fSup:'Supplier', fCpSell:'Client',
     fCur:'Currency', fList:'List price', fAgreed:'Price paid', fVat:'VAT %', fNet:'Net detax price',
     fPay:'Payment', fDep:'Deposit paid', fPayDate:'Payment date', fStat:'Status', fDOrd:'Order date',
-    fDRec:'Arrived from supplier on', fDPick:'Collection date', fNotes:'Notes', fDocs:'Documents / invoices', fDocDep:'Deposit payment copy', fDocBal:'Balance payment copy', rDep:'Deposit', rBal:'Balance', toUpload:'uploads on save', noPreview:'No preview for this format — use Download.', download:'Download', close:'Close',
+    fDRec:'Arrived from supplier on', fDPick:'Collection date', fNotes:'Notes', fDocs:'Documents / invoices', fDocDep:'Deposit payment copy', fDocBal:'Balance payment copy', fDocWar:'Warranty certificate', printCard:'Print card', rWatchT:'Watch card', rWatchBuy:'Purchase', rWatchDocs:'Attachments', rDep:'Deposit', rBal:'Balance', toUpload:'uploads on save', noPreview:'No preview for this format — use Download.', download:'Download', close:'Close',
     addDoc:'Add files', fWatch:'Watch', fPrice:'Sale price', fNetSale:'Net sale',
     fVatMode:'Regime', fInvoice:'Invoice no.', fTradeDesc:'Trade-in — description', fTradeVal:'Trade-in — value',
     fDSale:'Sale date', fName:'Name / company', fAddr:'Address', fZip:'ZIP', fCity:'City',
@@ -1867,6 +1887,7 @@ function openAcqModal(acqId, presetWatchId){
   $('acqModalTitle').textContent = EDIT.acq ? T('editAcq') : T('newAcq');
   $('btnDelAcq').style.display = EDIT.acq ? 'inline-flex' : 'none';
   $('btnSellAcq').style.display = (EDIT.acq && !saleByWatch(EDIT.acq.watch_id)) ? 'inline-flex' : 'none';
+  $('btnPrintAcq').style.display = EDIT.acq ? 'inline-flex' : 'none';   /* niente da stampare su una scheda nuova */
   /* controparti compro/entrambi */
   var cps = S.counterparts.filter(function(c){ return c.role!=='sell'; });
   $('aCp').innerHTML = optHtml('', T('noSup')) + cps.map(function(c){ return optHtml(c.id, c.name); }).join('');
@@ -1951,7 +1972,7 @@ function saveAcq(){
    'acquisition' ma non conosce i due gruppi nuovi: li togliamo da qui, per non
    lasciare allegati orfani in archivio. */
 function dropExtraDocs(acqId){
-  return Promise.all(['acq_dep','acq_bal'].map(function(t){
+  return Promise.all(['acq_dep','acq_bal','acq_war'].map(function(t){
     return api('/docs/'+encodeURIComponent(t)+'/'+encodeURIComponent(acqId))
       .then(function(rows){
         return Promise.all((rows||[]).map(function(d){
@@ -2315,14 +2336,15 @@ function doLookup(){
 /* ================================================================
    DOCUMENTI
    ================================================================ */
-var PENDING_DOCS = {acq:[], sale:[], acqDep:[], acqBal:[]};
+var PENDING_DOCS = {acq:[], sale:[], acqDep:[], acqBal:[], acqWar:[]};
 /* i tre gruppi di allegati di un acquisto: fatture, copia acconto, copia saldo.
    Il tipo distingue le liste sul server; il Worker non lo valida, quindi non
    serve nessuna modifica lato API. */
 var DOCG = [
   {k:'acq',    t:'acquisition', list:'aDocList', inp:'aDocFile'},
   {k:'acqDep', t:'acq_dep',     list:'aDepList', inp:'aDepFile'},
-  {k:'acqBal', t:'acq_bal',     list:'aBalList', inp:'aBalFile'}
+  {k:'acqBal', t:'acq_bal',     list:'aBalList', inp:'aBalFile'},
+  {k:'acqWar', t:'acq_war',     list:'aWarList', inp:'aWarFile'}   /* garanzia */
 ];
 function readFiles(fileInput){
   var files = Array.prototype.slice.call(fileInput.files||[]);
@@ -2521,6 +2543,80 @@ function setIcons(w){
   var map={fullset:'\ud83d\udce6\ud83d\udcc4', soloscatola:'\ud83d\udce6', sologaranzia:'\ud83d\udcc4', soloorologio:'\u231a'};
   return map[t] ? ' <span class="seticons" title="'+esc(T('set_'+t))+'">'+map[t]+'</span>' : '';
 }
+/* Scheda del singolo orologio: quello che serve a chi la riceve — il pezzo,
+   da chi arriva, quanto e' costato, a che punto e' e cosa c'e' allegato. */
+function buildRepWatch(){
+  if(!EDIT.acq){ return; }
+  var a=EDIT.acq, w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
+  function riga(et,val){
+    if(val==null || val==='' ) return '';
+    return '<tr><td class="wk">'+esc(et)+'</td><td class="wv">'+esc(String(val))+'</td></tr>';
+  }
+  function soldi(v,cur){ return (v==null||v==='')?'':(cur||a.cur||'CHF')+' '+fmtN(v,cur||a.cur||'CHF'); }
+
+  var foto = w.photo ? '<div class="wph"><img src="'+esc(w.photo)+'" alt=""></div>' : '';
+  var titolo = [w.brand, w.ref].filter(Boolean).join(' ');
+
+  var h = sheetHead(T('rWatchT'));
+  h += '<div class="wcard">'+foto+
+       '<div class="wmain">'+
+         '<div class="wtit">'+esc(titolo||T('rWatchT'))+'</div>'+
+         (w.model?'<div class="wmod">'+esc(w.model)+'</div>':'')+
+       '</div></div>';
+
+  h += '<table class="wtab"><tbody>';
+  h += riga(T('thBrand'), w.brand);
+  h += riga(T('thRef'), w.ref);
+  h += riga(T('thModel'), w.model);
+  h += riga(T('thSerial'), w.serial);
+  h += riga(T('fYear'), w.year);
+  h += riga(T('fSet'), w.set_type?T('set_'+w.set_type):'');
+  h += riga(T('fCond'), w.cond);
+  h += '</tbody></table>';
+
+  h += '<div class="wsec">'+esc(T('rWatchBuy'))+'</div>';
+  h += '<table class="wtab"><tbody>';
+  h += riga(T('thSup'), cp?cp.name:'');
+  h += riga(T('thStat'), statLabel(a.stat));
+  h += riga(T('thPay'), payLabel(a.pay));
+  h += riga(T('thDate'), a.d_ord?fmtDate(a.d_ord):'');
+  h += riga(T('fDRec'), a.d_rec?fmtDate(a.d_rec):'');
+  h += riga(T('thPick'), a.d_pick?fmtDate(a.d_pick):'');
+  h += riga(T('thList'), soldi(a.list));
+  h += riga(T('fAgreed'), soldi(a.agreed));
+  h += riga(T('thCost'), soldi(netCost(a)));
+  if(num(a.dep)>0){
+    h += riga(T('fDep'), soldi(a.dep));
+    var resto = netCost(a)!=null ? (netCost(a)-num(a.dep)) : null;
+    h += riga(T('rBal'), soldi(resto));
+  }
+  h += '</tbody></table>';
+
+  if(a.notes || w.notes){
+    h += '<div class="wsec">'+esc(T('fNotes'))+'</div>';
+    h += '<div class="wnote">'+esc(a.notes||w.notes)+'</div>';
+  }
+
+  /* elenco degli allegati: chi legge la scheda deve sapere cosa esiste */
+  Promise.all(DOCG.map(function(g){
+    return api('/docs/'+encodeURIComponent(g.t)+'/'+encodeURIComponent(a.id))
+      .then(function(rows){ return {g:g, rows:rows||[]}; })
+      .catch(function(){ return {g:g, rows:[]}; });
+  })).then(function(res){
+    var righe='';
+    res.forEach(function(r){
+      if(!r.rows.length) return;
+      var et = r.g.t==='acquisition'?T('fDocs') : r.g.t==='acq_dep'?T('fDocDep')
+             : r.g.t==='acq_bal'?T('fDocBal') : T('fDocWar');
+      righe += '<tr><td class="wk">'+esc(et)+'</td><td class="wv">'+
+               r.rows.map(function(d){return esc(d.filename||'');}).join(' · ')+'</td></tr>';
+    });
+    var hh = h;
+    if(righe) hh += '<div class="wsec">'+esc(T('rWatchDocs'))+'</div><table class="wtab"><tbody>'+righe+'</tbody></table>';
+    openPrint(T('rWatchT'), hh);
+  });
+}
+
 function buildRepAcq(){
   var rows=repFilterRows(S.acquisitions,'d_ord');
   rows.sort(function(x,y){ return String(x.d_ord||'').localeCompare(String(y.d_ord||'')); });
@@ -3090,6 +3186,7 @@ function bind(){
     compressImage(f,function(data){ EDIT.photo=data; $('aPhotoImg').src=data; $('aPhotoImg').style.display='block'; });
   });
   $('btnSaveAcq').addEventListener('click', saveAcq);
+  $('btnPrintAcq').addEventListener('click', function(){ buildRepWatch(); });
   $('btnSellAcq').addEventListener('click', function(){
     var wid = EDIT.acq && EDIT.acq.watch_id;
     if(!wid) return;
@@ -3098,7 +3195,7 @@ function bind(){
   });
   $('btnDelAcq').addEventListener('click', deleteAcq);
   /* stessi gesti per i tre gruppi di allegati */
-  [['btnAddDocA','aDocFile'],['btnAddDocDep','aDepFile'],['btnAddDocBal','aBalFile']]
+  [['btnAddDocA','aDocFile'],['btnAddDocDep','aDepFile'],['btnAddDocBal','aBalFile'],['btnAddDocWar','aWarFile']]
     .forEach(function(pair){
       $(pair[0]).addEventListener('click', function(){ $(pair[1]).click(); });
     });
