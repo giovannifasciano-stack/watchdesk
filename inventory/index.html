@@ -381,6 +381,15 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 .sheet .wtab .wk{width:34%; color:#666e85; letter-spacing:.04em; text-transform:uppercase; font-size:9.5px; padding-top:9px}
 .sheet .wtab .wv{font-weight:500; overflow-wrap:anywhere}
 .sheet .wnote{font-size:11.5px; line-height:1.55; white-space:pre-wrap; overflow-wrap:anywhere}
+/* Registro ordini: una pastiglia dice dov'e' il pezzo, sotto il pagamento */
+.sheet .ostate{display:inline-block; font-size:8.5px; letter-spacing:.1em; text-transform:uppercase; font-weight:700; padding:2px 6px; border-radius:4px; white-space:nowrap}
+.sheet .ostate.s-ord{background:#eef0f6; color:#5b6480}
+.sheet .ostate.s-sup{background:#fdf0dd; color:#9a6b12}
+.sheet .ostate.s-stock{background:#e6f6ec; color:#1e7a44}
+.sheet .ostate.s-sold{background:#e9eefb; color:#2e5aa8}
+.sheet .opay{font-size:9px; color:#7a8199; margin-top:3px; line-height:1.3}
+.sheet .ocount{display:flex; flex-wrap:wrap; gap:16px; margin-top:14px; padding-top:11px; border-top:1px solid #d9dbe6; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:#666e85}
+.sheet .ocount .otot{margin-left:auto; font-weight:700; color:#1a1a1f}
 .sheet .sh-meta{color:#666e85; font-size:11px; margin-bottom:16px}
 .sheet table{width:100%; border-collapse:collapse; table-layout:fixed; margin-top:10px}
 .sheet th{
@@ -530,7 +539,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.1</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.2</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -695,6 +704,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
         </div>
       </div>
       <div class="repgrid">
+        <div class="repcard" id="repOrders"><div class="ri">📋</div><div class="rt" data-i18n="rOrdT">Orologi ordinati</div><div class="rd" data-i18n="rOrdD">Tutti gli ordini, dal primo all'ultimo: pagati o no, arrivati o no, ritirati o no, venduti o no.</div></div>
         <div class="repcard" id="repAcq"><div class="ri">📥</div><div class="rt" data-i18n="rAcqT">Estratto conto acquisti</div><div class="rd" data-i18n="rAcqD">Tutte le acquisizioni del periodo, con costi netti e stato pagamenti.</div></div>
         <div class="repcard" id="repSales"><div class="ri">📤</div><div class="rt" data-i18n="rSalesT">Estratto conto vendite</div><div class="rd" data-i18n="rSalesD">Le vendite del periodo con regime IVA, permute e incassi.</div></div>
         <div class="repcard" id="repMargin"><div class="ri">📈</div><div class="rt" data-i18n="rMarT">Margini</div><div class="rd" data-i18n="rMarD">Margine per pezzo con giorni di giacenza, più totali per marca e cliente.</div></div>
@@ -997,7 +1007,7 @@ var I18N = {
     fYear:'Anno', fCond:'Condizioni', fSet:'Corredo', fMkt:'Valore grey USD', fMktUse:'Usa questo valore invece della quotazione trovata', mktMan:'mio', fPhoto:'Foto', fCp:'Cliente / Fornitore', fSup:'Fornitore', fCpSell:'Cliente',
     fCur:'Valuta', fList:'Prezzo listino', fAgreed:'Prezzo pagato', fVat:'IVA %', fNet:'Prezzo netto detax',
     fPay:'Pagamento', fDep:'Acconto versato', fPayDate:'Data pagamento', fStat:'Stato', fDOrd:'Data ordine',
-    fDRec:'Arrivato dal fornitore il', fDPick:'Data ritiro', fNotes:'Note', fDocs:'Documenti / fatture', fDocDep:'Copia pagamento acconto', fDocBal:'Copia pagamento saldo', fDocWar:'Certificato di garanzia', printCard:'Stampa scheda', rWatchT:'Scheda orologio', rWatchBuy:'Acquisto', rWatchDocs:'Allegati', rDep:'Acconto', rBal:'Saldo', toUpload:'da caricare al salvataggio', noPreview:'Anteprima non disponibile per questo formato — usa Scarica.', download:'Scarica', close:'Chiudi',
+    fDRec:'Arrivato dal fornitore il', fDPick:'Data ritiro', fNotes:'Note', fDocs:'Documenti / fatture', fDocDep:'Copia pagamento acconto', fDocBal:'Copia pagamento saldo', fDocWar:'Certificato di garanzia', printCard:'Stampa scheda', rWatchT:'Scheda orologio', rOrdT:'Orologi ordinati', rOrdD:"Tutti gli ordini, dal primo all'ultimo: pagati o no, arrivati o no, ritirati o no, venduti o no.", oArr:'Arrivato', oPick:'Ritirato', oState:'Dove si trova', oOrdered:'Ordinato', oAtSup:'Dal fornitore', oStock:'In magazzino', oSold:'Venduto', rWatchBuy:'Acquisto', rWatchDocs:'Allegati', rDep:'Acconto', rBal:'Saldo', toUpload:'da caricare al salvataggio', noPreview:'Anteprima non disponibile per questo formato — usa Scarica.', download:'Scarica', close:'Chiudi',
     addDoc:'Aggiungi file', fWatch:'Orologio', fPrice:'Prezzo vendita', fNetSale:'Netto vendita',
     fVatMode:'Regime', fInvoice:'Fattura n.', fTradeDesc:'Permuta — descrizione', fTradeVal:'Permuta — valore',
     fDSale:'Data vendita', fName:'Nome / ragione sociale', fAddr:'Indirizzo', fZip:'CAP', fCity:'Città',
@@ -1076,7 +1086,7 @@ var I18N = {
     fYear:'Year', fCond:'Condition', fSet:'Set', fMkt:'Grey value USD', fMktUse:'Use this value instead of the quote found online', mktMan:'mine', fPhoto:'Photo', fCp:'Client / Supplier', fSup:'Supplier', fCpSell:'Client',
     fCur:'Currency', fList:'List price', fAgreed:'Price paid', fVat:'VAT %', fNet:'Net detax price',
     fPay:'Payment', fDep:'Deposit paid', fPayDate:'Payment date', fStat:'Status', fDOrd:'Order date',
-    fDRec:'Arrived from supplier on', fDPick:'Collection date', fNotes:'Notes', fDocs:'Documents / invoices', fDocDep:'Deposit payment copy', fDocBal:'Balance payment copy', fDocWar:'Warranty certificate', printCard:'Print card', rWatchT:'Watch card', rWatchBuy:'Purchase', rWatchDocs:'Attachments', rDep:'Deposit', rBal:'Balance', toUpload:'uploads on save', noPreview:'No preview for this format — use Download.', download:'Download', close:'Close',
+    fDRec:'Arrived from supplier on', fDPick:'Collection date', fNotes:'Notes', fDocs:'Documents / invoices', fDocDep:'Deposit payment copy', fDocBal:'Balance payment copy', fDocWar:'Warranty certificate', printCard:'Print card', rWatchT:'Watch card', rOrdT:'Watches ordered', rOrdD:'Every order, first to last: paid or not, arrived or not, collected or not, sold or not.', oArr:'Arrived', oPick:'Collected', oState:'Where it is', oOrdered:'On order', oAtSup:'At supplier', oStock:'In stock', oSold:'Sold', rWatchBuy:'Purchase', rWatchDocs:'Attachments', rDep:'Deposit', rBal:'Balance', toUpload:'uploads on save', noPreview:'No preview for this format — use Download.', download:'Download', close:'Close',
     addDoc:'Add files', fWatch:'Watch', fPrice:'Sale price', fNetSale:'Net sale',
     fVatMode:'Regime', fInvoice:'Invoice no.', fTradeDesc:'Trade-in — description', fTradeVal:'Trade-in — value',
     fDSale:'Sale date', fName:'Name / company', fAddr:'Address', fZip:'ZIP', fCity:'City',
@@ -2617,6 +2627,57 @@ function buildRepWatch(){
   });
 }
 
+/* Registro degli ordini: c'e' dentro tutto, senza nessun filtro di stato —
+   pagati o no, arrivati o no, ritirati o no, gia' venduti o no. Serve a vedere
+   a che punto e' ogni pezzo, non a fare i conti. */
+function buildRepOrders(){
+  var rows=repFilterRows(S.acquisitions,'d_ord');
+  rows.sort(function(x,y){ return String(y.d_ord||'').localeCompare(String(x.d_ord||'')); });
+  var h=sheetHead(T('rOrdT'));
+  h+='<table><colgroup><col style="width:4%"><col style="width:7%"><col style="width:10%"><col style="width:12%"><col style="width:11%"><col style="width:13%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:17%"><col style="width:5%"></colgroup>';
+  h+='<tr><th></th><th>'+T('thDate')+'</th><th>'+T('thBrand')+'</th><th>'+T('thRef')+'</th><th>'+T('thModel')+'</th><th>'+T('thSup')+'</th>'+
+     '<th>'+T('oArr')+'</th><th>'+T('oPick')+'</th><th>'+T('oState')+'</th><th class="num">'+T('thCost')+'</th><th>'+T('thCur')+'</th></tr>';
+
+  var conta={ord:0,sup:0,stock:0,sold:0};
+  rows.forEach(function(a){
+    var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id), sale=saleByWatch(a.watch_id);
+    /* una parola sola che dice dov'e' il pezzo adesso */
+    var dove, cls;
+    if(sale){ dove=T('oSold'); cls='s-sold'; conta.sold++; }
+    else if(a.stat==='ritirato'){ dove=T('oStock'); cls='s-stock'; conta.stock++; }
+    else if(a.stat==='ordinato'){ dove=T('oOrdered'); cls='s-ord'; conta.ord++; }
+    else { dove=T('oAtSup'); cls='s-sup'; conta.sup++; }
+    /* il pagamento e' un fatto a parte: un pezzo puo' essere arrivato e non pagato */
+    var pag = payLabel(a.pay) + (a.pay==='acconto'&&a.dep?' ('+fmtN(a.dep,a.cur)+')':'');
+    h+='<tr>'+
+      '<td class="mini">'+(w.photo?'<img src="'+w.photo+'">':'<div class="noph">\u231a</div>')+'</td>'+
+      '<td>'+fmtDate(a.d_ord)+'</td>'+
+      '<td>'+esc(w.brand||'')+'</td>'+
+      '<td class="mono2">'+esc(w.ref||'')+'</td>'+
+      '<td>'+esc(w.model||'')+'</td>'+
+      '<td>'+esc(cp?cp.name:'')+'</td>'+
+      '<td>'+(a.d_rec?fmtDate(a.d_rec):'\u2014')+'</td>'+
+      '<td>'+(a.d_pick?fmtDate(a.d_pick):'\u2014')+'</td>'+
+      '<td><span class="ostate '+cls+'">'+esc(dove)+'</span><div class="opay">'+esc(pag)+'</div></td>'+
+      '<td class="num mono2">'+fmtN(netCost(a),a.cur)+'</td>'+
+      '<td>'+esc(a.cur||'')+'</td></tr>';
+  });
+  h+=totRowsByCur(rows,function(a){return a.cur;},function(a){return netCost(a);},11,T('totRow'));
+  h+='</table>';
+
+  /* riepilogo di quanti pezzi stanno in ciascuna fase */
+  h+='<div class="ocount">'+
+     '<span>'+conta.ord+' '+esc(T('oOrdered'))+'</span>'+
+     '<span>'+conta.sup+' '+esc(T('oAtSup'))+'</span>'+
+     '<span>'+conta.stock+' '+esc(T('oStock'))+'</span>'+
+     '<span>'+conta.sold+' '+esc(T('oSold'))+'</span>'+
+     '<span class="otot">'+rows.length+' '+esc(T('pieces'))+'</span>'+
+     '</div>';
+
+  var m=sumByCur(rows,function(a){return a.cur;},function(a){return netCost(a);});
+  loadFx(function(){ openPrint(T('rOrdT'), h + fxTotalsBlock(m)); });
+}
+
 function buildRepAcq(){
   var rows=repFilterRows(S.acquisitions,'d_ord');
   rows.sort(function(x,y){ return String(x.d_ord||'').localeCompare(String(y.d_ord||'')); });
@@ -3274,6 +3335,7 @@ function bind(){
   });
 
   /* reports */
+  $('repOrders').addEventListener('click', buildRepOrders);
   $('repAcq').addEventListener('click', buildRepAcq);
   $('repSales').addEventListener('click', buildRepSales);
   $('repMargin').addEventListener('click', buildRepMargin);
