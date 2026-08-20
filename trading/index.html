@@ -394,7 +394,7 @@ body.sell-mode.no-rate #vatRateWrap{display:none}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
       <div style="display:flex;align-items:center;gap:7px;min-width:0">
         <span class="eye" data-i18n="eyebrow" style="margin-bottom:0">Horology · Finance</span>
-        <span class="ver-pill" id="verPill">v3.2</span>
+        <span class="ver-pill" id="verPill">v3.3</span>
       </div>
       <div class="langtog" id="langTog">
         <button class="lt" data-lang="it">ITA</button>
@@ -750,7 +750,7 @@ body.sell-mode.no-rate #vatRateWrap{display:none}
 
 <script>
 const FLAGS={EUR:'🇪🇺',CHF:'🇨🇭',USD:'🇺🇸',GBP:'🇬🇧',JPY:'🇯🇵',CAD:'🇨🇦',AUD:'🇦🇺',CNY:'🇨🇳',AED:'🇦🇪',HKD:'🇭🇰'};
-const APP_VERSION='v3.2';
+const APP_VERSION='v3.3';
 const SYM={EUR:'€',CHF:'CHF ',USD:'$',GBP:'£',JPY:'¥',CAD:'CA$',AUD:'A$',CNY:'¥',AED:'AED ',HKD:'HK$'};
 const FB={EUR:1,CHF:.9276,USD:1.1478,GBP:.8418,JPY:162.5,CAD:1.559,AUD:1.764,CNY:8.315,AED:4.214,HKD:8.951};
 const COUNTIES={
@@ -1978,7 +1978,7 @@ function doPrint(){
       tot+=x.acc||0;
       const orig=fmt(x.v,x.c)+((x.c==='CHF'||x.c==='HKD')?'':' '+x.c);
       const tasso=(x.c===dCur)?'\u2014'
-        :('1 '+x.c+' = '+(x.rate!=null?Number(x.rate).toFixed(6):'?')+' '+dCur+(x.forced?' *':''));
+        :('1 '+x.c+' = '+(x.rate!=null?Number(x.rate).toFixed(6):'?')+' '+dCur);
       righe+='<tr>'+
         '<td class="pn">'+(i+1)+'</td>'+
         '<td class="porig">'+orig+'</td>'+
@@ -1999,7 +1999,6 @@ function doPrint(){
       righe+
       '<tr class="ptot"><td class="pn"></td><td colspan="'+nCol+'">'+L.pTotalReceived+'</td>'+
       '<td class="r pconv">'+fmt(tot,dCur)+'</td></tr></table>'+
-      (pagati.some(x=>x.forced)?'<div class="ps-payfoot">* '+L.pRateForced+'</div>':'')+
       '</div>';
   }
   const invNo=($('invoiceNo')&&$('invoiceNo').value.trim())||'';
