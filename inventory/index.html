@@ -506,7 +506,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <body>
 
 <!-- ============ AUTH ============ -->
-<div id="authView">
+<div id="authView" style="display:none">
   <div class="auth-card">
     <div class="logo">WATCH<span class="g">DESK</span></div>
     <div class="logo-sub" data-i18n="authSub">Gestionale orologi</div>
@@ -543,7 +543,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.4</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.5</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -921,10 +921,9 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
   <div class="modal narrow">
     <div class="m-head"><h3 data-i18n="settings">Impostazioni</h3><button class="m-close" data-close="ovSet">✕</button></div>
     <div class="msg" id="setMsg"></div>
-    <div class="divider"><span data-i18n="setPass">Cambio password</span></div>
-    <div class="field"><label data-i18n="curPass">Password attuale</label><input type="password" id="chCur"></div>
-    <div class="field"><label data-i18n="newPass">Nuova password</label><input type="password" id="chNew"></div>
-    <button class="btn full" id="btnChange" data-i18n="changeBtn">Cambia password</button>
+    <div class="divider"><span data-i18n="setPass">Accesso DeskSuite</span></div>
+    <p style="font-size:.84rem;color:var(--dim);margin-bottom:12px" data-i18n="setPassNote">Password, passkey e codice di recupero si gestiscono sulla porta unica DeskSuite.</p>
+    <button class="btn full" id="btnChange" data-i18n="changeBtn">Apri la porta DeskSuite</button>
     <div class="divider" style="margin-top:26px"><span data-i18n="setMig">Migrazione da Purchases</span></div>
     <p style="font-size:.84rem;color:var(--dim);margin-bottom:12px" data-i18n="migNote">Copia foto e documenti dal vecchio database WatchDesk Purchases. Da fare una volta sola, con il binding OLDDB attivo sul Worker.</p>
     <button class="btn dark full" id="btnMigrate" data-i18n="migBtn">Importa foto e documenti</button>
@@ -958,13 +957,15 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v4.1
-   API: watchdesk-api.owscan.workers.dev  (Worker + D1 "watchdesk")
+   WATCHDESK — GESTIONALE UNIFICATO  v9.5
+   API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
+   Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
 'use strict';
 
 /* ---------- costanti (tutte PRIMA di qualsiasi uso: mai più TDZ) ---------- */
-var API = 'https://watchdesk-api.owscan.workers.dev';
+var API = 'https://watchdesk-api.desksuite.cloud';
+var PORTA = 'https://auth.desksuite.cloud/';
 var TOKEN_KEY = 'wd_token';
 var LANG_KEY = 'wd_lang';
 
@@ -1018,7 +1019,7 @@ var I18N = {
     fCountry:'Paese', fContact:'Referente', fPhone:'Telefono', fRole:'Ruolo', fCurDef:'Valuta abituale',
     cpLookup:'Cerca sul web',
     delete:'Elimina', cancel:'Annulla', save:'Salva', close:'Chiudi', print:'Stampa',
-    settings:'Impostazioni', setPass:'Cambio password', curPass:'Password attuale', changeBtn:'Cambia password',
+    settings:'Impostazioni', setPass:'Accesso DeskSuite', setPassNote:'Password, passkey e codice di recupero si gestiscono sulla porta unica DeskSuite.', changeBtn:'Apri la porta DeskSuite',
     setMig:'Migrazione da Purchases',
     migNote:'Copia foto e documenti dal vecchio database WatchDesk Purchases. Da fare una volta sola, con il binding OLDDB attivo sul Worker.',
     migBtn:'Importa foto e documenti',
@@ -1097,7 +1098,7 @@ var I18N = {
     fCountry:'Country', fContact:'Contact', fPhone:'Phone', fRole:'Role', fCurDef:'Usual currency',
     cpLookup:'Search the web',
     delete:'Delete', cancel:'Cancel', save:'Save', close:'Close', print:'Print',
-    settings:'Settings', setPass:'Change password', curPass:'Current password', changeBtn:'Change password',
+    settings:'Settings', setPass:'DeskSuite access', setPassNote:'Password, passkey and recovery code are managed on the DeskSuite sign-in page.', changeBtn:'Open DeskSuite sign-in',
     setMig:'Migration from Purchases',
     migNote:'Copies photos and documents from the old WatchDesk Purchases database. One-time step, requires the OLDDB binding on the Worker.',
     migBtn:'Import photos and documents',
@@ -1210,6 +1211,7 @@ function api(path, opts){
   if(TOKEN) headers['Authorization'] = 'Bearer '+TOKEN;
   if(opts.body && typeof opts.body!=='string'){ opts.body = JSON.stringify(opts.body); headers['Content-Type']='application/json'; }
   opts.headers = headers;
+  opts.credentials = 'include';
   return fetch(API+path, opts).then(function(r){
     return r.json().catch(function(){ return {}; }).then(function(d){
       if(r.status===401 && path.indexOf('/auth/')!==0){ doLogout(true); throw new Error(T('sessionOut')); }
@@ -1315,10 +1317,13 @@ function afterLogin(d){
   enterApp();
 }
 function doLogout(silent){
+  /* DeskSuite: senza sessione si torna alla porta; il logout esplicito chiude anche la sessione condivisa */
   if(TOKEN && !silent){ api('/auth/logout',{method:'POST'}).catch(function(){}); }
   TOKEN=''; localStorage.removeItem(TOKEN_KEY);
-  $('appView').style.display='none'; $('authView').style.display='flex';
-  showAuthPane('loginForm');
+  $('appView').style.display='none';
+  if(silent){ location.replace(PORTA+'?redirect='+encodeURIComponent(location.href)); return; }
+  fetch(PORTA+'logout',{method:'POST',credentials:'include'}).catch(function(){})
+    .then(function(){ location.replace(PORTA); });
 }
 function enterApp(){
   $('authView').style.display='none'; $('appView').style.display='block';
@@ -3329,11 +3334,7 @@ function bind(){
 
   /* impostazioni */
   $('btnSettings').addEventListener('click',function(){ hideMsg('setMsg'); $('ovSet').classList.add('on'); });
-  $('btnChange').addEventListener('click',function(){
-    api('/auth/change',{method:'POST',body:{current:$('chCur').value,password:$('chNew').value}})
-      .then(function(){ $('chCur').value=''; $('chNew').value=''; showMsg('setMsg',T('changed'),true); })
-      .catch(function(e){ showMsg('setMsg',e.message); });
-  });
+  $('btnChange').addEventListener('click',function(){ location.href=PORTA; });
   $('btnMigrate').addEventListener('click',function(){
     $('btnMigrate').textContent=T('saving');
     api('/admin/migrate-photos',{method:'POST'})
@@ -3364,11 +3365,8 @@ function boot(){
   bind();
   fillStaticSelects();
   applyLang();
-  if(TOKEN){
-    api('/me').then(function(){ enterApp(); }).catch(function(){ doLogout(true); });
-  } else {
-    doLogout(true);
-  }
+  /* con o senza vecchio token: decide il server (cookie DeskSuite o Bearer) */
+  api('/me').then(function(){ enterApp(); }).catch(function(){ doLogout(true); });
 }
 boot();
 </script>
