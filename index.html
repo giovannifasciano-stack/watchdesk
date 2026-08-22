@@ -240,7 +240,9 @@ try { saved = localStorage.getItem('wd_lang') || 'it'; } catch(e){}
 applyLang(saved);
 
 /* ---------- accesso: stessa sessione del gestionale (wd_token) ---------- */
-var API = 'https://watchdesk-api.owscan.workers.dev';
+var API = 'https://watchdesk-api.desksuite.cloud';
+var PORTA = 'https://auth.desksuite.cloud/';
+function goPorta(){ location.replace(PORTA + '?redirect=' + encodeURIComponent(location.href)); }
 var $ = function(id){ return document.getElementById(id); };
 function token(){ try { return localStorage.getItem('wd_token') || ''; } catch(e){ return ''; } }
 function showMsg(k){ var m = $('gateMsg'); m.textContent = T(k); m.classList.add('on'); }
@@ -259,14 +261,15 @@ function showGate(){
 }
 
 function checkSession(){
-  var t = token();
-  if (!t) { showGate(); return; }
-  fetch(API + '/me', { headers: { Authorization: 'Bearer ' + t } })
+  /* DeskSuite: la sessione e' il cookie ds_session; il vecchio wd_token resta accettato nel passaggio */
+  var t = token(), h = {};
+  if (t) h.Authorization = 'Bearer ' + t;
+  fetch(API + '/me', { credentials: 'include', headers: h })
     .then(function(r){ return r.ok ? r.json() : Promise.reject(0); })
     .then(function(d){ showApps(d && d.email); })
     .catch(function(){
       try { localStorage.removeItem('wd_token'); } catch(e){}
-      showGate();
+      goPorta();
     });
 }
 
@@ -299,7 +302,8 @@ $('btnOut').addEventListener('click', function(){
   var t = token();
   if (t) fetch(API + '/auth/logout', { method: 'POST', headers: { Authorization: 'Bearer ' + t } }).catch(function(){});
   try { localStorage.removeItem('wd_token'); } catch(e){}
-  showGate();
+  fetch(PORTA + 'logout', { method: 'POST', credentials: 'include' }).catch(function(){})
+    .then(function(){ location.replace(PORTA); });
 });
 checkSession();
 </script>
