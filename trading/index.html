@@ -394,7 +394,7 @@ body.sell-mode.no-rate #vatRateWrap{display:none}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
       <div style="display:flex;align-items:center;gap:7px;min-width:0">
         <span class="eye" data-i18n="eyebrow" style="margin-bottom:0">Horology · Finance</span>
-        <span class="ver-pill" id="verPill">v3.3</span>
+        <span class="ver-pill" id="verPill">v3.4</span>
       </div>
       <div class="langtog" id="langTog">
         <button class="lt" data-lang="it">ITA</button>
@@ -750,7 +750,7 @@ body.sell-mode.no-rate #vatRateWrap{display:none}
 
 <script>
 const FLAGS={EUR:'🇪🇺',CHF:'🇨🇭',USD:'🇺🇸',GBP:'🇬🇧',JPY:'🇯🇵',CAD:'🇨🇦',AUD:'🇦🇺',CNY:'🇨🇳',AED:'🇦🇪',HKD:'🇭🇰'};
-const APP_VERSION='v3.3';
+const APP_VERSION='v3.4';
 const SYM={EUR:'€',CHF:'CHF ',USD:'$',GBP:'£',JPY:'¥',CAD:'CA$',AUD:'A$',CNY:'¥',AED:'AED ',HKD:'HK$'};
 const FB={EUR:1,CHF:.9276,USD:1.1478,GBP:.8418,JPY:162.5,CAD:1.559,AUD:1.764,CNY:8.315,AED:4.214,HKD:8.951};
 const COUNTIES={
@@ -2263,5 +2263,14 @@ setInterval(fetchRate,60000);
 
 <a href="../" id="wdHomeLink" title="WatchDesk" style="position:fixed;left:12px;bottom:12px;z-index:9999;display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:11px;background:rgba(11,18,48,.94);border:1px solid #2a3768;color:#d4b982;text-decoration:none;font-family:'Outfit',-apple-system,sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;backdrop-filter:blur(6px);box-shadow:0 4px 18px rgba(0,0,0,.35)">&#8592; Home</a>
 <style>@media print{#wdHomeLink{display:none!important}}</style>
+<script>
+/* DeskSuite: accesso unico. Senza sessione valida si torna alla porta. */
+(function(){
+  var h={}; try{ var t=localStorage.getItem('wd_token'); if(t) h['Authorization']='Bearer '+t; }catch(e){}
+  fetch('https://watchdesk-api.desksuite.cloud/me',{credentials:'include',headers:h})
+    .then(function(r){ if(r.status===401) location.replace('https://auth.desksuite.cloud/?redirect='+encodeURIComponent(location.href)); })
+    .catch(function(){});
+})();
+</script>
 </body>
 </html>
