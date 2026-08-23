@@ -329,6 +329,22 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 .repcard .rt{font-weight:600; margin-bottom:4px}
 .repcard .rd{color:var(--dim); font-size:.82rem; line-height:1.45}
 
+/* ---------- report visivo ---------- */
+.vtabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:14px auto 0;max-width:210mm}
+.vtabs button{border:1px solid var(--line);background:var(--card);color:var(--text);padding:9px 16px;border-radius:10px;font-size:.85rem;cursor:pointer}
+.vtabs button.on{border-color:var(--accent);color:var(--accent)}
+.vgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6mm 5mm;margin-top:6mm}
+.vcard{text-align:center;break-inside:avoid;page-break-inside:avoid}
+.vph{width:40mm;height:40mm;margin:0 auto;background:#fff;border:1px solid #d9d4c8;border-radius:2mm;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.vph img{width:100%;height:100%;object-fit:cover}
+.vph .noph{font-size:34px;color:#c8c4ba}
+.vqty{position:absolute;top:2mm;right:2mm;background:#171c26;color:#fff;min-width:8.5mm;height:8.5mm;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:800;padding:0 2mm}
+.vqty.uno{background:#fff;color:#171c26;border:1.5px solid #171c26}
+.vref{margin-top:2mm;font-weight:800;font-size:12px;color:#171c26}
+.vname{font-size:10px;color:#5a6272;line-height:1.35;margin-top:.5mm;min-height:8mm}
+@media (max-width:700px){.vgrid{grid-template-columns:repeat(2,1fr)}.vph{width:100%;height:auto;aspect-ratio:1}}
+@media print{.vtabs{display:none!important}}
+
 /* ---------- print preview ---------- */
 #waitBox{display:none; position:fixed; inset:0; background:rgba(3,6,26,.86); z-index:240;
   align-items:center; justify-content:center; backdrop-filter:blur(3px)}
@@ -543,7 +559,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.5</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.6</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -709,6 +725,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
       </div>
       <div class="repgrid">
         <div class="repcard" id="repOrders"><div class="ri">📋</div><div class="rt" data-i18n="rOrdT">Orologi ordinati</div><div class="rd" data-i18n="rOrdD">Tutti gli ordini, dal primo all'ultimo: pagati o no, arrivati o no, ritirati o no, venduti o no.</div></div>
+        <div class="repcard" id="repVis"><div class="ri">🖼</div><div class="rt" data-i18n="rVisT">Report visivo</div><div class="rd" data-i18n="rVisD">Gli orologi in foto grandi, con la sola quantità: per ordinati, acquisti, vendite o magazzino.</div></div>
         <div class="repcard" id="repAcq"><div class="ri">📥</div><div class="rt" data-i18n="rAcqT">Estratto conto acquisti</div><div class="rd" data-i18n="rAcqD">Tutte le acquisizioni del periodo, con costi netti e stato pagamenti.</div></div>
         <div class="repcard" id="repSales"><div class="ri">📤</div><div class="rt" data-i18n="rSalesT">Estratto conto vendite</div><div class="rd" data-i18n="rSalesD">Le vendite del periodo con regime IVA, permute e incassi.</div></div>
         <div class="repcard" id="repMargin"><div class="ri">📈</div><div class="rt" data-i18n="rMarT">Margini</div><div class="rd" data-i18n="rMarD">Margine per pezzo con giorni di giacenza, più totali per marca e cliente.</div></div>
@@ -957,7 +974,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v9.5
+   WATCHDESK — GESTIONALE UNIFICATO  v9.6
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1030,6 +1047,8 @@ var I18N = {
     rStockT:'Valore magazzino', rStockD:'Gli orologi in casa al costo netto, con giacenza a oggi.', rInvT:'Inventario', rInvD:'Gli orologi tuoi non venduti, in casa o pagati dal fornitore, con costo netto.',
     rCsvT:'Esporta CSV', rCsvD:'Acquisti e vendite filtrati, in un file per Excel/Numbers.',
     rJsonT:'Backup JSON', rJsonD:'Copia completa dell\'archivio, foto incluse.',
+    rVisT:'Report visivo', rVisD:'Gli orologi in foto grandi, con la sola quantit\u00e0: per ordinati, acquisti, vendite o magazzino.',
+    vOrd:'Ordinati', vAcq:'Acquisti', vSal:'Vendite', vMag:'Magazzino', vRefs:'referenze', vStockAt:'giacenza al', vArriving:'in arrivo',
     stat_ordinato:'Ordinato', stat_arrivato:'Arrivato dal fornitore', stat_pagatonr:'Pagato, non ritirato', stat_ritirato:'Ritirato',
     pay_nonpagato:'Non pagato', pay_acconto:'Acconto', pay_pagato:'Pagato',
     cond_nuovo:'Nuovo', cond_comenuovo:'Come nuovo', cond_ottimo:'Ottimo', cond_buono:'Buono', cond_darevisione:'Da revisione',
@@ -1109,6 +1128,8 @@ var I18N = {
     rStockT:'Stock value', rStockD:'Watches at home at net cost, with days in stock to date.', rInvT:'Inventory', rInvD:'Your unsold watches, in hand or paid at the supplier, with net cost.',
     rCsvT:'Export CSV', rCsvD:'Filtered purchases and sales, in a file for Excel/Numbers.',
     rJsonT:'JSON backup', rJsonD:'Full copy of the archive, photos included.',
+    rVisT:'Visual report', rVisD:'Your watches as large photos with just the quantity: ordered, purchases, sales or stock.',
+    vOrd:'Ordered', vAcq:'Purchases', vSal:'Sales', vMag:'Stock', vRefs:'references', vStockAt:'stock as of', vArriving:'arriving',
     stat_ordinato:'Ordered', stat_arrivato:'Arrived from supplier', stat_pagatonr:'Paid, not collected', stat_ritirato:'Collected',
     pay_nonpagato:'Unpaid', pay_acconto:'Deposit', pay_pagato:'Paid',
     cond_nuovo:'New', cond_comenuovo:'Like new', cond_ottimo:'Excellent', cond_buono:'Good', cond_darevisione:'Needs service',
@@ -2865,6 +2886,62 @@ function buildRepMargin(){
   });
 }
 
+/* ---------- report visivo: foto grandi, solo quantita' ---------- */
+function visGroup(items){
+  /* items: [{w:watch}] -> raggruppa per marca+referenza, conta i pezzi, prende la prima foto */
+  var m={}, ord=[];
+  items.forEach(function(it){
+    var w=it.w||{}; var k=(w.brand||'')+'\u0001'+(w.ref||w.model||'?');
+    if(!m[k]){ m[k]={brand:w.brand||'',ref:w.ref||'',model:w.model||'',photo:w.photo||null,q:0}; ord.push(k); }
+    m[k].q++;
+    if(!m[k].photo && w.photo) m[k].photo=w.photo;
+  });
+  return ord.map(function(k){return m[k];}).sort(function(a,b){ return b.q-a.q || String(a.brand).localeCompare(String(b.brand)) || String(a.ref).localeCompare(String(b.ref)); });
+}
+function visRows(kind){
+  if(kind==='mag') return S.watches.filter(isStock).map(function(w){return {w:w};});
+  if(kind==='ord') return repFilterRows(S.acquisitions,'d_ord').filter(function(a){return a.stat==='ordinato' && !saleByWatch(a.watch_id);}).map(function(a){return {w:watchById(a.watch_id)||{}};});
+  if(kind==='acq') return repFilterRows(S.acquisitions,'d_ord').map(function(a){return {w:watchById(a.watch_id)||{}};});
+  return repFilterRows(S.sales,'d_sale').map(function(s){return {w:watchById(s.watch_id)||{}};});
+}
+function visSheet(kind){
+  var titoli={ord:T('vOrd'),acq:T('vAcq'),sal:T('vSal'),mag:T('vMag')};
+  var rows=visRows(kind), g=visGroup(rows), tot=0;
+  g.forEach(function(x){tot+=x.q;});
+  var meta = (kind==='mag') ? (T('vStockAt')+' '+fmtDate(today()))
+           : (kind==='ord') ? (T('vArriving')+' \u00b7 '+repPeriodText())
+           : repPeriodText();
+  var h='<h1>WATCH<span class="g">DESK</span></h1>'+
+    '<div class="sh-sub">'+esc(titoli[kind])+'</div>'+
+    '<div class="sh-meta">'+esc(meta)+' \u2014 '+g.length+' '+T('vRefs')+' \u00b7 '+tot+' '+T('pieces')+'</div>';
+  if(!g.length){ h+='<div class="fxnote">'+T('noResults')+'</div>'; }
+  h+='<div class="vgrid">';
+  g.forEach(function(x){
+    h+='<div class="vcard"><div class="vph">'+
+       (x.photo?'<img src="'+x.photo+'">':'<div class="noph">\u231a</div>')+
+       '<div class="vqty'+(x.q===1?' uno':'')+'">'+x.q+'</div></div>'+
+       '<div class="vref">'+esc(x.ref||x.model||'\u2014')+'</div>'+
+       '<div class="vname">'+esc(x.brand||'')+(x.model&&x.ref?' \u00b7 '+esc(x.model):'')+'</div></div>';
+  });
+  h+='</div>';
+  return h;
+}
+function buildRepVis(kind){
+  kind=kind||'mag';
+  var tabs='<div class="vtabs">';
+  [['ord',T('vOrd')],['acq',T('vAcq')],['sal',T('vSal')],['mag',T('vMag')]].forEach(function(t){
+    tabs+='<button data-vk="'+t[0]+'" class="'+(t[0]===kind?'on':'')+'">'+esc(t[1])+'</button>';
+  });
+  tabs+='</div>';
+  $('plTitle').textContent=T('rVisT')+' \u2014 '+({ord:T('vOrd'),acq:T('vAcq'),sal:T('vSal'),mag:T('vMag')})[kind];
+  $('plSheet').innerHTML=visSheet(kind);
+  var bar=$('plSheet').parentNode.querySelector('.vtabs'); if(bar) bar.remove();
+  $('plSheet').insertAdjacentHTML('beforebegin',tabs);
+  $('plSheet').parentNode.querySelector('.vtabs').addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(b) buildRepVis(b.getAttribute('data-vk'));
+  });
+  $('printLayer').classList.add('on');
+}
 function buildRepStock(){
   var rows=S.watches.filter(isStock);
   var h='<h1>WATCH<span class="g">DESK</span></h1>'+
@@ -3345,6 +3422,7 @@ function bind(){
 
   /* reports */
   $('repOrders').addEventListener('click', buildRepOrders);
+  $('repVis').addEventListener('click', function(){ buildRepVis('mag'); });
   $('repAcq').addEventListener('click', buildRepAcq);
   $('repSales').addEventListener('click', buildRepSales);
   $('repMargin').addEventListener('click', buildRepMargin);
@@ -3353,7 +3431,7 @@ function bind(){
   $('repMkt').addEventListener('click', buildRepMkt);
   $('repCsv').addEventListener('click', exportCsv);
   $('repJson').addEventListener('click', exportJson);
-  $('plClose').addEventListener('click',function(){ $('printLayer').classList.remove('on'); });
+  $('plClose').addEventListener('click',function(){ $('printLayer').classList.remove('on'); var b=$('plSheet').parentNode.querySelector('.vtabs'); if(b) b.remove(); });
   $('dpClose').addEventListener('click',function(){ $('docPreview').classList.remove('on'); });
   $('plPrint').addEventListener('click',function(){ window.print(); });
 }
