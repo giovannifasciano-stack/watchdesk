@@ -559,7 +559,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.6</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.7</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -974,7 +974,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v9.6
+   WATCHDESK — GESTIONALE UNIFICATO  v9.7
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -2900,7 +2900,8 @@ function visGroup(items){
 }
 function visRows(kind){
   if(kind==='mag') return S.watches.filter(isStock).map(function(w){return {w:w};});
-  if(kind==='ord') return repFilterRows(S.acquisitions,'d_ord').filter(function(a){return a.stat==='ordinato' && !saleByWatch(a.watch_id);}).map(function(a){return {w:watchById(a.watch_id)||{}};});
+  /* Ordinati = tutti gli ordini del periodo, come il report tabellare 'Orologi ordinati' */
+  if(kind==='ord') return repFilterRows(S.acquisitions,'d_ord').map(function(a){return {w:watchById(a.watch_id)||{}};});
   if(kind==='acq') return repFilterRows(S.acquisitions,'d_ord').map(function(a){return {w:watchById(a.watch_id)||{}};});
   return repFilterRows(S.sales,'d_sale').map(function(s){return {w:watchById(s.watch_id)||{}};});
 }
@@ -2909,7 +2910,6 @@ function visSheet(kind){
   var rows=visRows(kind), g=visGroup(rows), tot=0;
   g.forEach(function(x){tot+=x.q;});
   var meta = (kind==='mag') ? (T('vStockAt')+' '+fmtDate(today()))
-           : (kind==='ord') ? (T('vArriving')+' \u00b7 '+repPeriodText())
            : repPeriodText();
   var h='<h1>WATCH<span class="g">DESK</span></h1>'+
     '<div class="sh-sub">'+esc(titoli[kind])+'</div>'+
