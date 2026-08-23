@@ -559,7 +559,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.7</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.8</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -725,7 +725,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
       </div>
       <div class="repgrid">
         <div class="repcard" id="repOrders"><div class="ri">📋</div><div class="rt" data-i18n="rOrdT">Orologi ordinati</div><div class="rd" data-i18n="rOrdD">Tutti gli ordini, dal primo all'ultimo: pagati o no, arrivati o no, ritirati o no, venduti o no.</div></div>
-        <div class="repcard" id="repVis"><div class="ri">🖼</div><div class="rt" data-i18n="rVisT">Report visivo</div><div class="rd" data-i18n="rVisD">Gli orologi in foto grandi, con la sola quantità: per ordinati, acquisti, vendite o magazzino.</div></div>
+        <div class="repcard" id="repVis"><div class="ri">🖼</div><div class="rt" data-i18n="rVisT">Report visivo</div><div class="rd" data-i18n="rVisD">Gli orologi in foto grandi, con la sola quantità: per ordinati, acquisti, vendite, magazzino o inventario.</div></div>
         <div class="repcard" id="repAcq"><div class="ri">📥</div><div class="rt" data-i18n="rAcqT">Estratto conto acquisti</div><div class="rd" data-i18n="rAcqD">Tutte le acquisizioni del periodo, con costi netti e stato pagamenti.</div></div>
         <div class="repcard" id="repSales"><div class="ri">📤</div><div class="rt" data-i18n="rSalesT">Estratto conto vendite</div><div class="rd" data-i18n="rSalesD">Le vendite del periodo con regime IVA, permute e incassi.</div></div>
         <div class="repcard" id="repMargin"><div class="ri">📈</div><div class="rt" data-i18n="rMarT">Margini</div><div class="rd" data-i18n="rMarD">Margine per pezzo con giorni di giacenza, più totali per marca e cliente.</div></div>
@@ -974,7 +974,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v9.7
+   WATCHDESK — GESTIONALE UNIFICATO  v9.8
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1047,8 +1047,8 @@ var I18N = {
     rStockT:'Valore magazzino', rStockD:'Gli orologi in casa al costo netto, con giacenza a oggi.', rInvT:'Inventario', rInvD:'Gli orologi tuoi non venduti, in casa o pagati dal fornitore, con costo netto.',
     rCsvT:'Esporta CSV', rCsvD:'Acquisti e vendite filtrati, in un file per Excel/Numbers.',
     rJsonT:'Backup JSON', rJsonD:'Copia completa dell\'archivio, foto incluse.',
-    rVisT:'Report visivo', rVisD:'Gli orologi in foto grandi, con la sola quantit\u00e0: per ordinati, acquisti, vendite o magazzino.',
-    vOrd:'Ordinati', vAcq:'Acquisti', vSal:'Vendite', vMag:'Magazzino', vRefs:'referenze', vStockAt:'giacenza al', vArriving:'in arrivo',
+    rVisT:'Report visivo', rVisD:'Gli orologi in foto grandi, con la sola quantit\u00e0: per ordinati, acquisti, vendite, magazzino o inventario.',
+    vOrd:'Ordinati', vAcq:'Acquisti', vSal:'Vendite', vMag:'Magazzino', vInv:'Inventario', vRefs:'referenze', vStockAt:'giacenza al', vArriving:'in arrivo',
     stat_ordinato:'Ordinato', stat_arrivato:'Arrivato dal fornitore', stat_pagatonr:'Pagato, non ritirato', stat_ritirato:'Ritirato',
     pay_nonpagato:'Non pagato', pay_acconto:'Acconto', pay_pagato:'Pagato',
     cond_nuovo:'Nuovo', cond_comenuovo:'Come nuovo', cond_ottimo:'Ottimo', cond_buono:'Buono', cond_darevisione:'Da revisione',
@@ -1128,8 +1128,8 @@ var I18N = {
     rStockT:'Stock value', rStockD:'Watches at home at net cost, with days in stock to date.', rInvT:'Inventory', rInvD:'Your unsold watches, in hand or paid at the supplier, with net cost.',
     rCsvT:'Export CSV', rCsvD:'Filtered purchases and sales, in a file for Excel/Numbers.',
     rJsonT:'JSON backup', rJsonD:'Full copy of the archive, photos included.',
-    rVisT:'Visual report', rVisD:'Your watches as large photos with just the quantity: ordered, purchases, sales or stock.',
-    vOrd:'Ordered', vAcq:'Purchases', vSal:'Sales', vMag:'Stock', vRefs:'references', vStockAt:'stock as of', vArriving:'arriving',
+    rVisT:'Visual report', rVisD:'Your watches as large photos with just the quantity: ordered, purchases, sales, stock or inventory.',
+    vOrd:'Ordered', vAcq:'Purchases', vSal:'Sales', vMag:'Stock', vInv:'Inventory', vRefs:'references', vStockAt:'stock as of', vArriving:'arriving',
     stat_ordinato:'Ordered', stat_arrivato:'Arrived from supplier', stat_pagatonr:'Paid, not collected', stat_ritirato:'Collected',
     pay_nonpagato:'Unpaid', pay_acconto:'Deposit', pay_pagato:'Paid',
     cond_nuovo:'New', cond_comenuovo:'Like new', cond_ottimo:'Excellent', cond_buono:'Good', cond_darevisione:'Needs service',
@@ -2900,16 +2900,18 @@ function visGroup(items){
 }
 function visRows(kind){
   if(kind==='mag') return S.watches.filter(isStock).map(function(w){return {w:w};});
+  /* Inventario = tuo e non venduto: in casa o pagato e fermo dal fornitore */
+  if(kind==='inv') return S.acquisitions.filter(isInvAcq).map(function(a){return {w:watchById(a.watch_id)||{}};});
   /* Ordinati = tutti gli ordini del periodo, come il report tabellare 'Orologi ordinati' */
   if(kind==='ord') return repFilterRows(S.acquisitions,'d_ord').map(function(a){return {w:watchById(a.watch_id)||{}};});
   if(kind==='acq') return repFilterRows(S.acquisitions,'d_ord').map(function(a){return {w:watchById(a.watch_id)||{}};});
   return repFilterRows(S.sales,'d_sale').map(function(s){return {w:watchById(s.watch_id)||{}};});
 }
 function visSheet(kind){
-  var titoli={ord:T('vOrd'),acq:T('vAcq'),sal:T('vSal'),mag:T('vMag')};
+  var titoli={ord:T('vOrd'),acq:T('vAcq'),sal:T('vSal'),mag:T('vMag'),inv:T('vInv')};
   var rows=visRows(kind), g=visGroup(rows), tot=0;
   g.forEach(function(x){tot+=x.q;});
-  var meta = (kind==='mag') ? (T('vStockAt')+' '+fmtDate(today()))
+  var meta = (kind==='mag'||kind==='inv') ? (T('vStockAt')+' '+fmtDate(today()))
            : repPeriodText();
   var h='<h1>WATCH<span class="g">DESK</span></h1>'+
     '<div class="sh-sub">'+esc(titoli[kind])+'</div>'+
@@ -2929,11 +2931,11 @@ function visSheet(kind){
 function buildRepVis(kind){
   kind=kind||'mag';
   var tabs='<div class="vtabs">';
-  [['ord',T('vOrd')],['acq',T('vAcq')],['sal',T('vSal')],['mag',T('vMag')]].forEach(function(t){
+  [['ord',T('vOrd')],['acq',T('vAcq')],['sal',T('vSal')],['mag',T('vMag')],['inv',T('vInv')]].forEach(function(t){
     tabs+='<button data-vk="'+t[0]+'" class="'+(t[0]===kind?'on':'')+'">'+esc(t[1])+'</button>';
   });
   tabs+='</div>';
-  $('plTitle').textContent=T('rVisT')+' \u2014 '+({ord:T('vOrd'),acq:T('vAcq'),sal:T('vSal'),mag:T('vMag')})[kind];
+  $('plTitle').textContent=T('rVisT')+' \u2014 '+({ord:T('vOrd'),acq:T('vAcq'),sal:T('vSal'),mag:T('vMag'),inv:T('vInv')})[kind];
   $('plSheet').innerHTML=visSheet(kind);
   var bar=$('plSheet').parentNode.querySelector('.vtabs'); if(bar) bar.remove();
   $('plSheet').insertAdjacentHTML('beforebegin',tabs);
