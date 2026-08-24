@@ -573,7 +573,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.17</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.18</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -999,7 +999,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v9.17
+   WATCHDESK — GESTIONALE UNIFICATO  v9.18
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1809,7 +1809,9 @@ function renderPur(){
       return hay.indexOf(q)>-1;
     });
   }
-  rows.sort(function(x,y){ return String(y.d_ord||'').localeCompare(String(x.d_ord||'')); });
+  /* ordine per data ritiro (senza ritiro: arrivo, poi data ordine), dal piu' recente */
+  var kPick=function(a){ return String(a.d_pick||a.d_rec||a.d_ord||''); };
+  rows.sort(function(x,y){ return kPick(y).localeCompare(kPick(x)); });
   var html='';
   rows.forEach(function(a){
     var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
