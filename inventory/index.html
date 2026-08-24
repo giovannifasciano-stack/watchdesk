@@ -242,6 +242,8 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 .st.venduto{color:var(--accent); border-color:var(--accent-dark); background:rgba(212,185,130,.1)}
 .st.pagato{color:var(--ok); border-color:var(--ok)}
 .st.taxfree{color:#7ab8ff; border-color:#3a53a8}
+.st.tfpend{text-align:center; line-height:1.25; padding:4px 10px 5px}
+.st.tfpend .tfamt{display:block; font-size:.62rem; color:#9cc6ff; opacity:.95; font-family:ui-monospace,Menlo,monospace; letter-spacing:.02em}
 .vatq{font-weight:700; border-radius:9px; padding:8px 12px; cursor:pointer; background:transparent}
 #aVat81{color:var(--accent); border:1.5px solid var(--accent)}
 #aVat81:hover{background:rgba(201,169,97,.12)}
@@ -501,11 +503,17 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
   .toolbar{gap:8px}
   .toolbar input,.toolbar select{min-width:0; font-size:.85rem}
   .toolbar .btn{width:100%; justify-content:center}
-  .rowcard{padding:11px 12px; gap:10px}
-  .thumb{width:48px; height:48px}
-  .rc-title{font-size:.88rem}
-  .rc-amt{font-size:.9rem}
-  .rc-sub{white-space:normal}
+  .rowcard{padding:11px 12px; gap:8px 10px; flex-wrap:wrap}
+  .thumb{width:44px; height:44px; font-size:20px}
+  .rc-main{flex:1 1 0; min-width:0}
+  .rc-title{font-size:.85rem; overflow-wrap:anywhere}
+  .rc-sub{white-space:normal; font-size:.7rem}
+  /* importo e bollini scendono su una riga tutta loro: il titolo respira */
+  .rc-right{flex:1 1 100%; display:flex; align-items:center; justify-content:space-between; gap:8px; text-align:right}
+  .rc-amt{font-size:.92rem; white-space:nowrap}
+  .rc-chips{margin-top:0; justify-content:flex-end; row-gap:4px}
+  .st{font-size:.6rem; padding:3px 7px}
+  .paylines{margin-top:2px}
   .repcard{padding:15px}
   /* pannelli nuovi della Home su schermo stretto */
   .hgrid{gap:10px}
@@ -565,7 +573,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.16</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.17</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -991,7 +999,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v9.16
+   WATCHDESK — GESTIONALE UNIFICATO  v9.17
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1835,7 +1843,12 @@ function renderPur(){
         '<div class="rc-chips">'+
           (sold?'<span class="st venduto">'+T('venduto')+'</span>':'<span class="st '+esc(a.stat||'')+'">'+esc(statLabel(a.stat))+'</span>')+
           '<span class="st '+esc(a.pay||'')+'">'+esc(payLabel(a.pay))+(a.pay_method?' \u00b7 '+esc(T('pm_'+a.pay_method)):'')+'</span>'+
-          (tf?('<span class="st taxfree">'+(tfDone?'Tax-free \u2713':'Tax-free Pending')+'</span>'):'')+
+          (tf?(tfDone
+            ?'<span class="st taxfree">Tax-free \u2713</span>'
+            :(function(){ var base=(a.agreed!=null&&num(a.agreed)>0)?num(a.agreed):(a.list!=null?num(a.list):null);
+                          var diff=(base!=null)?base-num(a.net):null;
+                          return '<span class="st taxfree tfpend">Tax-free Pending'+((diff!=null&&diff>0)?'<span class="tfamt">'+fmtN(diff,a.cur||'CHF')+'</span>':'')+'</span>'; })()
+          ):'')+
         '</div>'+
       '</div>'+
     '</div>';
