@@ -560,7 +560,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.14</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.15</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -793,7 +793,13 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
     <div class="frow3">
       <div class="field"><label data-i18n="fList">Prezzo listino</label><input type="text" id="aList" inputmode="decimal"></div>
       <div class="field"><label data-i18n="fAgreed">Prezzo pagato</label><input type="text" id="aAgreed" inputmode="decimal"></div>
-      <div class="field"><label data-i18n="fVat">IVA %</label><input type="text" id="aVat" inputmode="decimal"></div>
+      <div class="field"><label data-i18n="fVat">IVA/Tasse %</label>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="text" id="aVat" inputmode="decimal" style="flex:1">
+          <button type="button" class="btn dark sm" id="aVat81">8.1%</button>
+          <button type="button" class="btn dark sm" id="aVat22">22%</button>
+        </div>
+      </div>
     </div>
     <div class="frow">
       <div class="field"><label data-i18n="fNet">Prezzo netto detax</label><input type="text" id="aNet" inputmode="decimal" style="border-color:var(--accent-dark)">
@@ -864,7 +870,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
     </div>
     <div class="frow3">
       <div class="field"><label data-i18n="fPrice">Prezzo vendita</label><input type="text" id="sPrice" inputmode="decimal"></div>
-      <div class="field"><label data-i18n="fVat">IVA %</label><input type="text" id="sVat" inputmode="decimal"></div>
+      <div class="field"><label data-i18n="fVat">IVA/Tasse %</label><input type="text" id="sVat" inputmode="decimal"></div>
       <div class="field"><label data-i18n="fNetSale">Netto vendita</label><input type="text" id="sNet" inputmode="decimal" style="border-color:var(--accent-dark)"></div>
     </div>
     <div class="frow">
@@ -980,7 +986,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v9.14
+   WATCHDESK — GESTIONALE UNIFICATO  v9.15
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1034,7 +1040,7 @@ var I18N = {
     dWatch:'Orologio', dAcq:'Acquisizione',
     fBrand:'Marca', fBrandOther:'Altra marca', fRef:'Referenza', fModel:'Modello', fSerial:'Seriale',
     fYear:'Anno', fCond:'Condizioni', fSet:'Corredo', fMkt:'Valore grey USD', fMktUse:'Usa questo valore invece della quotazione trovata', mktMan:'mio', fPhoto:'Foto', fCp:'Cliente / Fornitore', fSup:'Fornitore', fCpSell:'Cliente',
-    fCur:'Valuta', fList:'Prezzo listino', fAgreed:'Prezzo pagato', fVat:'IVA %', fNet:'Prezzo netto detax',
+    fCur:'Valuta', fList:'Prezzo listino', fAgreed:'Prezzo pagato', fVat:'IVA/Tasse %', fNet:'Prezzo netto detax',
     fPay:'Pagamento', fDep:'Acconto versato', fPayDate:'Data pagamento', fStat:'Stato', fDOrd:'Data ordine',
     fDRec:'Arrivato dal fornitore il', fDPick:'Data ritiro', fNotes:'Note', fDocs:'Documenti / fatture', fDocDep:'Copia pagamento acconto', fDocBal:'Copia pagamento saldo', fDocWar:'Certificato di garanzia', printCard:'Stampa scheda', rWatchT:'Scheda orologio', rOrdT:'Orologi ordinati', rOrdD:"Tutti gli ordini, dal primo all'ultimo: pagati o no, arrivati o no, ritirati o no, venduti o no.", oArr:'Arrivato', oPick:'Ritirato', oState:'Dove si trova', oOrdered:'Ordinato', oAtSup:'Dal fornitore', oStock:'In magazzino', oSold:'Venduto', rWatchBuy:'Acquisto', rWatchDocs:'Allegati', rDep:'Acconto', rBal:'Saldo', toUpload:'da caricare al salvataggio', noPreview:'Anteprima non disponibile per questo formato — usa Scarica.', download:'Scarica', close:'Chiudi',
     addDoc:'Aggiungi file', fWatch:'Orologio', fPrice:'Prezzo vendita', fNetSale:'Netto vendita',
@@ -1116,7 +1122,7 @@ var I18N = {
     dWatch:'Watch', dAcq:'Acquisition',
     fBrand:'Brand', fBrandOther:'Other brand', fRef:'Reference', fModel:'Model', fSerial:'Serial',
     fYear:'Year', fCond:'Condition', fSet:'Set', fMkt:'Grey value USD', fMktUse:'Use this value instead of the quote found online', mktMan:'mine', fPhoto:'Photo', fCp:'Client / Supplier', fSup:'Supplier', fCpSell:'Client',
-    fCur:'Currency', fList:'List price', fAgreed:'Price paid', fVat:'VAT %', fNet:'Net detax price',
+    fCur:'Currency', fList:'List price', fAgreed:'Price paid', fVat:'VAT/Taxes %', fNet:'Net detax price',
     fPay:'Payment', fDep:'Deposit paid', fPayDate:'Payment date', fStat:'Status', fDOrd:'Order date',
     fDRec:'Arrived from supplier on', fDPick:'Collection date', fNotes:'Notes', fDocs:'Documents / invoices', fDocDep:'Deposit payment copy', fDocBal:'Balance payment copy', fDocWar:'Warranty certificate', printCard:'Print card', rWatchT:'Watch card', rOrdT:'Watches ordered', rOrdD:'Every order, first to last: paid or not, arrived or not, collected or not, sold or not.', oArr:'Arrived', oPick:'Collected', oState:'Where it is', oOrdered:'On order', oAtSup:'At supplier', oStock:'In stock', oSold:'Sold', rWatchBuy:'Purchase', rWatchDocs:'Attachments', rDep:'Deposit', rBal:'Balance', toUpload:'uploads on save', noPreview:'No preview for this format — use Download.', download:'Download', close:'Close',
     addDoc:'Add files', fWatch:'Watch', fPrice:'Sale price', fNetSale:'Net sale',
@@ -3342,6 +3348,8 @@ function bind(){
   $('btnRefSearch').addEventListener('click', refSearch);
   $('aRef').addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); refSearch(); } });
   $('aVat').addEventListener('input',function(){ calcNetFromVat('aList','aVat','aNet'); });
+  $('aVat81').addEventListener('click',function(){ $('aVat').value='8.1'; calcNetFromVat('aList','aVat','aNet'); });
+  $('aVat22').addEventListener('click',function(){ $('aVat').value='22'; calcNetFromVat('aList','aVat','aNet'); });
   $('aList').addEventListener('input',function(){ if($('aVat').value) calcNetFromVat('aList','aVat','aNet'); });
   $('aAgreed').addEventListener('input',function(){ if($('aVat').value) calcNetFromVat('aList','aVat','aNet'); });
   $('aPay').addEventListener('change',function(){ $('aDepBox').style.display = $('aPay').value==='acconto'?'block':'none'; });
