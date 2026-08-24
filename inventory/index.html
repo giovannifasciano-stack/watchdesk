@@ -559,7 +559,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.8</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.9</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -797,6 +797,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
     <div class="frow">
       <div class="field"><label data-i18n="fNet">Prezzo netto detax</label><input type="text" id="aNet" inputmode="decimal" style="border-color:var(--accent-dark)"></div>
       <div class="field"><label data-i18n="fPay">Pagamento</label><select id="aPay"></select></div>
+      <div class="field"><label data-i18n="fPayM">Metodo di pagamento</label><select id="aPayM"></select></div>
     </div>
     <div class="frow">
       <div class="field" id="aDepBox"><label data-i18n="fDep">Acconto versato</label><input type="text" id="aDep" inputmode="decimal"></div>
@@ -974,7 +975,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v9.8
+   WATCHDESK — GESTIONALE UNIFICATO  v9.9
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1020,6 +1021,7 @@ var I18N = {
     repSub:'Estratti conto, registro vendite, margini. Ogni report si apre in anteprima e poi si stampa.',
     phSearch:'Cerca referenza, marca, fornitore…', phSearchSales:'Cerca referenza, marca, cliente…', phSearchMag:'Cerca referenza, marca, seriale…',
     phSearchCp:'Cerca nome, città…', phLookup:'Nome boutique, gioielleria, dealer…', phPhoto:'Tocca per caricare una foto',
+    fPayM:'Metodo di pagamento', pm_bonifico:'Bonifico', pm_contanti:'Contanti', pm_carta:'Carta', pm_crypto:'Crypto', pm_permuta:'Permuta', pm_altro:'Altro',
     newAcq:'Nuovo acquisto', editAcq:'Modifica acquisto', sellThis:'Vendi questo orologio', newSale:'Nuova vendita', editSale:'Modifica vendita',
     newCp:'Nuova scheda', newCli:'Aggiungi cliente', newSup:'Aggiungi fornitore', editCp:'Modifica scheda',
     magEmpty:'Magazzino vuoto: nessun orologio ritirato in attesa di vendita.',
@@ -1101,6 +1103,7 @@ var I18N = {
     repSub:'Statements, sales ledger, margins. Every report opens as a preview, then prints.',
     phSearch:'Search reference, brand, supplier…', phSearchSales:'Search reference, brand, client…', phSearchMag:'Search reference, brand, serial…',
     phSearchCp:'Search name, city…', phLookup:'Boutique, jeweller, dealer name…', phPhoto:'Tap to upload a photo',
+    fPayM:'Payment method', pm_bonifico:'Bank transfer', pm_contanti:'Cash', pm_carta:'Card', pm_crypto:'Crypto', pm_permuta:'Trade-in', pm_altro:'Other',
     newAcq:'New purchase', editAcq:'Edit purchase', sellThis:'Sell this watch', newSale:'New sale', editSale:'Edit sale',
     newCp:'New record', newCli:'Add client', newSup:'Add supplier', editCp:'Edit record',
     magEmpty:'Inventory is empty: no collected watch awaiting sale.',
@@ -1293,6 +1296,9 @@ function fillStaticSelects(){
   keep=$('aPay').value;
   $('aPay').innerHTML = PAYS.map(function(p){return optHtml(p,payLabel(p));}).join('');
   if(keep) $('aPay').value=keep;
+  keep=$('aPayM').value;
+  $('aPayM').innerHTML = ['','bonifico','contanti','carta','crypto','permuta','altro'].map(function(p){return optHtml(p, p?T('pm_'+p):'\u2014');}).join('');
+  if(keep) $('aPayM').value=keep;
   keep=$('sPay').value;
   $('sPay').innerHTML = PAYS.map(function(p){return optHtml(p,payLabel(p));}).join('');
   if(keep) $('sPay').value=keep;
@@ -1807,7 +1813,7 @@ function renderPur(){
         pl+
         '<div class="rc-chips">'+
           (sold?'<span class="st venduto">'+T('venduto')+'</span>':'<span class="st '+esc(a.stat||'')+'">'+esc(statLabel(a.stat))+'</span>')+
-          '<span class="st '+esc(a.pay||'')+'">'+esc(payLabel(a.pay))+'</span>'+
+          '<span class="st '+esc(a.pay||'')+'">'+esc(payLabel(a.pay))+(a.pay_method?' \u00b7 '+esc(T('pm_'+a.pay_method)):'')+'</span>'+
         '</div>'+
       '</div>'+
     '</div>';
@@ -1953,6 +1959,7 @@ function openAcqModal(acqId, presetWatchId){
   $('aVat').value = a.vat!=null?a.vat:'';
   $('aNet').value = a.net!=null?a.net:'';
   $('aPay').value = a.pay||'nonpagato';
+  $('aPayM').value = a.pay_method||'';
   $('aDep').value = a.dep!=null&&a.dep!==0?a.dep:'';
   $('aPayDate').value = a.pay_date||'';
   $('aStat').value = a.stat||'ordinato';
@@ -1992,7 +1999,7 @@ function saveAcq(){
   var aBody = {
     watchId:wid, counterpartId:$('aCp').value, cur:$('aCur').value,
     list:num($('aList').value)||0, agreed:num($('aAgreed').value), vat:num($('aVat').value),
-    net:num($('aNet').value), pay:$('aPay').value, dep:num($('aDep').value)||0,
+    net:num($('aNet').value), pay:$('aPay').value, payMethod:$('aPayM').value, dep:num($('aDep').value)||0,
     payDate:$('aPayDate').value, stat:$('aStat').value,
     dOrd:$('aDOrd').value, dRec:$('aDRec').value, dPick:$('aDPick').value,
     notes:$('aNotes').value.trim()
@@ -2682,7 +2689,7 @@ function buildRepOrders(){
     else if(a.stat==='ordinato'){ dove=T('oOrdered'); cls='s-ord'; conta.ord++; }
     else { dove=T('oAtSup'); cls='s-sup'; conta.sup++; }
     /* il pagamento e' un fatto a parte: un pezzo puo' essere arrivato e non pagato */
-    var pag = payLabel(a.pay) + (a.pay==='acconto'&&a.dep?' ('+fmtN(a.dep,a.cur)+')':'');
+    var pag = payLabel(a.pay) + (a.pay==='acconto'&&a.dep?' ('+fmtN(a.dep,a.cur)+')':'') + (a.pay_method?' \u00b7 '+T('pm_'+a.pay_method):'');
     h+='<tr>'+
       '<td class="mini">'+(w.photo?'<img src="'+w.photo+'">':'<div class="noph">\u231a</div>')+'</td>'+
       '<td>'+fmtDate(a.d_ord)+'</td>'+
