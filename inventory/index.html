@@ -560,7 +560,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.12</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.13</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -796,7 +796,11 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
       <div class="field"><label data-i18n="fVat">IVA %</label><input type="text" id="aVat" inputmode="decimal"></div>
     </div>
     <div class="frow">
-      <div class="field"><label data-i18n="fNet">Prezzo netto detax</label><input type="text" id="aNet" inputmode="decimal" style="border-color:var(--accent-dark)"></div>
+      <div class="field"><label data-i18n="fNet">Prezzo netto detax</label><input type="text" id="aNet" inputmode="decimal" style="border-color:var(--accent-dark)">
+        <label class="chk"><input type="checkbox" id="aTaxRef"><span data-i18n="fTaxRef">Tax refund ricevuto</span></label>
+      </div>
+    </div>
+    <div class="frow">
       <div class="field"><label data-i18n="fPay">Pagamento</label><select id="aPay"></select></div>
       <div class="field"><label data-i18n="fPayM">Metodo di pagamento</label><select id="aPayM"></select></div>
     </div>
@@ -976,7 +980,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v9.12
+   WATCHDESK — GESTIONALE UNIFICATO  v9.13
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1022,7 +1026,7 @@ var I18N = {
     repSub:'Estratti conto, registro vendite, margini. Ogni report si apre in anteprima e poi si stampa.',
     phSearch:'Cerca referenza, marca, fornitore…', phSearchSales:'Cerca referenza, marca, cliente…', phSearchMag:'Cerca referenza, marca, seriale…',
     phSearchCp:'Cerca nome, città…', phLookup:'Nome boutique, gioielleria, dealer…', phPhoto:'Tocca per caricare una foto',
-    fPayM:'Metodo di pagamento', pm_bonifico:'Bonifico', pm_contanti:'Contanti', pm_carta:'Carta di Credito', pm_crypto:'Crypto', pm_permuta:'Permuta', pm_altro:'Altro',
+    fPayM:'Metodo di pagamento', fTaxRef:'Tax refund ricevuto', pm_bonifico:'Bonifico', pm_contanti:'Contanti', pm_carta:'Carta di Credito', pm_crypto:'Crypto', pm_permuta:'Permuta', pm_altro:'Altro',
     newAcq:'Nuovo acquisto', editAcq:'Modifica acquisto', sellThis:'Vendi questo orologio', newSale:'Nuova vendita', editSale:'Modifica vendita',
     newCp:'Nuova scheda', newCli:'Aggiungi cliente', newSup:'Aggiungi fornitore', editCp:'Modifica scheda',
     magEmpty:'Magazzino vuoto: nessun orologio ritirato in attesa di vendita.',
@@ -1104,7 +1108,7 @@ var I18N = {
     repSub:'Statements, sales ledger, margins. Every report opens as a preview, then prints.',
     phSearch:'Search reference, brand, supplier…', phSearchSales:'Search reference, brand, client…', phSearchMag:'Search reference, brand, serial…',
     phSearchCp:'Search name, city…', phLookup:'Boutique, jeweller, dealer name…', phPhoto:'Tap to upload a photo',
-    fPayM:'Payment method', pm_bonifico:'Bank transfer', pm_contanti:'Cash', pm_carta:'Credit Card', pm_crypto:'Crypto', pm_permuta:'Trade-in', pm_altro:'Other',
+    fPayM:'Payment method', fTaxRef:'Tax refund received', pm_bonifico:'Bank transfer', pm_contanti:'Cash', pm_carta:'Credit Card', pm_crypto:'Crypto', pm_permuta:'Trade-in', pm_altro:'Other',
     newAcq:'New purchase', editAcq:'Edit purchase', sellThis:'Sell this watch', newSale:'New sale', editSale:'Edit sale',
     newCp:'New record', newCli:'Add client', newSup:'Add supplier', editCp:'Edit record',
     magEmpty:'Inventory is empty: no collected watch awaiting sale.',
@@ -1792,6 +1796,11 @@ function renderPur(){
     var w=watchById(a.watch_id)||{}, cp=cpById(a.counterpart_id);
     var sold=!!saleByWatch(a.watch_id);
     var net=netCost(a);
+    /* Tax-free: finche' il rimborso non e' ricevuto, in lista vale il pagato (o il listino);
+       col rimborso ricevuto vale il netto detax. */
+    var tf = num(a.net)>0;
+    var tfDone = tf && !!(a.tax_ref && Number(a.tax_ref));
+    if(tf && !tfDone) net = (a.agreed!=null && num(a.agreed)>0) ? num(a.agreed) : (a.list!=null?num(a.list):net);
     /* acconto versato: si mostra quanto e' gia' uscito e quanto resta da versare.
        Il conto e' sul netto — e' l'importo che il fornitore aspetta davvero. */
     var dep = num(a.dep)||0;
@@ -1815,7 +1824,7 @@ function renderPur(){
         '<div class="rc-chips">'+
           (sold?'<span class="st venduto">'+T('venduto')+'</span>':'<span class="st '+esc(a.stat||'')+'">'+esc(statLabel(a.stat))+'</span>')+
           '<span class="st '+esc(a.pay||'')+'">'+esc(payLabel(a.pay))+(a.pay_method?' \u00b7 '+esc(T('pm_'+a.pay_method)):'')+'</span>'+
-          ((num(a.net)>0)?'<span class="st taxfree">Tax-free</span>':'')+
+          (tf?('<span class="st taxfree">'+(tfDone?'Tax-free \u2713':'Tax-free Pending')+'</span>'):'')+
         '</div>'+
       '</div>'+
     '</div>';
@@ -1962,6 +1971,7 @@ function openAcqModal(acqId, presetWatchId){
   $('aNet').value = a.net!=null?a.net:'';
   $('aPay').value = a.pay||'nonpagato';
   $('aPayM').value = a.pay_method||'';
+  $('aTaxRef').checked = !!(a.tax_ref && Number(a.tax_ref));
   $('aDep').value = a.dep!=null&&a.dep!==0?a.dep:'';
   $('aPayDate').value = a.pay_date||'';
   $('aStat').value = a.stat||'ordinato';
@@ -2001,7 +2011,7 @@ function saveAcq(){
   var aBody = {
     watchId:wid, counterpartId:$('aCp').value, cur:$('aCur').value,
     list:num($('aList').value)||0, agreed:num($('aAgreed').value), vat:num($('aVat').value),
-    net:num($('aNet').value), pay:$('aPay').value, payMethod:$('aPayM').value, dep:num($('aDep').value)||0,
+    net:num($('aNet').value), pay:$('aPay').value, payMethod:$('aPayM').value, taxRef:$('aTaxRef').checked?1:0, dep:num($('aDep').value)||0,
     payDate:$('aPayDate').value, stat:$('aStat').value,
     dOrd:$('aDOrd').value, dRec:$('aDRec').value, dPick:$('aDPick').value,
     notes:$('aNotes').value.trim()
