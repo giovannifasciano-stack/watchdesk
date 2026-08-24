@@ -243,6 +243,19 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 .st.pagato{color:var(--ok); border-color:var(--ok)}
 .st.taxfree{color:#7ab8ff; border-color:#3a53a8}
 .st.tfpend{text-align:center; line-height:1.25; padding:4px 10px 5px}
+.vershead{display:flex;align-items:center;justify-content:space-between;margin:4px 0 8px}
+.vershead span{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.addvers{border:1px dashed var(--accent);background:transparent;color:var(--accent);border-radius:10px;padding:7px 12px;font-size:.8rem;cursor:pointer}
+.vrow{display:grid;grid-template-columns:110px 1fr 1fr 132px 30px;gap:8px;margin-bottom:8px;align-items:center}
+.vrow select,.vrow input{padding:9px 10px;font-size:.88rem}
+.vrow select.vtipo-saldo{color:var(--ok)}
+.vrow select.vtipo-acconto{color:var(--accent)}
+.vrow .vdel{border:none;background:transparent;color:var(--bad);font-size:1rem;cursor:pointer}
+.verssum{display:flex;gap:18px;justify-content:flex-end;font-size:.85rem;color:var(--dim);border-top:1px dashed var(--line);padding-top:9px;margin:2px 0 12px}
+.verssum b{font-family:ui-monospace,Menlo,monospace;color:var(--text)}
+.verssum .vok b{color:var(--ok)} .verssum .vres b{color:var(--bad)}
+@media(max-width:560px){.vrow{grid-template-columns:96px 1fr 30px;grid-template-areas:'tipo importo del' 'metodo metodo metodo' 'data data data'}
+.vrow select.vtipo{grid-area:tipo}.vrow input.vimp{grid-area:importo}.vrow select.vmet{grid-area:metodo}.vrow input.vdat{grid-area:data}.vrow .vdel{grid-area:del;justify-self:end}}
 .st.tfpend .tfamt{display:block; font-size:.62rem; color:#9cc6ff; opacity:.95; font-family:ui-monospace,Menlo,monospace; letter-spacing:.02em}
 .vatq{font-weight:700; border-radius:9px; padding:8px 12px; cursor:pointer; background:transparent}
 #aVat81{color:var(--accent); border:1.5px solid var(--accent)}
@@ -573,7 +586,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.18</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.0</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -821,12 +834,11 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
     </div>
     <div class="frow">
       <div class="field"><label data-i18n="fPay">Pagamento</label><select id="aPay"></select></div>
-      <div class="field"><label data-i18n="fPayM">Metodo di pagamento</label><select id="aPayM"></select></div>
+      <div class="field" style="display:none"><select id="aPayM"></select><input type="text" id="aDep"><input type="date" id="aPayDate"></div>
     </div>
-    <div class="frow">
-      <div class="field" id="aDepBox"><label data-i18n="fDep">Acconto versato</label><input type="text" id="aDep" inputmode="decimal"></div>
-      <div class="field"><label data-i18n="fPayDate">Data pagamento</label><input type="date" id="aPayDate"></div>
-    </div>
+    <div class="vershead"><span data-i18n="versTitle">Versamenti</span><button type="button" class="addvers" id="btnAddVers" data-i18n="versAdd">+ Aggiungi versamento</button></div>
+    <div id="versList"></div>
+    <div class="verssum" id="versSum" style="display:none"></div>
     <div class="frow">
       <div class="field"><label data-i18n="fStat">Stato</label><select id="aStat"></select></div>
       <div class="field"><label data-i18n="fDOrd">Data ordine</label><input type="date" id="aDOrd"></div>
@@ -999,7 +1011,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v9.18
+   WATCHDESK — GESTIONALE UNIFICATO  v10.0
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1045,7 +1057,7 @@ var I18N = {
     repSub:'Estratti conto, registro vendite, margini. Ogni report si apre in anteprima e poi si stampa.',
     phSearch:'Cerca referenza, marca, fornitore…', phSearchSales:'Cerca referenza, marca, cliente…', phSearchMag:'Cerca referenza, marca, seriale…',
     phSearchCp:'Cerca nome, città…', phLookup:'Nome boutique, gioielleria, dealer…', phPhoto:'Tocca per caricare una foto',
-    fPayM:'Metodo di pagamento', fTaxRef:'Tax refund ricevuto', tfAskOn:'Confermi: il tax refund \u00e8 stato RICEVUTO? In lista l\'importo diventer\u00e0 il prezzo netto detax.', tfAskOff:'Confermi di togliere la conferma del tax refund? In lista torner\u00e0 il prezzo pagato (o il listino) con Tax-free Pending.', pm_bonifico:'Bonifico', pm_contanti:'Contanti', pm_carta:'Carta di Credito', pm_crypto:'Crypto', pm_permuta:'Permuta', pm_altro:'Altro',
+    fPayM:'Metodo di pagamento', fTaxRef:'Tax refund ricevuto', versTitle:'Versamenti', versAdd:'+ Aggiungi versamento', versPaid:'Versato', versLeft:'Residuo', vtAcc:'Acconto', vtSal:'Saldo', pm_misto:'misto', tfAskOn:'Confermi: il tax refund \u00e8 stato RICEVUTO? In lista l\'importo diventer\u00e0 il prezzo netto detax.', tfAskOff:'Confermi di togliere la conferma del tax refund? In lista torner\u00e0 il prezzo pagato (o il listino) con Tax-free Pending.', pm_bonifico:'Bonifico', pm_contanti:'Contanti', pm_carta:'Carta di Credito', pm_crypto:'Crypto', pm_permuta:'Permuta', pm_altro:'Altro',
     newAcq:'Nuovo acquisto', editAcq:'Modifica acquisto', sellThis:'Vendi questo orologio', newSale:'Nuova vendita', editSale:'Modifica vendita',
     newCp:'Nuova scheda', newCli:'Aggiungi cliente', newSup:'Aggiungi fornitore', editCp:'Modifica scheda',
     magEmpty:'Magazzino vuoto: nessun orologio ritirato in attesa di vendita.',
@@ -1127,7 +1139,7 @@ var I18N = {
     repSub:'Statements, sales ledger, margins. Every report opens as a preview, then prints.',
     phSearch:'Search reference, brand, supplier…', phSearchSales:'Search reference, brand, client…', phSearchMag:'Search reference, brand, serial…',
     phSearchCp:'Search name, city…', phLookup:'Boutique, jeweller, dealer name…', phPhoto:'Tap to upload a photo',
-    fPayM:'Payment method', fTaxRef:'Tax refund received', tfAskOn:'Confirm: the tax refund has been RECEIVED? The list amount will switch to the detax net price.', tfAskOff:'Remove the tax refund confirmation? The list will go back to the paid (or list) price with Tax-free Pending.', pm_bonifico:'Bank transfer', pm_contanti:'Cash', pm_carta:'Credit Card', pm_crypto:'Crypto', pm_permuta:'Trade-in', pm_altro:'Other',
+    fPayM:'Payment method', fTaxRef:'Tax refund received', versTitle:'Payments', versAdd:'+ Add payment', versPaid:'Paid in', versLeft:'Balance', vtAcc:'Deposit', vtSal:'Balance', pm_misto:'mixed', tfAskOn:'Confirm: the tax refund has been RECEIVED? The list amount will switch to the detax net price.', tfAskOff:'Remove the tax refund confirmation? The list will go back to the paid (or list) price with Tax-free Pending.', pm_bonifico:'Bank transfer', pm_contanti:'Cash', pm_carta:'Credit Card', pm_crypto:'Crypto', pm_permuta:'Trade-in', pm_altro:'Other',
     newAcq:'New purchase', editAcq:'Edit purchase', sellThis:'Sell this watch', newSale:'New sale', editSale:'Edit sale',
     newCp:'New record', newCli:'Add client', newSup:'Add supplier', editCp:'Edit record',
     magEmpty:'Inventory is empty: no collected watch awaiting sale.',
@@ -1195,7 +1207,8 @@ var I18N = {
 /* ---------- stato ---------- */
 var LANG = 'it';   /* si apre sempre in italiano; il cambio vale solo per la sessione */
 var TOKEN = localStorage.getItem(TOKEN_KEY) || '';
-var S = { counterparts:[], watches:[], acquisitions:[], sales:[] };
+var S = { counterparts:[], watches:[], acquisitions:[], sales:[], payments:[] };
+var MPAY=[], MPAY_DEL=[];   /* versamenti nel modulo aperto */
 var CUR_VIEW = 'home';
 var CP_ROLE_FILTER = 'fornitori';
 var EDIT = { acq:null, watch:null, sale:null, cp:null, photo:'' };
@@ -1380,12 +1393,26 @@ function enterApp(){
   $('authView').style.display='none'; $('appView').style.display='block';
   loadData();
 }
+function paysFor(acqId){ return S.payments.filter(function(p){ return p.acq_id===acqId; }); }
+function migratePayments(){
+  var todo=S.acquisitions.filter(function(a){ return num(a.dep)>0 && paysFor(a.id).length===0; });
+  if(!todo.length) return;
+  Promise.all(todo.map(function(a){
+    var pid='pay-'+rid();
+    var body={acqId:a.id, tipo:'acconto', amount:num(a.dep)||0, method:a.pay_method||'', payDate:a.pay_date||''};
+    return api('/payments/'+pid,{method:'PUT',body:body}).then(function(){
+      S.payments.push({id:pid, acq_id:a.id, tipo:'acconto', amount:body.amount, method:body.method, pay_date:body.payDate});
+    }).catch(function(){});
+  }));
+}
 function loadData(){
   return api('/data').then(function(d){
     S.counterparts = d.counterparts||[];
     S.watches = d.watches||[];
     S.acquisitions = d.acquisitions||[];
     S.sales = d.sales||[];
+    S.payments = d.payments||[];
+    migratePayments();
     applyLang();
   }).catch(function(e){
     if(String(e.message)!==T('sessionOut')) alert(e.message);
@@ -2000,6 +2027,9 @@ function openAcqModal(acqId, presetWatchId){
   $('aTaxRef').checked = !!(a.tax_ref && Number(a.tax_ref));
   $('aDep').value = a.dep!=null&&a.dep!==0?a.dep:'';
   $('aPayDate').value = a.pay_date||'';
+  MPAY_DEL=[];
+  MPAY = (EDIT.acq?paysFor(EDIT.acq.id):[]).map(function(p){ return {id:p.id, tipo:p.tipo||'acconto', amount:p.amount, method:p.method||'', payDate:p.pay_date||''}; });
+  renderVers();
   $('aStat').value = a.stat||'ordinato';
   $('aDOrd').value = a.d_ord|| (EDIT.acq?'':today());
   $('aDRec').value = a.d_rec||'';
@@ -2015,6 +2045,36 @@ function openAcqModal(acqId, presetWatchId){
   $('ovAcq').classList.add('on');
 }
 
+var PMETHODS=['','bonifico','contanti','carta','crypto','permuta','altro'];
+function versBase(){ var ag=num($('aAgreed').value); if(ag!=null&&ag>0) return ag; var li=num($('aList').value); return li!=null?li:0; }
+function renderVers(){
+  var h='';
+  MPAY.forEach(function(p,i){
+    h+='<div class="vrow" data-i="'+i+'">'+
+      '<select class="vtipo vtipo-'+(p.tipo==='saldo'?'saldo':'acconto')+'" data-k="tipo"><option value="acconto"'+(p.tipo!=='saldo'?' selected':'')+'>'+T('vtAcc')+'</option><option value="saldo"'+(p.tipo==='saldo'?' selected':'')+'>'+T('vtSal')+'</option></select>'+
+      '<input class="vimp" data-k="amount" inputmode="decimal" value="'+(p.amount!=null&&p.amount!==''?p.amount:'')+'">'+
+      '<select class="vmet" data-k="method">'+PMETHODS.map(function(m){return '<option value="'+m+'"'+(p.method===m?' selected':'')+'>'+(m?T('pm_'+m):'\u2014')+'</option>';}).join('')+'</select>'+
+      '<input class="vdat" data-k="payDate" type="date" value="'+(p.payDate||'')+'">'+
+      '<button type="button" class="vdel" data-del="'+i+'">\u2715</button>'+
+    '</div>';
+  });
+  $('versList').innerHTML=h;
+  var tot=0; MPAY.forEach(function(p){ tot+= (num(p.amount)||0); });
+  var base=versBase(), res=Math.round((base-tot)*100)/100;
+  if(MPAY.length){
+    $('versSum').style.display='flex';
+    $('versSum').innerHTML='<span>'+T('versPaid')+' <b>'+fmtN(tot,$('aCur').value)+'</b></span>'+
+      '<span class="'+(res<=0.004?'vok':'vres')+'">'+T('versLeft')+' <b>'+fmtN(Math.max(res,0),$('aCur').value)+'</b></span>';
+  } else { $('versSum').style.display='none'; }
+  /* lo stato si aggiorna da solo dai versamenti */
+  if(MPAY.length){ $('aPay').value = tot<=0 ? 'nonpagato' : (res<=0.004 ? 'pagato' : 'acconto'); }
+}
+function versAggregates(){
+  var tot=0, methods={}, last='';
+  MPAY.forEach(function(p){ var n=num(p.amount)||0; tot+=n; if(p.method) methods[p.method]=1; if((p.payDate||'')>last) last=p.payDate||''; });
+  var mk=Object.keys(methods);
+  return {tot:tot, method: mk.length===0?'' : (mk.length===1?mk[0]:'misto'), lastDate:last};
+}
 function calcNetFromVat(listEl, vatEl, netEl){
   var base = num($(listEl).value);
   var agreed = listEl==='aList' ? num($('aAgreed').value) : null;
@@ -2037,14 +2097,28 @@ function saveAcq(){
   var aBody = {
     watchId:wid, counterpartId:$('aCp').value, cur:$('aCur').value,
     list:num($('aList').value)||0, agreed:num($('aAgreed').value), vat:num($('aVat').value),
-    net:num($('aNet').value), pay:$('aPay').value, payMethod:$('aPayM').value, taxRef:$('aTaxRef').checked?1:0, dep:num($('aDep').value)||0,
-    payDate:$('aPayDate').value, stat:$('aStat').value,
+    net:num($('aNet').value), pay:$('aPay').value, taxRef:$('aTaxRef').checked?1:0,
+    stat:$('aStat').value,
     dOrd:$('aDOrd').value, dRec:$('aDRec').value, dPick:$('aDPick').value,
     notes:$('aNotes').value.trim()
   };
+  var agg=versAggregates();
+  if(MPAY.length){
+    aBody.pay=$('aPay').value; aBody.dep=agg.tot; aBody.payMethod=agg.method; aBody.payDate=agg.lastDate;
+    if(aBody.pay==='pagato'){ aBody.dep=0; }   /* saldato: niente residuo da mostrare */
+  } else {
+    aBody.dep=num($('aDep').value)||0; aBody.payMethod=$('aPayM').value; aBody.payDate=$('aPayDate').value;
+  }
   $('btnSaveAcq').textContent=T('saving');
   api('/watches/'+wid, {method:'PUT', body:wBody})
     .then(function(){ return api('/acquisitions/'+aid, {method:'PUT', body:aBody}); })
+    .then(function(){
+      return Promise.all(
+        MPAY.map(function(p){ if(!p.id) p.id='pay-'+rid();
+          return api('/payments/'+p.id,{method:'PUT',body:{acqId:aid,tipo:p.tipo,amount:num(p.amount)||0,method:p.method,payDate:p.payDate}}); })
+        .concat(MPAY_DEL.map(function(id){ return api('/payments/'+id,{method:'DELETE'}); }))
+      );
+    })
     .then(function(){
       return Promise.all(DOCG.map(function(g){ return pushPendingDocs(g.k, g.t, aid); }));
     })
@@ -3391,6 +3465,27 @@ function bind(){
     compressImage(f,function(data){ EDIT.photo=data; $('aPhotoImg').src=data; $('aPhotoImg').style.display='block'; });
   });
   $('btnSaveAcq').addEventListener('click', saveAcq);
+  $('btnAddVers').addEventListener('click', function(){ MPAY.push({id:null,tipo:MPAY.length?'saldo':'acconto',amount:'',method:'',payDate:today()}); renderVers(); });
+  $('versList').addEventListener('input', function(e){
+    var row=e.target.closest('.vrow'); if(!row) return;
+    var p=MPAY[Number(row.getAttribute('data-i'))]; if(!p) return;
+    p[e.target.getAttribute('data-k')]=e.target.value;
+    if(e.target.getAttribute('data-k')!=='amount') renderVers(); else {
+      /* niente ridisegno mentre scrive l'importo: aggiorno solo i totali */
+      var tot=0; MPAY.forEach(function(x){tot+=(num(x.amount)||0);});
+      var base=versBase(), res=Math.round((base-tot)*100)/100;
+      $('versSum').style.display='flex';
+      $('versSum').innerHTML='<span>'+T('versPaid')+' <b>'+fmtN(tot,$('aCur').value)+'</b></span>'+
+        '<span class="'+(res<=0.004?'vok':'vres')+'">'+T('versLeft')+' <b>'+fmtN(Math.max(res,0),$('aCur').value)+'</b></span>';
+      if(MPAY.length){ $('aPay').value = tot<=0 ? 'nonpagato' : (res<=0.004 ? 'pagato' : 'acconto'); }
+    }
+  });
+  $('versList').addEventListener('click', function(e){
+    var b=e.target.closest('[data-del]'); if(!b) return;
+    var i=Number(b.getAttribute('data-del')); var p=MPAY[i];
+    if(p && p.id) MPAY_DEL.push(p.id);
+    MPAY.splice(i,1); renderVers();
+  });
   $('btnPrintAcq').addEventListener('click', function(){ buildRepWatch(); });
   $('btnSellAcq').addEventListener('click', function(){
     var wid = EDIT.acq && EDIT.acq.watch_id;
