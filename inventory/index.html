@@ -560,7 +560,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.13</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.14</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -980,7 +980,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v9.13
+   WATCHDESK — GESTIONALE UNIFICATO  v9.14
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1026,7 +1026,7 @@ var I18N = {
     repSub:'Estratti conto, registro vendite, margini. Ogni report si apre in anteprima e poi si stampa.',
     phSearch:'Cerca referenza, marca, fornitore…', phSearchSales:'Cerca referenza, marca, cliente…', phSearchMag:'Cerca referenza, marca, seriale…',
     phSearchCp:'Cerca nome, città…', phLookup:'Nome boutique, gioielleria, dealer…', phPhoto:'Tocca per caricare una foto',
-    fPayM:'Metodo di pagamento', fTaxRef:'Tax refund ricevuto', pm_bonifico:'Bonifico', pm_contanti:'Contanti', pm_carta:'Carta di Credito', pm_crypto:'Crypto', pm_permuta:'Permuta', pm_altro:'Altro',
+    fPayM:'Metodo di pagamento', fTaxRef:'Tax refund ricevuto', tfAskOn:'Confermi: il tax refund \u00e8 stato RICEVUTO? In lista l\'importo diventer\u00e0 il prezzo netto detax.', tfAskOff:'Confermi di togliere la conferma del tax refund? In lista torner\u00e0 il prezzo pagato (o il listino) con Tax-free Pending.', pm_bonifico:'Bonifico', pm_contanti:'Contanti', pm_carta:'Carta di Credito', pm_crypto:'Crypto', pm_permuta:'Permuta', pm_altro:'Altro',
     newAcq:'Nuovo acquisto', editAcq:'Modifica acquisto', sellThis:'Vendi questo orologio', newSale:'Nuova vendita', editSale:'Modifica vendita',
     newCp:'Nuova scheda', newCli:'Aggiungi cliente', newSup:'Aggiungi fornitore', editCp:'Modifica scheda',
     magEmpty:'Magazzino vuoto: nessun orologio ritirato in attesa di vendita.',
@@ -1108,7 +1108,7 @@ var I18N = {
     repSub:'Statements, sales ledger, margins. Every report opens as a preview, then prints.',
     phSearch:'Search reference, brand, supplier…', phSearchSales:'Search reference, brand, client…', phSearchMag:'Search reference, brand, serial…',
     phSearchCp:'Search name, city…', phLookup:'Boutique, jeweller, dealer name…', phPhoto:'Tap to upload a photo',
-    fPayM:'Payment method', fTaxRef:'Tax refund received', pm_bonifico:'Bank transfer', pm_contanti:'Cash', pm_carta:'Credit Card', pm_crypto:'Crypto', pm_permuta:'Trade-in', pm_altro:'Other',
+    fPayM:'Payment method', fTaxRef:'Tax refund received', tfAskOn:'Confirm: the tax refund has been RECEIVED? The list amount will switch to the detax net price.', tfAskOff:'Remove the tax refund confirmation? The list will go back to the paid (or list) price with Tax-free Pending.', pm_bonifico:'Bank transfer', pm_contanti:'Cash', pm_carta:'Credit Card', pm_crypto:'Crypto', pm_permuta:'Trade-in', pm_altro:'Other',
     newAcq:'New purchase', editAcq:'Edit purchase', sellThis:'Sell this watch', newSale:'New sale', editSale:'Edit sale',
     newCp:'New record', newCli:'Add client', newSup:'Add supplier', editCp:'Edit record',
     magEmpty:'Inventory is empty: no collected watch awaiting sale.',
@@ -3345,6 +3345,11 @@ function bind(){
   $('aList').addEventListener('input',function(){ if($('aVat').value) calcNetFromVat('aList','aVat','aNet'); });
   $('aAgreed').addEventListener('input',function(){ if($('aVat').value) calcNetFromVat('aList','aVat','aNet'); });
   $('aPay').addEventListener('change',function(){ $('aDepBox').style.display = $('aPay').value==='acconto'?'block':'none'; });
+  /* la spunta del tax refund chiede sempre conferma, in entrambe le direzioni */
+  $('aTaxRef').addEventListener('change',function(){
+    var ok = confirm(this.checked ? T('tfAskOn') : T('tfAskOff'));
+    if(!ok) this.checked = !this.checked;
+  });
   $('aStat').addEventListener('change',function(){
     /* "pagato, non ritirato" implica il saldo: allineo la tendina del pagamento */
     if(this.value==='pagatonr' && $('aPay').value!=='pagato'){
