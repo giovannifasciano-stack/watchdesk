@@ -560,7 +560,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.11</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v9.12</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -976,7 +976,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v9.11
+   WATCHDESK — GESTIONALE UNIFICATO  v9.12
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1815,7 +1815,7 @@ function renderPur(){
         '<div class="rc-chips">'+
           (sold?'<span class="st venduto">'+T('venduto')+'</span>':'<span class="st '+esc(a.stat||'')+'">'+esc(statLabel(a.stat))+'</span>')+
           '<span class="st '+esc(a.pay||'')+'">'+esc(payLabel(a.pay))+(a.pay_method?' \u00b7 '+esc(T('pm_'+a.pay_method)):'')+'</span>'+
-          ((num(a.net)>0 && num(a.agreed)>0 && num(a.net)<num(a.agreed))?'<span class="st taxfree">Tax-free</span>':'')+
+          ((num(a.net)>0)?'<span class="st taxfree">Tax-free</span>':'')+
         '</div>'+
       '</div>'+
     '</div>';
