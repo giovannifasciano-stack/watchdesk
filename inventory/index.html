@@ -601,7 +601,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.6</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.7</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -1036,7 +1036,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v10.6
+   WATCHDESK — GESTIONALE UNIFICATO  v10.7
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -3558,7 +3558,15 @@ function bind(){
   }
   DOCG.forEach(function(g){
     $(g.inp).addEventListener('change', function(){ ingestAcq(g, $(g.inp)); });
-    wireDrop($(g.list).parentNode, function(fl){ ingestAcq(g, fl); });
+    /* la zona del tax-free e' la sua riga, non tutto il modulo */
+    var zones = (g.k==='acqTax') ? [$('tfLine'), $(g.list)] : [$(g.list).parentNode];
+    zones.forEach(function(z){ wireDrop(z, function(fl){ ingestAcq(g, fl); }); });
+  });
+  /* un rilascio fuori dai riquadri, a modulo aperto, non deve aprire il file nel browser */
+  ['ovAcq','ovSale'].forEach(function(ov){
+    ['dragover','drop'].forEach(function(ev){
+      $(ov).addEventListener(ev, function(e){ e.preventDefault(); });
+    });
   });
   wireDrop($('sDocList').parentNode, function(fl){
     if(EDIT.sale){ uploadDocs('sale', EDIT.sale.id, fl, 'sDocList', 'saleMsg'); return; }
