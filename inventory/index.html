@@ -250,6 +250,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 .vrow select,.vrow input{padding:9px 10px;font-size:.88rem}
 .vrow select.vtipo-saldo{color:var(--ok)}
 .vrow select.vtipo-pagamento{color:#7ab8ff}
+.st.tfpend .tfni{color:#ff7a8a}
 .vrow select.vtipo-acconto{color:var(--accent)}
 .vrow .vdel{border:none;background:transparent;color:var(--bad);font-size:1rem;cursor:pointer}
 .verssum{display:flex;gap:18px;justify-content:flex-end;font-size:.85rem;color:var(--dim);border-top:1px dashed var(--line);padding-top:9px;margin:2px 0 12px}
@@ -587,7 +588,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.1</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.2</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -1012,7 +1013,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v10.1
+   WATCHDESK — GESTIONALE UNIFICATO  v10.2
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1877,7 +1878,9 @@ function renderPur(){
             ?'<span class="st taxfree">Tax-free \u2713</span>'
             :(function(){ var base=(a.agreed!=null&&num(a.agreed)>0)?num(a.agreed):(a.list!=null?num(a.list):null);
                           var diff=(base!=null)?base-num(a.net):null;
-                          return '<span class="st taxfree tfpend">Tax-free Pending'+((diff!=null&&diff>0)?'<span class="tfamt">'+fmtN(diff,a.cur||'CHF')+'</span>':'')+'</span>'; })()
+                          /* non pagato e non ritirato: la pratica tax-free non e' nemmeno partita */
+                          var ni = (a.pay!=='pagato') && (a.stat!=='ritirato');
+                          return '<span class="st taxfree tfpend">Tax-free '+(ni?'<span class="tfni">Not initiated</span>':'Pending')+((diff!=null&&diff>0)?'<span class="tfamt">'+fmtN(diff,a.cur||'CHF')+'</span>':'')+'</span>'; })()
           ):'')+
         '</div>'+
       '</div>'+
