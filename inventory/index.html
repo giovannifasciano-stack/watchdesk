@@ -601,7 +601,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.7</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.8</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -1036,7 +1036,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v10.7
+   WATCHDESK — GESTIONALE UNIFICATO  v10.8
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1092,7 +1092,7 @@ var I18N = {
     fYear:'Anno', fCond:'Condizioni', fSet:'Corredo', fMkt:'Valore grey USD', fMktUse:'Usa questo valore invece della quotazione trovata', mktMan:'mio', fPhoto:'Foto', fCp:'Cliente / Fornitore', fSup:'Fornitore', fCpSell:'Cliente',
     fCur:'Valuta', fList:'Prezzo listino', fAgreed:'Prezzo pagato', fVat:'IVA/Tasse %', fNet:'Prezzo netto detax',
     fPay:'Pagamento', fDep:'Acconto versato', fPayDate:'Data pagamento', fStat:'Stato', fDOrd:'Data ordine',
-    fDRec:'Arrivato dal fornitore il', fDPick:'Data ritiro', fNotes:'Note', fDocs:'Documenti / fatture', fDocDep:'Copia pagamento acconto', fDocBal:'Copia pagamento saldo', fDocWar:'Certificato di garanzia', printCard:'Stampa scheda', rWatchT:'Scheda orologio', rOrdT:'Orologi ordinati', rOrdD:"Tutti gli ordini, dal primo all'ultimo: pagati o no, arrivati o no, ritirati o no, venduti o no.", oArr:'Arrivato', oPick:'Ritirato', oState:'Dove si trova', oOrdered:'Ordinato', oAtSup:'Dal fornitore', oStock:'In magazzino', oSold:'Venduto', rWatchBuy:'Acquisto', rWatchDocs:'Allegati', rDep:'Acconto', rBal:'Saldo', toUpload:'da caricare al salvataggio', noPreview:'Anteprima non disponibile per questo formato — usa Scarica.', download:'Scarica', close:'Chiudi',
+    fDRec:'Arrivato dal fornitore il', fDPick:'Data ritiro', fNotes:'Note', fDocs:'Documenti / fatture', fDocDep:'Copia pagamento acconto', fDocBal:'Copia pagamento saldo', fDocWar:'Certificato di garanzia', printCard:'Stampa scheda', rWatchT:'Scheda orologio', rOrdT:'Orologi ordinati', rOrdD:"Tutti gli ordini, dal primo all'ultimo: pagati o no, arrivati o no, ritirati o no, venduti o no.", oArr:'Arrivato', oPick:'Ritirato', oState:'Dove si trova', oOrdered:'Ordinato', oAtSup:'Dal fornitore', oStock:'In magazzino', oSold:'Venduto', rWatchBuy:'Acquisto', rWatchDocs:'Allegati', rDep:'Acconto', rBal:'Saldo', toUpload:'da caricare al salvataggio', docTooBig:'File troppo grande anche dopo la compressione: massimo ~1.8MB.', noPreview:'Anteprima non disponibile per questo formato — usa Scarica.', download:'Scarica', close:'Chiudi',
     addDoc:'Aggiungi file', fWatch:'Orologio', fPrice:'Prezzo vendita', fNetSale:'Netto vendita',
     fVatMode:'Regime', fInvoice:'Fattura n.', fTradeDesc:'Permuta — descrizione', fTradeVal:'Permuta — valore',
     fDSale:'Data vendita', fName:'Nome / ragione sociale', fAddr:'Indirizzo', fZip:'CAP', fCity:'Città',
@@ -1174,7 +1174,7 @@ var I18N = {
     fYear:'Year', fCond:'Condition', fSet:'Set', fMkt:'Grey value USD', fMktUse:'Use this value instead of the quote found online', mktMan:'mine', fPhoto:'Photo', fCp:'Client / Supplier', fSup:'Supplier', fCpSell:'Client',
     fCur:'Currency', fList:'List price', fAgreed:'Price paid', fVat:'VAT/Taxes %', fNet:'Net detax price',
     fPay:'Payment', fDep:'Deposit paid', fPayDate:'Payment date', fStat:'Status', fDOrd:'Order date',
-    fDRec:'Arrived from supplier on', fDPick:'Collection date', fNotes:'Notes', fDocs:'Documents / invoices', fDocDep:'Deposit payment copy', fDocBal:'Balance payment copy', fDocWar:'Warranty certificate', printCard:'Print card', rWatchT:'Watch card', rOrdT:'Watches ordered', rOrdD:'Every order, first to last: paid or not, arrived or not, collected or not, sold or not.', oArr:'Arrived', oPick:'Collected', oState:'Where it is', oOrdered:'On order', oAtSup:'At supplier', oStock:'In stock', oSold:'Sold', rWatchBuy:'Purchase', rWatchDocs:'Attachments', rDep:'Deposit', rBal:'Balance', toUpload:'uploads on save', noPreview:'No preview for this format — use Download.', download:'Download', close:'Close',
+    fDRec:'Arrived from supplier on', fDPick:'Collection date', fNotes:'Notes', fDocs:'Documents / invoices', fDocDep:'Deposit payment copy', fDocBal:'Balance payment copy', fDocWar:'Warranty certificate', printCard:'Print card', rWatchT:'Watch card', rOrdT:'Watches ordered', rOrdD:'Every order, first to last: paid or not, arrived or not, collected or not, sold or not.', oArr:'Arrived', oPick:'Collected', oState:'Where it is', oOrdered:'On order', oAtSup:'At supplier', oStock:'In stock', oSold:'Sold', rWatchBuy:'Purchase', rWatchDocs:'Attachments', rDep:'Deposit', rBal:'Balance', toUpload:'uploads on save', docTooBig:'File still too large after compression: max ~1.8MB.', noPreview:'No preview for this format — use Download.', download:'Download', close:'Close',
     addDoc:'Add files', fWatch:'Watch', fPrice:'Sale price', fNetSale:'Net sale',
     fVatMode:'Regime', fInvoice:'Invoice no.', fTradeDesc:'Trade-in — description', fTradeVal:'Trade-in — value',
     fDSale:'Sale date', fName:'Name / company', fAddr:'Address', fZip:'ZIP', fCity:'City',
@@ -2538,12 +2538,40 @@ var DOCG = [
   {k:'acqWar', t:'acq_war',     list:'aWarList', inp:'aWarFile'},  /* garanzia */
   {k:'acqTax', t:'acq_tax',     list:'aTaxList', inp:'aTaxFile'}   /* documento tax-free */
 ];
+/* Le foto dei telefoni pesano troppo per l'archivio: le immagini sopra ~0.6MB
+   vengono ridisegnate (max 2200px, qualita' 0.85; secondo giro 1600px/0.72 se serve).
+   I PDF e gli altri formati passano intatti. Se l'immagine non si riesce a decodificare
+   (es. HEIC su Chrome), si tenta l'invio dell'originale. */
+function shrinkImage(rec){
+  if(String(rec.type).indexOf('image/')!==0 || rec.size<600*1024) return Promise.resolve(rec);
+  return new Promise(function(res){
+    var im=new Image();
+    im.onload=function(){
+      try{
+        function pass(maxPx,q){
+          var k=Math.min(1, maxPx/Math.max(im.width,im.height));
+          var c=document.createElement('canvas');
+          c.width=Math.max(1,Math.round(im.width*k)); c.height=Math.max(1,Math.round(im.height*k));
+          c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+          return c.toDataURL('image/jpeg',q);
+        }
+        var out=pass(2200,.85);
+        if(out.length>1.6*1024*1024) out=pass(1600,.72);
+        var size=Math.round(out.length*3/4);
+        var name=String(rec.name||'foto').replace(/\.[a-z0-9]+$/i,'')+'.jpg';
+        res({name:name, type:'image/jpeg', size:size, data:out});
+      }catch(e){ res(rec); }
+    };
+    im.onerror=function(){ res(rec); };
+    im.src=rec.data;
+  });
+}
 function readFiles(fileInput){
   var files = Array.prototype.slice.call(fileInput.files||[]);
   return Promise.all(files.map(function(f){
     return new Promise(function(res){
       var r=new FileReader();
-      r.onload=function(e){ res({name:f.name, type:f.type, size:f.size, data:e.target.result}); };
+      r.onload=function(e){ shrinkImage({name:f.name, type:f.type, size:f.size, data:e.target.result}).then(res); };
       r.readAsDataURL(f);
     });
   }));
@@ -2580,11 +2608,13 @@ function uploadDocs(parentType, parentId, fileInput, listId, msgId){
   var jobs = files.map(function(f){
     return new Promise(function(res){
       var r=new FileReader();
-      r.onload=function(e){ res({name:f.name, type:f.type, size:f.size, data:e.target.result}); };
+      r.onload=function(e){ shrinkImage({name:f.name, type:f.type, size:f.size, data:e.target.result}).then(res); };
       r.readAsDataURL(f);
     });
   });
   Promise.all(jobs).then(function(payload){
+    var troppo=payload.filter(function(f){ return f.size>1.8*1024*1024; });
+    if(troppo.length){ showMsg(msgId, T('docTooBig')+' ('+troppo.map(function(f){return f.name;}).join(', ')+')'); return Promise.reject(new Error('skip')); }
     return api('/docs', {method:'POST', body:{parentType:parentType, parentId:parentId, files:payload}})
       .catch(function(){
         /* compatibilità nomi campo alternativi */
@@ -2594,7 +2624,7 @@ function uploadDocs(parentType, parentId, fileInput, listId, msgId){
     fileInput.value='';
     showMsg(msgId, T('docAdded'), true);
     loadDocs(parentType, parentId, listId);
-  }).catch(function(e){ showMsg(msgId, e.message); });
+  }).catch(function(e){ if(e && e.message!=='skip') showMsg(msgId, e.message); });
 }
 function showDocPreview(name, type, data){
   $('dpName').textContent = name || 'documento';
@@ -3553,6 +3583,9 @@ function bind(){
     zone.addEventListener('drop', function(e){
       e.preventDefault(); e.stopPropagation(); zone.classList.remove('dz-over');
       var fs=e.dataTransfer && e.dataTransfer.files;
+      if(!(fs && fs.length) && e.dataTransfer && e.dataTransfer.items){
+        fs=Array.prototype.map.call(e.dataTransfer.items,function(it){ return it.kind==='file'?it.getAsFile():null; }).filter(Boolean);
+      }
       if(fs && fs.length) onFiles({files:fs});
     });
   }
