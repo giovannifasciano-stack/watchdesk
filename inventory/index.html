@@ -588,7 +588,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.3</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.4</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -1013,7 +1013,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v10.3
+   WATCHDESK — GESTIONALE UNIFICATO  v10.4
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1059,7 +1059,7 @@ var I18N = {
     repSub:'Estratti conto, registro vendite, margini. Ogni report si apre in anteprima e poi si stampa.',
     phSearch:'Cerca referenza, marca, fornitore…', phSearchSales:'Cerca referenza, marca, cliente…', phSearchMag:'Cerca referenza, marca, seriale…',
     phSearchCp:'Cerca nome, città…', phLookup:'Nome boutique, gioielleria, dealer…', phPhoto:'Tocca per caricare una foto',
-    fPayM:'Metodo di pagamento', fTaxRef:'Tax refund ricevuto', versTitle:'Versamenti', versAdd:'+ Aggiungi versamento', versPaid:'Versato', versLeft:'Residuo', vtAcc:'Acconto', vtPag:'Pagamento', vtSal:'Saldo', pm_misto:'misto', tfAskOn:'Confermi: il tax refund \u00e8 stato RICEVUTO? In lista l\'importo diventer\u00e0 il prezzo netto detax.', tfAskOff:'Confermi di togliere la conferma del tax refund? In lista torner\u00e0 il prezzo pagato (o il listino) con Tax-free Pending.', pm_bonifico:'Bonifico', pm_contanti:'Contanti', pm_carta:'Carta di Credito', pm_crypto:'Crypto', pm_permuta:'Permuta', pm_altro:'Altro',
+    fPayM:'Metodo di pagamento', fTaxRef:'Tax refund ricevuto', versTitle:'Versamenti', versAdd:'+ Aggiungi versamento', tfNI:'non avviato', tfPend:'in attesa', tfOk:'Tax refund ricevuto \u2713', versPaid:'Versato', versLeft:'Residuo', vtAcc:'Acconto', vtPag:'Pagamento', vtSal:'Saldo', pm_misto:'misto', tfAskOn:'Confermi: il tax refund \u00e8 stato RICEVUTO? In lista l\'importo diventer\u00e0 il prezzo netto detax.', tfAskOff:'Confermi di togliere la conferma del tax refund? In lista torner\u00e0 il prezzo pagato (o il listino) con Tax-free Pending.', pm_bonifico:'Bonifico', pm_contanti:'Contanti', pm_carta:'Carta di Credito', pm_crypto:'Crypto', pm_permuta:'Permuta', pm_altro:'Altro',
     newAcq:'Nuovo acquisto', editAcq:'Modifica acquisto', sellThis:'Vendi questo orologio', newSale:'Nuova vendita', editSale:'Modifica vendita',
     newCp:'Nuova scheda', newCli:'Aggiungi cliente', newSup:'Aggiungi fornitore', editCp:'Modifica scheda',
     magEmpty:'Magazzino vuoto: nessun orologio ritirato in attesa di vendita.',
@@ -1141,7 +1141,7 @@ var I18N = {
     repSub:'Statements, sales ledger, margins. Every report opens as a preview, then prints.',
     phSearch:'Search reference, brand, supplier…', phSearchSales:'Search reference, brand, client…', phSearchMag:'Search reference, brand, serial…',
     phSearchCp:'Search name, city…', phLookup:'Boutique, jeweller, dealer name…', phPhoto:'Tap to upload a photo',
-    fPayM:'Payment method', fTaxRef:'Tax refund received', versTitle:'Payments', versAdd:'+ Add payment', versPaid:'Paid in', versLeft:'Balance', vtAcc:'Deposit', vtPag:'Payment', vtSal:'Balance', pm_misto:'mixed', tfAskOn:'Confirm: the tax refund has been RECEIVED? The list amount will switch to the detax net price.', tfAskOff:'Remove the tax refund confirmation? The list will go back to the paid (or list) price with Tax-free Pending.', pm_bonifico:'Bank transfer', pm_contanti:'Cash', pm_carta:'Credit Card', pm_crypto:'Crypto', pm_permuta:'Trade-in', pm_altro:'Other',
+    fPayM:'Payment method', fTaxRef:'Tax refund received', versTitle:'Payments', versAdd:'+ Add payment', tfNI:'Not initiated', tfPend:'Pending', tfOk:'Tax refund received \u2713', versPaid:'Paid in', versLeft:'Balance', vtAcc:'Deposit', vtPag:'Payment', vtSal:'Balance', pm_misto:'mixed', tfAskOn:'Confirm: the tax refund has been RECEIVED? The list amount will switch to the detax net price.', tfAskOff:'Remove the tax refund confirmation? The list will go back to the paid (or list) price with Tax-free Pending.', pm_bonifico:'Bank transfer', pm_contanti:'Cash', pm_carta:'Credit Card', pm_crypto:'Crypto', pm_permuta:'Trade-in', pm_altro:'Other',
     newAcq:'New purchase', editAcq:'Edit purchase', sellThis:'Sell this watch', newSale:'New sale', editSale:'Edit sale',
     newCp:'New record', newCli:'Add client', newSup:'Add supplier', editCp:'Edit record',
     magEmpty:'Inventory is empty: no collected watch awaiting sale.',
@@ -1875,12 +1875,12 @@ function renderPur(){
           (sold?'<span class="st venduto">'+T('venduto')+'</span>':'<span class="st '+esc(a.stat||'')+'">'+esc(statLabel(a.stat))+'</span>')+
           '<span class="st '+esc(a.pay||'')+'">'+esc(payLabel(a.pay))+(a.pay_method?' \u00b7 '+esc(T('pm_'+a.pay_method)):'')+'</span>'+
           (tf?(tfDone
-            ?'<span class="st taxfree">Tax refund ricevuto \u2713</span>'
+            ?'<span class="st taxfree">'+T('tfOk')+'</span>'
             :(function(){ var base=(a.agreed!=null&&num(a.agreed)>0)?num(a.agreed):(a.list!=null?num(a.list):null);
                           var diff=(base!=null)?base-num(a.net):null;
                           /* non pagato e non ritirato: la pratica tax-free non e' nemmeno partita */
                           var ni = (a.pay!=='pagato') && (a.stat!=='ritirato');
-                          return '<span class="st taxfree tfpend">Tax-free '+(ni?'<span class="tfni">Not initiated</span>':'Pending')+((diff!=null&&diff>0)?'<span class="tfamt">'+fmtN(diff,a.cur||'CHF')+'</span>':'')+'</span>'; })()
+                          return '<span class="st taxfree tfpend">Tax-free '+(ni?'<span class="tfni">'+T('tfNI')+'</span>':T('tfPend'))+((diff!=null&&diff>0)?'<span class="tfamt">'+fmtN(diff,a.cur||'CHF')+'</span>':'')+'</span>'; })()
           ):'')+
         '</div>'+
       '</div>'+
