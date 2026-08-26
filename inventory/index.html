@@ -259,6 +259,18 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 @media(max-width:560px){.vrow{grid-template-columns:96px 1fr 30px;grid-template-areas:'tipo importo del' 'metodo metodo metodo' 'data data data'}
 .vrow select.vtipo{grid-area:tipo}.vrow input.vimp{grid-area:importo}.vrow select.vmet{grid-area:metodo}.vrow input.vdat{grid-area:data}.vrow .vdel{grid-area:del;justify-self:end}}
 .st.tfpend .tfamt{display:block; font-size:.62rem; color:#9cc6ff; opacity:.95; font-family:ui-monospace,Menlo,monospace; letter-spacing:.02em}
+.tfline{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:9px 2px;margin:2px 0 10px;border-bottom:1px dashed var(--line)}
+.tfline .tftxt{font-size:.85rem;color:var(--dim)}
+.tfline.on .tftxt{color:var(--text)}
+.tfline .tfextra{display:none;align-items:center;gap:14px;flex-wrap:wrap}
+.tfline.on .tfextra{display:flex}
+.tfline .sw{position:relative;width:36px;height:20px;flex-shrink:0}
+.tfline .sw input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:2}
+.tfline .sw i{position:absolute;inset:0;background:#1a2352;border-radius:20px;transition:.15s}
+.tfline .sw i:before{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#8b93c4;transition:.15s}
+.tfline .sw input:checked + i{background:#2b4c8f}
+.tfline .sw input:checked + i:before{left:18px;background:#7ab8ff}
+.docbtn{border:1px dashed #3a53a8;color:#7ab8ff;background:transparent;border-radius:9px;padding:7px 12px;font-size:.8rem;cursor:pointer}
 .vatq{font-weight:700; border-radius:9px; padding:8px 12px; cursor:pointer; background:transparent}
 #aVat81{color:var(--accent); border:1.5px solid var(--accent)}
 #aVat81:hover{background:rgba(201,169,97,.12)}
@@ -588,7 +600,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.4</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.5</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -830,10 +842,20 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
       </div>
     </div>
     <div class="frow">
-      <div class="field"><label data-i18n="fNet">Prezzo netto detax</label><input type="text" id="aNet" inputmode="decimal" style="border-color:var(--accent-dark)">
-        <label class="chk"><input type="checkbox" id="aTaxRef"><span data-i18n="fTaxRef">Tax refund ricevuto</span></label>
-      </div>
+      <div class="field"><label data-i18n="fNet">Prezzo netto detax</label><input type="text" id="aNet" inputmode="decimal" style="border-color:var(--accent-dark)"></div>
     </div>
+    <div class="tfline" id="tfLine">
+      <span class="sw"><input type="checkbox" id="aTfFlag"><i></i></span>
+      <span class="tftxt" data-i18n="fTfFlag">Trattato in tax-free</span>
+      <span class="tfextra">
+        <label class="chk"><input type="checkbox" id="aTaxRef"><span data-i18n="fTaxRef">Tax refund ricevuto</span></label>
+        <span class="doc">
+          <button type="button" class="docbtn" id="btnAddDocTax">&#128196; <span data-i18n="fDocTaxBtn">Carica documento</span></button>
+          <input type="file" id="aTaxFile" multiple accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,.webp,image/*,application/pdf" style="display:none">
+        </span>
+      </span>
+    </div>
+    <div class="doclist" id="aTaxList"></div>
     <div class="frow">
       <div class="field"><label data-i18n="fPay">Pagamento</label><select id="aPay"></select></div>
       <div class="field" style="display:none"><select id="aPayM"></select><input type="text" id="aDep"><input type="date" id="aPayDate"></div>
@@ -1013,7 +1035,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v10.4
+   WATCHDESK — GESTIONALE UNIFICATO  v10.5
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1059,7 +1081,7 @@ var I18N = {
     repSub:'Estratti conto, registro vendite, margini. Ogni report si apre in anteprima e poi si stampa.',
     phSearch:'Cerca referenza, marca, fornitore…', phSearchSales:'Cerca referenza, marca, cliente…', phSearchMag:'Cerca referenza, marca, seriale…',
     phSearchCp:'Cerca nome, città…', phLookup:'Nome boutique, gioielleria, dealer…', phPhoto:'Tocca per caricare una foto',
-    fPayM:'Metodo di pagamento', fTaxRef:'Tax refund ricevuto', versTitle:'Versamenti', versAdd:'+ Aggiungi versamento', tfNI:'non avviato', tfPend:'in attesa', tfOk:'Tax refund ricevuto \u2713', versPaid:'Versato', versLeft:'Residuo', vtAcc:'Acconto', vtPag:'Pagamento', vtSal:'Saldo', pm_misto:'misto', tfAskOn:'Confermi: il tax refund \u00e8 stato RICEVUTO? In lista l\'importo diventer\u00e0 il prezzo netto detax.', tfAskOff:'Confermi di togliere la conferma del tax refund? In lista torner\u00e0 il prezzo pagato (o il listino) con Tax-free Pending.', pm_bonifico:'Bonifico', pm_contanti:'Contanti', pm_carta:'Carta di Credito', pm_crypto:'Crypto', pm_permuta:'Permuta', pm_altro:'Altro',
+    fPayM:'Metodo di pagamento', fTaxRef:'Tax refund ricevuto', versTitle:'Versamenti', versAdd:'+ Aggiungi versamento', tfNI:'non avviato', tfPend:'in attesa', tfOk:'Tax refund ricevuto \u2713', fTfFlag:'Trattato in tax-free', fDocTaxBtn:'Carica documento', fDocTax:'Documento tax-free', tfAskFlagOn:'Confermi: questo orologio viene trattato in tax-free?', tfAskFlagOff:'Confermi di togliere il trattamento tax-free? In lista spariranno i bollini tax-free.', versPaid:'Versato', versLeft:'Residuo', vtAcc:'Acconto', vtPag:'Pagamento', vtSal:'Saldo', pm_misto:'misto', tfAskOn:'Confermi: il tax refund \u00e8 stato RICEVUTO? In lista l\'importo diventer\u00e0 il prezzo netto detax.', tfAskOff:'Confermi di togliere la conferma del tax refund? In lista torner\u00e0 il prezzo pagato (o il listino) con Tax-free Pending.', pm_bonifico:'Bonifico', pm_contanti:'Contanti', pm_carta:'Carta di Credito', pm_crypto:'Crypto', pm_permuta:'Permuta', pm_altro:'Altro',
     newAcq:'Nuovo acquisto', editAcq:'Modifica acquisto', sellThis:'Vendi questo orologio', newSale:'Nuova vendita', editSale:'Modifica vendita',
     newCp:'Nuova scheda', newCli:'Aggiungi cliente', newSup:'Aggiungi fornitore', editCp:'Modifica scheda',
     magEmpty:'Magazzino vuoto: nessun orologio ritirato in attesa di vendita.',
@@ -1141,7 +1163,7 @@ var I18N = {
     repSub:'Statements, sales ledger, margins. Every report opens as a preview, then prints.',
     phSearch:'Search reference, brand, supplier…', phSearchSales:'Search reference, brand, client…', phSearchMag:'Search reference, brand, serial…',
     phSearchCp:'Search name, city…', phLookup:'Boutique, jeweller, dealer name…', phPhoto:'Tap to upload a photo',
-    fPayM:'Payment method', fTaxRef:'Tax refund received', versTitle:'Payments', versAdd:'+ Add payment', tfNI:'Not initiated', tfPend:'Pending', tfOk:'Tax refund received \u2713', versPaid:'Paid in', versLeft:'Balance', vtAcc:'Deposit', vtPag:'Payment', vtSal:'Balance', pm_misto:'mixed', tfAskOn:'Confirm: the tax refund has been RECEIVED? The list amount will switch to the detax net price.', tfAskOff:'Remove the tax refund confirmation? The list will go back to the paid (or list) price with Tax-free Pending.', pm_bonifico:'Bank transfer', pm_contanti:'Cash', pm_carta:'Credit Card', pm_crypto:'Crypto', pm_permuta:'Trade-in', pm_altro:'Other',
+    fPayM:'Payment method', fTaxRef:'Tax refund received', versTitle:'Payments', versAdd:'+ Add payment', tfNI:'Not initiated', tfPend:'Pending', tfOk:'Tax refund received \u2713', fTfFlag:'Tax-free treated', fDocTaxBtn:'Upload document', fDocTax:'Tax-free document', tfAskFlagOn:'Confirm: this watch is handled tax-free?', tfAskFlagOff:'Remove the tax-free treatment? The tax-free badges will disappear from the list.', versPaid:'Paid in', versLeft:'Balance', vtAcc:'Deposit', vtPag:'Payment', vtSal:'Balance', pm_misto:'mixed', tfAskOn:'Confirm: the tax refund has been RECEIVED? The list amount will switch to the detax net price.', tfAskOff:'Remove the tax refund confirmation? The list will go back to the paid (or list) price with Tax-free Pending.', pm_bonifico:'Bank transfer', pm_contanti:'Cash', pm_carta:'Credit Card', pm_crypto:'Crypto', pm_permuta:'Trade-in', pm_altro:'Other',
     newAcq:'New purchase', editAcq:'Edit purchase', sellThis:'Sell this watch', newSale:'New sale', editSale:'Edit sale',
     newCp:'New record', newCli:'Add client', newSup:'Add supplier', editCp:'Edit record',
     magEmpty:'Inventory is empty: no collected watch awaiting sale.',
@@ -1848,9 +1870,9 @@ function renderPur(){
     var net=netCost(a);
     /* Tax-free: finche' il rimborso non e' ricevuto, in lista vale il pagato (o il listino);
        col rimborso ricevuto vale il netto detax. */
-    var tf = num(a.net)>0;
+    var tf = !!(a.tf_flag && Number(a.tf_flag));
     var tfDone = tf && !!(a.tax_ref && Number(a.tax_ref));
-    if(tf && !tfDone) net = (a.agreed!=null && num(a.agreed)>0) ? num(a.agreed) : (a.list!=null?num(a.list):net);
+    if(tf && !tfDone && num(a.net)>0) net = (a.agreed!=null && num(a.agreed)>0) ? num(a.agreed) : (a.list!=null?num(a.list):net);
     /* acconto versato: si mostra quanto e' gia' uscito e quanto resta da versare.
        Il conto e' sul netto — e' l'importo che il fornitore aspetta davvero. */
     var dep = num(a.dep)||0;
@@ -1877,7 +1899,7 @@ function renderPur(){
           (tf?(tfDone
             ?'<span class="st taxfree">'+T('tfOk')+'</span>'
             :(function(){ var base=(a.agreed!=null&&num(a.agreed)>0)?num(a.agreed):(a.list!=null?num(a.list):null);
-                          var diff=(base!=null)?base-num(a.net):null;
+                          var diff=(base!=null && num(a.net)>0)?base-num(a.net):null;
                           /* non pagato e non ritirato: la pratica tax-free non e' nemmeno partita */
                           var ni = (a.pay!=='pagato') && (a.stat!=='ritirato');
                           return '<span class="st taxfree tfpend">Tax-free '+(ni?'<span class="tfni">'+T('tfNI')+'</span>':T('tfPend'))+((diff!=null&&diff>0)?'<span class="tfamt">'+fmtN(diff,a.cur||'CHF')+'</span>':'')+'</span>'; })()
@@ -2029,6 +2051,8 @@ function openAcqModal(acqId, presetWatchId){
   $('aPay').value = a.pay||'nonpagato';
   $('aPayM').value = a.pay_method||'';
   $('aTaxRef').checked = !!(a.tax_ref && Number(a.tax_ref));
+  $('aTfFlag').checked = !!(a.tf_flag && Number(a.tf_flag));
+  $('tfLine').classList.toggle('on', $('aTfFlag').checked);
   $('aDep').value = a.dep!=null&&a.dep!==0?a.dep:'';
   $('aPayDate').value = a.pay_date||'';
   MPAY_DEL=[];
@@ -2104,7 +2128,7 @@ function saveAcq(){
   var aBody = {
     watchId:wid, counterpartId:$('aCp').value, cur:$('aCur').value,
     list:num($('aList').value)||0, agreed:num($('aAgreed').value), vat:num($('aVat').value),
-    net:num($('aNet').value), pay:$('aPay').value, taxRef:$('aTaxRef').checked?1:0,
+    net:num($('aNet').value), pay:$('aPay').value, taxRef:$('aTaxRef').checked?1:0, tfFlag:$('aTfFlag').checked?1:0,
     stat:$('aStat').value,
     dOrd:$('aDOrd').value, dRec:$('aDRec').value, dPick:$('aDPick').value,
     notes:$('aNotes').value.trim()
@@ -2502,7 +2526,7 @@ function doLookup(){
 /* ================================================================
    DOCUMENTI
    ================================================================ */
-var PENDING_DOCS = {acq:[], sale:[], acqDep:[], acqBal:[], acqWar:[]};
+var PENDING_DOCS = {acq:[], sale:[], acqDep:[], acqBal:[], acqWar:[], acqTax:[]};
 /* i tre gruppi di allegati di un acquisto: fatture, copia acconto, copia saldo.
    Il tipo distingue le liste sul server; il Worker non lo valida, quindi non
    serve nessuna modifica lato API. */
@@ -2510,7 +2534,8 @@ var DOCG = [
   {k:'acq',    t:'acquisition', list:'aDocList', inp:'aDocFile'},
   {k:'acqDep', t:'acq_dep',     list:'aDepList', inp:'aDepFile'},
   {k:'acqBal', t:'acq_bal',     list:'aBalList', inp:'aBalFile'},
-  {k:'acqWar', t:'acq_war',     list:'aWarList', inp:'aWarFile'}   /* garanzia */
+  {k:'acqWar', t:'acq_war',     list:'aWarList', inp:'aWarFile'},  /* garanzia */
+  {k:'acqTax', t:'acq_tax',     list:'aTaxList', inp:'aTaxFile'}   /* documento tax-free */
 ];
 function readFiles(fileInput){
   var files = Array.prototype.slice.call(fileInput.files||[]);
@@ -2777,7 +2802,7 @@ function buildRepWatch(){
     res.forEach(function(r){
       if(!r.rows.length) return;
       var et = r.g.t==='acquisition'?T('fDocs') : r.g.t==='acq_dep'?T('fDocDep')
-             : r.g.t==='acq_bal'?T('fDocBal') : T('fDocWar');
+             : r.g.t==='acq_bal'?T('fDocBal') : r.g.t==='acq_tax'?T('fDocTax') : T('fDocWar');
       righe += '<tr><td class="wk">'+esc(et)+'</td><td class="wv">'+
                r.rows.map(function(d){return esc(d.filename||'');}).join(' · ')+'</td></tr>';
     });
@@ -3459,6 +3484,11 @@ function bind(){
     var ok = confirm(this.checked ? T('tfAskOn') : T('tfAskOff'));
     if(!ok) this.checked = !this.checked;
   });
+  $('aTfFlag').addEventListener('change',function(){
+    var ok = confirm(this.checked ? T('tfAskFlagOn') : T('tfAskFlagOff'));
+    if(!ok){ this.checked = !this.checked; }
+    $('tfLine').classList.toggle('on', this.checked);
+  });
   $('aStat').addEventListener('change',function(){
     /* "pagato, non ritirato" implica il saldo: allineo la tendina del pagamento */
     if(this.value==='pagatonr' && $('aPay').value!=='pagato'){
@@ -3502,7 +3532,7 @@ function bind(){
   });
   $('btnDelAcq').addEventListener('click', deleteAcq);
   /* stessi gesti per i tre gruppi di allegati */
-  [['btnAddDocA','aDocFile'],['btnAddDocDep','aDepFile'],['btnAddDocBal','aBalFile'],['btnAddDocWar','aWarFile']]
+  [['btnAddDocA','aDocFile'],['btnAddDocDep','aDepFile'],['btnAddDocBal','aBalFile'],['btnAddDocWar','aWarFile'],['btnAddDocTax','aTaxFile']]
     .forEach(function(pair){
       $(pair[0]).addEventListener('click', function(){ $(pair[1]).click(); });
     });
