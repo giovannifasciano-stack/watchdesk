@@ -271,6 +271,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 .tfline .sw input:checked + i{background:#2b4c8f}
 .tfline .sw input:checked + i:before{left:18px;background:#7ab8ff}
 .docbtn{border:1px dashed #3a53a8;color:#7ab8ff;background:transparent;border-radius:9px;padding:7px 12px;font-size:.8rem;cursor:pointer}
+.dz-over{outline:2px dashed var(--accent);outline-offset:4px;border-radius:12px;background:rgba(212,185,130,.05)}
 .vatq{font-weight:700; border-radius:9px; padding:8px 12px; cursor:pointer; background:transparent}
 #aVat81{color:var(--accent); border:1.5px solid var(--accent)}
 #aVat81:hover{background:rgba(201,169,97,.12)}
@@ -600,7 +601,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.5</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.6</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -1035,7 +1036,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v10.5
+   WATCHDESK — GESTIONALE UNIFICATO  v10.6
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -3536,15 +3537,32 @@ function bind(){
     .forEach(function(pair){
       $(pair[0]).addEventListener('click', function(){ $(pair[1]).click(); });
     });
-  DOCG.forEach(function(g){
-    $(g.inp).addEventListener('change', function(){
-      if(EDIT.acq){ uploadDocs(g.t, EDIT.acq.id, $(g.inp), g.list, 'acqMsg'); return; }
-      readFiles($(g.inp)).then(function(fs){
-        PENDING_DOCS[g.k] = PENDING_DOCS[g.k].concat(fs);
-        $(g.inp).value='';
-        renderPending(g.k, g.list);
-      });
+  function ingestAcq(g, filesLike){
+    if(EDIT.acq){ uploadDocs(g.t, EDIT.acq.id, filesLike, g.list, 'acqMsg'); return; }
+    readFiles(filesLike).then(function(fs){
+      PENDING_DOCS[g.k] = PENDING_DOCS[g.k].concat(fs);
+      if(filesLike.value!==undefined) filesLike.value='';
+      renderPending(g.k, g.list);
     });
+  }
+  /* trascina e lascia: la zona e' il riquadro dell'alloggio (bottone + elenco) */
+  function wireDrop(zone, onFiles){
+    if(!zone) return;
+    ['dragenter','dragover'].forEach(function(ev){ zone.addEventListener(ev, function(e){ e.preventDefault(); e.stopPropagation(); zone.classList.add('dz-over'); }); });
+    ['dragleave','dragend'].forEach(function(ev){ zone.addEventListener(ev, function(e){ e.preventDefault(); zone.classList.remove('dz-over'); }); });
+    zone.addEventListener('drop', function(e){
+      e.preventDefault(); e.stopPropagation(); zone.classList.remove('dz-over');
+      var fs=e.dataTransfer && e.dataTransfer.files;
+      if(fs && fs.length) onFiles({files:fs});
+    });
+  }
+  DOCG.forEach(function(g){
+    $(g.inp).addEventListener('change', function(){ ingestAcq(g, $(g.inp)); });
+    wireDrop($(g.list).parentNode, function(fl){ ingestAcq(g, fl); });
+  });
+  wireDrop($('sDocList').parentNode, function(fl){
+    if(EDIT.sale){ uploadDocs('sale', EDIT.sale.id, fl, 'sDocList', 'saleMsg'); return; }
+    readFiles(fl).then(function(fs){ PENDING_DOCS.sale=PENDING_DOCS.sale.concat(fs); renderPending('sale','sDocList'); });
   });
 
   /* form vendita */
