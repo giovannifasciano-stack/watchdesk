@@ -404,6 +404,8 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 .repmode button{background:transparent; border:none; color:var(--dim); padding:10px 18px; font-size:.85rem; cursor:pointer; font-family:inherit}
 .repmode button.on{background:#111d3d; color:#7ab8ff; font-weight:700}
 .repmode button+button{border-left:1px solid var(--line)}
+.vtotline{display:flex; justify-content:space-between; align-items:center; max-width:340px; margin:22px 0 6px; padding:10px 14px; border:1px solid #d8d8de; border-radius:10px; font-size:14px}
+.vtotline b{font-family:ui-monospace,Menlo,monospace; font-size:16px}
 .repcard{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:20px; cursor:pointer; transition:border-color .15s}
 .repcard:hover{border-color:var(--accent-dark)}
 .repcard .ri{font-size:1.5rem; margin-bottom:10px}
@@ -646,7 +648,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.21</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.22</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -1118,7 +1120,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v10.21
+   WATCHDESK — GESTIONALE UNIFICATO  v10.22
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1192,7 +1194,7 @@ var I18N = {
     rStockT:'Valore magazzino', rStockD:'Gli orologi in casa al costo netto, con giacenza a oggi.', rInvT:'Inventario', rInvD:'Gli orologi tuoi non venduti, in casa o pagati dal fornitore, con costo netto.',
     rCsvT:'Esporta CSV', rCsvD:'Acquisti e vendite filtrati, in un file per Excel/Numbers.',
     rJsonT:'Backup JSON', rJsonD:'Copia completa dell\'archivio, foto incluse.',
-    rVisT:'Report visivo', rVisD:'Gli orologi in foto grandi, con la sola quantit\u00e0: per ordinati, acquisti, vendite, magazzino o inventario.', repModeNormal:'Report normale', repModePhoto:'Report con foto', rPhoto:'Report con foto',
+    rVisT:'Report visivo', rVisD:'Gli orologi in foto grandi, con la sola quantit\u00e0: per ordinati, acquisti, vendite, magazzino o inventario.', repModeNormal:'Report normale', repModePhoto:'Report con foto', rPhoto:'Report con foto', vTotPieces:'Totale pezzi',
     vOrd:'Ordinati', vAcq:'Acquisti', vSal:'Vendite', vMag:'Magazzino', vInv:'Inventario', vRefs:'referenze', vStockAt:'giacenza al', vArriving:'in arrivo',
     stat_ordinato:'Ordinato', stat_arrivato:'Arrivato dal fornitore', stat_pagatonr:'Pagato, non ritirato', stat_ritirato:'Ritirato',
     pay_nonpagato:'Non pagato', pay_acconto:'Acconto', pay_pagato:'Pagato',
@@ -1274,7 +1276,7 @@ var I18N = {
     rStockT:'Stock value', rStockD:'Watches at home at net cost, with days in stock to date.', rInvT:'Inventory', rInvD:'Your unsold watches, in hand or paid at the supplier, with net cost.',
     rCsvT:'Export CSV', rCsvD:'Filtered purchases and sales, in a file for Excel/Numbers.',
     rJsonT:'JSON backup', rJsonD:'Full copy of the archive, photos included.',
-    rVisT:'Visual report', rVisD:'Your watches as large photos with just the quantity: ordered, purchases, sales, stock or inventory.', repModeNormal:'Normal report', repModePhoto:'Report with photos', rPhoto:'Report with photos',
+    rVisT:'Visual report', rVisD:'Your watches as large photos with just the quantity: ordered, purchases, sales, stock or inventory.', repModeNormal:'Normal report', repModePhoto:'Report with photos', rPhoto:'Report with photos', vTotPieces:'Total pieces',
     vOrd:'Ordered', vAcq:'Purchases', vSal:'Sales', vMag:'Stock', vInv:'Inventory', vRefs:'references', vStockAt:'stock as of', vArriving:'arriving',
     stat_ordinato:'Ordered', stat_arrivato:'Arrived from supplier', stat_pagatonr:'Paid, not collected', stat_ritirato:'Collected',
     pay_nonpagato:'Unpaid', pay_acconto:'Deposit', pay_pagato:'Paid',
@@ -3299,6 +3301,22 @@ function visSheet(kind){
        '<div class="vname">'+esc(x.brand||'')+(x.model&&x.ref?' \u00b7 '+esc(x.model):'')+'</div></div>';
   });
   h+='</div>';
+  h+=visTotalsBlock(kind);
+  return h;
+}
+function visTotals(kind){
+  var m={}, pieces=0;
+  function add(cur,val){ cur=cur||'?'; if(m[cur]==null) m[cur]=0; m[cur]+=(num(val)||0); pieces++; }
+  if(kind==='mag'){ S.watches.filter(isStock).forEach(function(w){ var a=acqByWatch(w.id); if(a){ add(a.cur, netCost(a)); } else { pieces++; } }); }
+  else if(kind==='inv'){ S.acquisitions.filter(isInvAcq).forEach(function(a){ add(a.cur, num(a.list)||0); }); }
+  else if(kind==='sal'){ repFilterRows(S.sales,'d_sale').forEach(function(x){ add(x.cur, netSale(x)); }); }
+  else { repFilterRows(S.acquisitions,'d_ord').forEach(function(a){ add(a.cur, netCost(a)); }); }
+  return {m:m, pieces:pieces};
+}
+function visTotalsBlock(kind){
+  var tt=visTotals(kind);
+  var h='<div class="vtotline"><span>'+T('vTotPieces')+'</span><b>'+tt.pieces+'</b></div>';
+  h+=fxTotalsBlock(tt.m);
   return h;
 }
 var REP_PHOTO=false;
@@ -3307,10 +3325,12 @@ function applyRepMode(){
   REP_PHOTO_HIDE.forEach(function(id){ var e=$(id); if(e) e.style.display = REP_PHOTO ? 'none' : ''; });
 }
 function buildRepPhoto(kind){
-  $('plTitle').textContent = T('rPhoto')+' \u2014 '+({ord:T('vOrd'),acq:T('vAcq'),sal:T('vSal'),mag:T('vMag'),inv:T('vInv')})[kind];
-  $('plSheet').innerHTML = visSheet(kind);
-  var bar=$('plSheet').parentNode.querySelector('.vtabs'); if(bar) bar.remove();
-  $('printLayer').classList.add('on');
+  loadFx(function(){
+    $('plTitle').textContent = T('rPhoto')+' \u2014 '+({ord:T('vOrd'),acq:T('vAcq'),sal:T('vSal'),mag:T('vMag'),inv:T('vInv')})[kind];
+    $('plSheet').innerHTML = visSheet(kind);
+    var bar=$('plSheet').parentNode.querySelector('.vtabs'); if(bar) bar.remove();
+    $('printLayer').classList.add('on');
+  });
 }
 function buildRepVis(kind){
   kind=kind||'mag';
