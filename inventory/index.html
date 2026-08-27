@@ -642,7 +642,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.19</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.20</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -1111,7 +1111,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v10.19
+   WATCHDESK — GESTIONALE UNIFICATO  v10.20
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -2247,9 +2247,10 @@ function syncTfBoxes(){
   renderRefCalc();
 }
 function autoTaxRefund(){
-  /* consegna in aeroporto con IVA esclusa: l'esenzione e' confermata alla consegna
-     durante l'esportazione -> spunto in automatico 'Tax refund ricevuto' (solo attivazione). */
-  if($('aTfFlag').checked && PRICE_MODE==='escl' && TF_MODE==='netto_agg'){
+  /* modalita' Netto IVA (immediata o aeroporto): paghi gia' netto -> l'esenzione e'
+     applicata alla consegna -> spunto in automatico 'Tax refund ricevuto' (solo attivazione,
+     indipendente da IVA inclusa/esclusa). */
+  if($('aTfFlag').checked && (TF_MODE==='netto_imm' || TF_MODE==='netto_agg')){
     if(!$('aTaxRef').checked) $('aTaxRef').checked=true;
   }
 }
