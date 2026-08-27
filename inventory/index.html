@@ -273,6 +273,15 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 .tfline .sw input:checked + i:before{left:18px;background:#7ab8ff}
 .docbtn{border:1px dashed #3a53a8;color:#7ab8ff;background:transparent;border-radius:9px;padding:7px 12px;font-size:.8rem;cursor:pointer}
 .modirow{display:none;margin:10px 0 2px}
+.refbox{display:none;border:1px solid #3a53a8;border-radius:12px;padding:12px;margin:10px 0 2px;background:rgba(58,83,168,.06)}
+.refbox.on{display:block}
+.refgrid{display:grid;grid-template-columns:1fr 120px auto;gap:10px;align-items:end}
+.reffull{border:1.5px solid var(--accent);color:var(--accent);background:transparent;border-radius:9px;padding:10px 12px;font-size:.78rem;cursor:pointer;white-space:nowrap}
+.refcalc{margin-top:10px;font-size:.83rem;line-height:1.65}
+.refcalc .r{display:flex;justify-content:space-between}
+.refcalc .r b{font-family:ui-monospace,Menlo,monospace}
+.refcalc .big b{color:#7ab8ff}
+@media(max-width:560px){.refgrid{grid-template-columns:1fr}}
 .tfline.on ~ .modirow{display:block}
 .modi{display:flex;gap:8px;flex-wrap:wrap}
 .modi button{flex:1;min-width:150px;border:1.5px solid var(--line);background:var(--card);color:var(--dim);border-radius:11px;padding:9px 12px;font-size:.8rem;cursor:pointer;text-align:left;line-height:1.3}
@@ -610,7 +619,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.10</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.11</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -873,7 +882,14 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
         <button type="button" data-m="netto_imm"><span class="t" data-i18n="tfm2t">Netto IVA – consegna immediata</span><span data-i18n="tfm2d">paghi netto, esporti e vidimi</span></button>
         <button type="button" data-m="netto_agg"><span class="t" data-i18n="tfm3t">Netto IVA – consegna in aeroporto</span><span data-i18n="tfm3d">paghi netto, ritiro in aeroporto</span></button>
       </div>
-    </div>
+      <div class="refbox" id="tfRefBox">
+        <div class="refgrid">
+          <div class="field"><label data-i18n="fTfRefund">Rimborso reale che ricevi</label><input type="text" id="aTfRefund" inputmode="decimal"></div>
+          <div class="field"><label data-i18n="fTfRefundPct">oppure %</label><input type="text" id="aTfRefundPct" inputmode="decimal"></div>
+          <button type="button" class="reffull" id="btnTfFull" data-i18n="fTfFull">IVA piena</button>
+        </div>
+        <div class="refcalc" id="tfRefCalc"></div>
+      </div>
     <div class="frow">
       <div class="field"><label data-i18n="fPay">Pagamento</label><select id="aPay"></select></div>
       <div class="field" style="display:none"><select id="aPayM"></select><input type="text" id="aDep"><input type="date" id="aPayDate"></div>
@@ -1053,7 +1069,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v10.10
+   WATCHDESK — GESTIONALE UNIFICATO  v10.11
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1099,7 +1115,7 @@ var I18N = {
     repSub:'Estratti conto, registro vendite, margini. Ogni report si apre in anteprima e poi si stampa.',
     phSearch:'Cerca referenza, marca, fornitore…', phSearchSales:'Cerca referenza, marca, cliente…', phSearchMag:'Cerca referenza, marca, seriale…',
     phSearchCp:'Cerca nome, città…', phLookup:'Nome boutique, gioielleria, dealer…', phPhoto:'Tocca per caricare una foto',
-    fPayM:'Metodo di pagamento', fTaxRef:'Tax refund ricevuto', versTitle:'Versamenti', versAdd:'+ Aggiungi versamento', tfNI:'non avviato', tfPend:'in attesa', tfOk:'Tax refund ricevuto \u2713', fTfFlag:'Trattato in tax-free', fDocTaxBtn:'Carica documento', fDocTax:'Documento tax-free', fTfMode:'Modalità tax-free', tfm1t:'Rimborso successivo', tfm1d:'paghi il lordo, rimborso dopo la dogana', tfm2t:'Netto IVA – consegna immediata', tfm2d:'paghi netto, esporti e vidimi', tfm3t:'Netto IVA – consegna in aeroporto', tfm3d:'paghi netto, ritiro in aeroporto', tfmShort_rimborso:'Rimborso successivo', tfmShort_netto_imm:'Netto IVA · immediata', tfmShort_netto_agg:'Netto IVA · aeroporto', tfAskFlagOn:'Confermi: questo orologio viene trattato in tax-free?', tfAskFlagOff:'Confermi di togliere il trattamento tax-free? In lista spariranno i bollini tax-free.', versPaid:'Versato', versLeft:'Residuo', vtAcc:'Acconto', vtPag:'Pagamento', vtSal:'Saldo', pm_misto:'misto', tfAskOn:'Confermi: il tax refund \u00e8 stato RICEVUTO? In lista l\'importo diventer\u00e0 il prezzo netto detax.', tfAskOff:'Confermi di togliere la conferma del tax refund? In lista torner\u00e0 il prezzo pagato (o il listino) con Tax-free Pending.', pm_bonifico:'Bonifico', pm_contanti:'Contanti', pm_carta:'Carta di Credito', pm_crypto:'Crypto', pm_permuta:'Permuta', pm_altro:'Altro',
+    fPayM:'Metodo di pagamento', fTaxRef:'Tax refund ricevuto', versTitle:'Versamenti', versAdd:'+ Aggiungi versamento', tfNI:'non avviato', tfPend:'in attesa', tfOk:'Tax refund ricevuto \u2713', fTfFlag:'Trattato in tax-free', fDocTaxBtn:'Carica documento', fDocTax:'Documento tax-free', fTfMode:'Modalità tax-free', fTfRefund:'Rimborso reale che ricevi', fTfRefundPct:'oppure %', fTfFull:'IVA piena', tfrTheor:'IVA teorica', tfrReal:'Rimborso reale', tfrNet:'Costo effettivo (netto detax)', tfm1t:'Rimborso successivo', tfm1d:'paghi il lordo, rimborso dopo la dogana', tfm2t:'Netto IVA – consegna immediata', tfm2d:'paghi netto, esporti e vidimi', tfm3t:'Netto IVA – consegna in aeroporto', tfm3d:'paghi netto, ritiro in aeroporto', tfmShort_rimborso:'Rimborso successivo', tfmShort_netto_imm:'Netto IVA · immediata', tfmShort_netto_agg:'Netto IVA · aeroporto', tfAskFlagOn:'Confermi: questo orologio viene trattato in tax-free?', tfAskFlagOff:'Confermi di togliere il trattamento tax-free? In lista spariranno i bollini tax-free.', versPaid:'Versato', versLeft:'Residuo', vtAcc:'Acconto', vtPag:'Pagamento', vtSal:'Saldo', pm_misto:'misto', tfAskOn:'Confermi: il tax refund \u00e8 stato RICEVUTO? In lista l\'importo diventer\u00e0 il prezzo netto detax.', tfAskOff:'Confermi di togliere la conferma del tax refund? In lista torner\u00e0 il prezzo pagato (o il listino) con Tax-free Pending.', pm_bonifico:'Bonifico', pm_contanti:'Contanti', pm_carta:'Carta di Credito', pm_crypto:'Crypto', pm_permuta:'Permuta', pm_altro:'Altro',
     newAcq:'Nuovo acquisto', editAcq:'Modifica acquisto', sellThis:'Vendi questo orologio', newSale:'Nuova vendita', editSale:'Modifica vendita',
     newCp:'Nuova scheda', newCli:'Aggiungi cliente', newSup:'Aggiungi fornitore', editCp:'Modifica scheda',
     magEmpty:'Magazzino vuoto: nessun orologio ritirato in attesa di vendita.',
@@ -1181,7 +1197,7 @@ var I18N = {
     repSub:'Statements, sales ledger, margins. Every report opens as a preview, then prints.',
     phSearch:'Search reference, brand, supplier…', phSearchSales:'Search reference, brand, client…', phSearchMag:'Search reference, brand, serial…',
     phSearchCp:'Search name, city…', phLookup:'Boutique, jeweller, dealer name…', phPhoto:'Tap to upload a photo',
-    fPayM:'Payment method', fTaxRef:'Tax refund received', versTitle:'Payments', versAdd:'+ Add payment', tfNI:'Not initiated', tfPend:'Pending', tfOk:'Tax refund received \u2713', fTfFlag:'Tax-free treated', fDocTaxBtn:'Upload document', fDocTax:'Tax-free document', fTfMode:'Tax-free mode', tfm1t:'Later refund', tfm1d:'pay gross, refund after customs', tfm2t:'Net VAT – immediate delivery', tfm2d:'pay net, export and stamp', tfm3t:'Net VAT – airport delivery', tfm3d:'pay net, pick up at airport', tfmShort_rimborso:'Later refund', tfmShort_netto_imm:'Net VAT · immediate', tfmShort_netto_agg:'Net VAT · airport', tfAskFlagOn:'Confirm: this watch is handled tax-free?', tfAskFlagOff:'Remove the tax-free treatment? The tax-free badges will disappear from the list.', versPaid:'Paid in', versLeft:'Balance', vtAcc:'Deposit', vtPag:'Payment', vtSal:'Balance', pm_misto:'mixed', tfAskOn:'Confirm: the tax refund has been RECEIVED? The list amount will switch to the detax net price.', tfAskOff:'Remove the tax refund confirmation? The list will go back to the paid (or list) price with Tax-free Pending.', pm_bonifico:'Bank transfer', pm_contanti:'Cash', pm_carta:'Credit Card', pm_crypto:'Crypto', pm_permuta:'Trade-in', pm_altro:'Other',
+    fPayM:'Payment method', fTaxRef:'Tax refund received', versTitle:'Payments', versAdd:'+ Add payment', tfNI:'Not initiated', tfPend:'Pending', tfOk:'Tax refund received \u2713', fTfFlag:'Tax-free treated', fDocTaxBtn:'Upload document', fDocTax:'Tax-free document', fTfMode:'Tax-free mode', fTfRefund:'Actual refund you get', fTfRefundPct:'or %', fTfFull:'Full VAT', tfrTheor:'Theoretical VAT', tfrReal:'Actual refund', tfrNet:'Effective cost (net detax)', tfm1t:'Later refund', tfm1d:'pay gross, refund after customs', tfm2t:'Net VAT – immediate delivery', tfm2d:'pay net, export and stamp', tfm3t:'Net VAT – airport delivery', tfm3d:'pay net, pick up at airport', tfmShort_rimborso:'Later refund', tfmShort_netto_imm:'Net VAT · immediate', tfmShort_netto_agg:'Net VAT · airport', tfAskFlagOn:'Confirm: this watch is handled tax-free?', tfAskFlagOff:'Remove the tax-free treatment? The tax-free badges will disappear from the list.', versPaid:'Paid in', versLeft:'Balance', vtAcc:'Deposit', vtPag:'Payment', vtSal:'Balance', pm_misto:'mixed', tfAskOn:'Confirm: the tax refund has been RECEIVED? The list amount will switch to the detax net price.', tfAskOff:'Remove the tax refund confirmation? The list will go back to the paid (or list) price with Tax-free Pending.', pm_bonifico:'Bank transfer', pm_contanti:'Cash', pm_carta:'Credit Card', pm_crypto:'Crypto', pm_permuta:'Trade-in', pm_altro:'Other',
     newAcq:'New purchase', editAcq:'Edit purchase', sellThis:'Sell this watch', newSale:'New sale', editSale:'Edit sale',
     newCp:'New record', newCli:'Add client', newSup:'Add supplier', editCp:'Edit record',
     magEmpty:'Inventory is empty: no collected watch awaiting sale.',
@@ -2071,7 +2087,15 @@ function openAcqModal(acqId, presetWatchId){
   $('aTaxRef').checked = !!(a.tax_ref && Number(a.tax_ref));
   $('aTfFlag').checked = !!(a.tf_flag && Number(a.tf_flag));
   $('tfLine').classList.toggle('on', $('aTfFlag').checked);
+  /* il rimborso reale e' gia' dentro il netto salvato: rimborso = pagato - netto.
+     Lo ricavo dal netto CARICATO prima che setTfMode ricalcoli. */
+  $('aTfRefund').value=''; $('aTfRefundPct').value='';
+  if($('aTfFlag').checked && ((a.tf_mode)||'rimborso')==='rimborso'){
+    var _b=basePaid(), _nt=(a.net!=null?num(''+a.net):null);
+    if(_b!=null && _nt!=null && _b-_nt>0.004) $('aTfRefund').value = Math.round((_b-_nt)*100)/100;
+  }
   setTfMode((a.tf_mode)|| 'rimborso');
+  syncTfBoxes();
   $('aDep').value = a.dep!=null&&a.dep!==0?a.dep:'';
   $('aPayDate').value = a.pay_date||'';
   MPAY_DEL=[];
@@ -2097,8 +2121,40 @@ var TF_MODE='rimborso';
 function setTfMode(m){
   TF_MODE = (['rimborso','netto_imm','netto_agg'].indexOf(m)>-1)?m:'rimborso';
   var box=$('tfMode'); if(box){ for(var i=0;i<box.children.length;i++){ box.children[i].classList.toggle('on', box.children[i].getAttribute('data-m')===TF_MODE); } }
+  if($('tfRefBox')){ syncTfBoxes(); recomputeNet(); }
 }
 function tfIsNet(){ return $('aTfFlag').checked && (TF_MODE==='netto_imm'||TF_MODE==='netto_agg'); }
+function tfIsRefund(){ return $('aTfFlag').checked && TF_MODE==='rimborso'; }
+function basePaid(){ var ag=num($('aAgreed').value); if(ag!=null&&ag>0) return ag; var li=num($('aList').value); return li!=null?li:null; }
+function refundAmt(){
+  var amt=num($('aTfRefund').value); if(amt!=null) return amt;
+  var pct=num($('aTfRefundPct').value); var b=basePaid();
+  if(pct!=null && b!=null) return Math.round(b*pct/100*100)/100;
+  return null;
+}
+function recomputeNet(){
+  if(tfIsRefund()){
+    var b=basePaid(), r=refundAmt();
+    if(b!=null && r!=null){ $('aNet').value = Math.round((b-r)*100)/100; renderRefCalc(); return; }
+  }
+  calcNetFromVat('aList','aVat','aNet');
+  renderRefCalc();
+}
+function renderRefCalc(){
+  var box=$('tfRefCalc'); if(!box) return;
+  if(!tfIsRefund()){ box.innerHTML=''; return; }
+  var b=basePaid()||0, r=refundAmt()||0, iva=num($('aVat').value)||0;
+  var ivaTeor = b - b/(1+iva/100);
+  var net = b - r;
+  box.innerHTML =
+    '<div class="r"><span>'+T('tfrTheor')+' ('+iva+'%)</span><b>'+fmtN(ivaTeor,$('aCur').value)+'</b></div>'+
+    '<div class="r"><span>'+T('tfrReal')+'</span><b>'+fmtN(r,$('aCur').value)+'</b></div>'+
+    '<div class="r big"><span>'+T('tfrNet')+'</span><b>'+fmtN(net,$('aCur').value)+'</b></div>';
+}
+function syncTfBoxes(){
+  $('tfRefBox').classList.toggle('on', tfIsRefund());
+  renderRefCalc();
+}
 function versBase(){
   /* per un tax-free 'netto IVA' il riferimento e' il netto detax gia' pagato */
   if(tfIsNet()){ var nt=num($('aNet').value); if(nt!=null&&nt>0) return nt; }
@@ -3532,11 +3588,11 @@ function bind(){
   });
   $('btnRefSearch').addEventListener('click', refSearch);
   $('aRef').addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); refSearch(); } });
-  $('aVat').addEventListener('input',function(){ calcNetFromVat('aList','aVat','aNet'); });
-  $('aVat81').addEventListener('click',function(){ $('aVat').value='8.1'; calcNetFromVat('aList','aVat','aNet'); });
-  $('aVat22').addEventListener('click',function(){ $('aVat').value='22'; calcNetFromVat('aList','aVat','aNet'); });
+  $('aVat').addEventListener('input',function(){ recomputeNet(); });
+  $('aVat81').addEventListener('click',function(){ $('aVat').value='8.1'; recomputeNet(); });
+  $('aVat22').addEventListener('click',function(){ $('aVat').value='22'; recomputeNet(); });
   $('aList').addEventListener('input',function(){ if($('aVat').value) calcNetFromVat('aList','aVat','aNet'); });
-  $('aAgreed').addEventListener('input',function(){ if($('aVat').value) calcNetFromVat('aList','aVat','aNet'); });
+  $('aAgreed').addEventListener('input',function(){ if(tfIsRefund()){ recomputeNet(); } else if($('aVat').value){ calcNetFromVat('aList','aVat','aNet'); } });
   $('aPay').addEventListener('change',function(){ $('aDepBox').style.display = $('aPay').value==='acconto'?'block':'none'; });
   /* la spunta del tax refund chiede sempre conferma, in entrambe le direzioni */
   $('aTaxRef').addEventListener('change',function(){
@@ -3547,6 +3603,7 @@ function bind(){
     var ok = confirm(this.checked ? T('tfAskFlagOn') : T('tfAskFlagOff'));
     if(!ok){ this.checked = !this.checked; }
     $('tfLine').classList.toggle('on', this.checked);
+    syncTfBoxes(); recomputeNet();
   });
   $('aStat').addEventListener('change',function(){
     /* "pagato, non ritirato" implica il saldo: allineo la tendina del pagamento */
@@ -3563,6 +3620,13 @@ function bind(){
   $('btnSaveAcq').addEventListener('click', saveAcq);
   $('btnAddVers').addEventListener('click', function(){ MPAY.push({id:null,tipo:MPAY.length?'pagamento':'acconto',amount:'',method:'',payDate:today()}); renderVers(); });
   $('tfMode').addEventListener('click', function(e){ var b=e.target.closest('button'); if(!b) return; setTfMode(b.getAttribute('data-m')); renderVers(); });
+  $('aTfRefund').addEventListener('input', function(){ $('aTfRefundPct').value=''; recomputeNet(); renderVers(); });
+  $('aTfRefundPct').addEventListener('input', function(){ $('aTfRefund').value=''; recomputeNet(); renderVers(); });
+  $('btnTfFull').addEventListener('click', function(){
+    var iva=num($('aVat').value), b=basePaid();
+    if(iva!=null && b!=null){ $('aTfRefund').value = Math.round((b - b/(1+iva/100))*100)/100; $('aTfRefundPct').value=''; recomputeNet(); renderVers(); }
+  });
+  $('aList').addEventListener('input', function(){ if(tfIsRefund() && refundAmt()!=null) recomputeNet(); });
   $('versList').addEventListener('input', function(e){
     var row=e.target.closest('.vrow'); if(!row) return;
     var p=MPAY[Number(row.getAttribute('data-i'))]; if(!p) return;
