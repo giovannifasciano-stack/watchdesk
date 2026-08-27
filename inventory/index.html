@@ -642,7 +642,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.18</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.19</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -1111,7 +1111,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v10.18
+   WATCHDESK — GESTIONALE UNIFICATO  v10.19
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -2245,6 +2245,13 @@ function renderRefCalc(){
 function syncTfBoxes(){
   $('tfRefBox').classList.toggle('on', tfIsRefund());
   renderRefCalc();
+}
+function autoTaxRefund(){
+  /* consegna in aeroporto con IVA esclusa: l'esenzione e' confermata alla consegna
+     durante l'esportazione -> spunto in automatico 'Tax refund ricevuto' (solo attivazione). */
+  if($('aTfFlag').checked && PRICE_MODE==='escl' && TF_MODE==='netto_agg'){
+    if(!$('aTaxRef').checked) $('aTaxRef').checked=true;
+  }
 }
 function versBase(){
   /* tax-free 'netto IVA': paghi gia' netto -> riferimento = netto detax */
@@ -3696,7 +3703,7 @@ function bind(){
     var ok = confirm(this.checked ? T('tfAskFlagOn') : T('tfAskFlagOff'));
     if(!ok){ this.checked = !this.checked; }
     $('tfLine').classList.toggle('on', this.checked);
-    syncTfBoxes(); recomputeNet();
+    autoTaxRefund(); syncTfBoxes(); recomputeNet();
   });
   $('aStat').addEventListener('change',function(){
     /* "pagato, non ritirato" implica il saldo: allineo la tendina del pagamento */
@@ -3712,8 +3719,8 @@ function bind(){
   });
   $('btnSaveAcq').addEventListener('click', saveAcq);
   $('btnAddVers').addEventListener('click', function(){ MPAY.push({id:null,tipo:MPAY.length?'pagamento':'acconto',amount:'',method:'',payDate:today()}); renderVers(); });
-  $('tfMode').addEventListener('click', function(e){ var b=e.target.closest('button'); if(!b) return; setTfMode(b.getAttribute('data-m')); recomputeNet(); renderVers(); });
-  $('priceMode').addEventListener('click', function(e){ var b=e.target.closest('button'); if(!b) return; setPriceMode(b.getAttribute('data-p')); recomputeNet(); renderVers(); });
+  $('tfMode').addEventListener('click', function(e){ var b=e.target.closest('button'); if(!b) return; setTfMode(b.getAttribute('data-m')); autoTaxRefund(); recomputeNet(); renderVers(); });
+  $('priceMode').addEventListener('click', function(e){ var b=e.target.closest('button'); if(!b) return; setPriceMode(b.getAttribute('data-p')); autoTaxRefund(); recomputeNet(); renderVers(); });
   $('aTfRefund').addEventListener('input', function(){ $('aTfRefundPct').value=''; recomputeNet(); renderVers(); });
   $('aTfRefundPct').addEventListener('input', function(){ $('aTfRefund').value=''; recomputeNet(); renderVers(); });
   $('btnTfFull').addEventListener('click', function(){
