@@ -275,6 +275,13 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 .modirow{display:none;margin:10px 0 2px}
 .detaxreveal{display:none;margin:12px 0 2px}
 .pmwrap{margin:2px 0 12px}
+.pricecalc{display:none;margin:12px 0 4px;border:1px solid #2b3a68;border-radius:12px;padding:13px 14px;background:rgba(122,184,255,.04)}
+.pricecalc.on{display:block}
+.pricecalc .r{display:flex;justify-content:space-between;font-size:.88rem;line-height:1.85}
+.pricecalc .r b{font-family:ui-monospace,Menlo,monospace}
+.pricecalc .big{border-top:1px dashed var(--line);margin-top:5px;padding-top:7px}
+.pricecalc .big span{font-weight:700}.pricecalc .big b{color:#7ab8ff;font-size:1.02rem}
+.pricecalc .pcnote{font-size:.72rem;color:var(--dim);margin-top:7px}
 .pmwrap label{display:block;margin-bottom:6px}
 .tfline.on ~ .detaxreveal{display:block}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:12px}
@@ -299,6 +306,11 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 @media(max-width:560px){.modi button{min-width:100%}}
 .dz-over{outline:2px dashed var(--accent);outline-offset:4px;border-radius:12px;background:rgba(212,185,130,.05)}
 .vatq{font-weight:700; border-radius:9px; padding:8px 12px; cursor:pointer; background:transparent}
+#priceMode button[data-p=incl]{color:#7ab8ff}
+#priceMode button[data-p=incl].on{background:#0f1d3a; color:#7ab8ff}
+#priceMode button[data-p=escl]{color:var(--accent)}
+#priceMode button[data-p=escl].on{background:#2a2410; color:var(--accent)}
+.errfield{border-color:var(--bad)!important; box-shadow:0 0 0 2px rgba(255,122,138,.2)}
 #aVat81{color:var(--accent); border:1.5px solid var(--accent)}
 #aVat81:hover{background:rgba(201,169,97,.12)}
 #aVat22{color:#57d98a; border:1.5px solid #2f9e5f}
@@ -630,7 +642,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.16</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.17</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -871,12 +883,19 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
       <div class="field"><label data-i18n="fList">Prezzo listino</label><input type="text" id="aList" inputmode="decimal"></div>
       <div class="field"><label data-i18n="fAgreed">Prezzo pagato</label><input type="text" id="aAgreed" inputmode="decimal"></div>
       <div class="field"><label data-i18n="fVat">IVA/Tasse %</label>
+        <select id="aVatCountry" style="margin-bottom:6px"></select>
         <div style="display:flex;gap:6px;align-items:center">
           <input type="text" id="aVat" inputmode="decimal" style="flex:1">
           <button type="button" class="vatq" id="aVat81">8.1%</button>
           <button type="button" class="vatq" id="aVat22">22%</button>
         </div>
       </div>
+    </div>
+    <div class="pricecalc" id="priceCalc">
+      <div class="r"><span data-i18n="pcImp">Imponibile</span><b id="pcImp">–</b></div>
+      <div class="r"><span><span data-i18n="pcIva">Importo IVA</span> <span id="pcRate"></span></span><b id="pcIva">–</b></div>
+      <div class="r big"><span id="pcLordoLbl" data-i18n="pcLordo">Totale lordo — prezzo definitivo</span><b id="pcLordo">–</b></div>
+      <div class="pcnote" id="pcNote"></div>
     </div>
     <div class="tfline" id="tfLine">
       <span class="sw"><input type="checkbox" id="aTfFlag"><i></i></span>
@@ -1058,6 +1077,10 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
     <div class="divider" style="margin-top:26px"><span data-i18n="setMig">Migrazione da Purchases</span></div>
     <p style="font-size:.84rem;color:var(--dim);margin-bottom:12px" data-i18n="migNote">Copia foto e documenti dal vecchio database WatchDesk Purchases. Da fare una volta sola, con il binding OLDDB attivo sul Worker.</p>
     <button class="btn dark full" id="btnMigrate" data-i18n="migBtn">Importa foto e documenti</button>
+    <div class="divider" style="margin-top:26px"><span data-i18n="setVat">Aliquote IVA per Paese</span></div>
+    <p style="font-size:.84rem;color:var(--dim);margin-bottom:12px" data-i18n="setVatNote">Modifica le percentuali quando cambiano. Restano su questo dispositivo.</p>
+    <div id="vatEditor" style="max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:12px"></div>
+    <div style="display:flex;gap:10px"><button class="btn full" id="btnVatSave" data-i18n="setVatSave">Salva aliquote</button><button class="btn dark" id="btnVatReset" data-i18n="setVatReset">Ripristina standard</button></div>
   </div>
 </div>
 
@@ -1088,7 +1111,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v10.16
+   WATCHDESK — GESTIONALE UNIFICATO  v10.17
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1134,7 +1157,7 @@ var I18N = {
     repSub:'Estratti conto, registro vendite, margini. Ogni report si apre in anteprima e poi si stampa.',
     phSearch:'Cerca referenza, marca, fornitore…', phSearchSales:'Cerca referenza, marca, cliente…', phSearchMag:'Cerca referenza, marca, seriale…',
     phSearchCp:'Cerca nome, città…', phLookup:'Nome boutique, gioielleria, dealer…', phPhoto:'Tocca per caricare una foto',
-    fPayM:'Metodo di pagamento', fTaxRef:'Tax refund ricevuto', versTitle:'Versamenti', versAdd:'+ Aggiungi versamento', tfNI:'non avviato', tfPend:'in attesa', tfOk:'Tax refund ricevuto \u2713', fTfFlag:'Trattato in tax-free', fDocTaxBtn:'Carica documento', fDocTax:'Documento tax-free', fTfMode:'Modalità tax-free', fPriceMode:'Il prezzo di listino è…', pmIncl:'IVA inclusa', pmEscl:'IVA esclusa', fTfRefund:'Rimborso reale che ricevi', fTfRefundPct:'oppure %', fTfFull:'IVA piena', tfrTheor:'IVA teorica', tfrReal:'Rimborso reale', tfrNet:'Costo effettivo (netto detax)', tfm1t:'Rimborso successivo', tfm1d:'paghi il lordo, rimborso dopo la dogana', tfm2t:'Netto IVA – consegna immediata', tfm2d:'paghi netto, esporti e vidimi', tfm3t:'Netto IVA – consegna in aeroporto', tfm3d:'paghi netto, ritiro in aeroporto', tfmShort_rimborso:'Rimborso successivo', tfmShort_netto_imm:'Netto IVA · immediata', tfmShort_netto_agg:'Netto IVA · aeroporto', tfAskFlagOn:'Confermi: questo orologio viene trattato in tax-free?', tfAskFlagOff:'Confermi di togliere il trattamento tax-free? In lista spariranno i bollini tax-free.', versPaid:'Versato', versLeft:'Residuo', vtAcc:'Acconto', vtPag:'Pagamento', vtSal:'Saldo', pm_misto:'misto', tfAskOn:'Confermi: il tax refund \u00e8 stato RICEVUTO? In lista l\'importo diventer\u00e0 il prezzo netto detax.', tfAskOff:'Confermi di togliere la conferma del tax refund? In lista torner\u00e0 il prezzo pagato (o il listino) con Tax-free Pending.', pm_bonifico:'Bonifico', pm_contanti:'Contanti', pm_carta:'Carta di Credito', pm_crypto:'Crypto', pm_permuta:'Permuta', pm_altro:'Altro',
+    fPayM:'Metodo di pagamento', fTaxRef:'Tax refund ricevuto', versTitle:'Versamenti', versAdd:'+ Aggiungi versamento', tfNI:'non avviato', tfPend:'in attesa', tfOk:'Tax refund ricevuto \u2713', fTfFlag:'Trattato in tax-free', fDocTaxBtn:'Carica documento', fDocTax:'Documento tax-free', fTfMode:'Modalità tax-free', fPriceMode:'Il prezzo di listino è…', pmIncl:'IVA inclusa', pmEscl:'IVA esclusa', pcImp:'Imponibile', pcIva:'Importo IVA', pcIvaIncl:'IVA contenuta', pcLordo:'Totale lordo — prezzo definitivo', pcLordoTf:'Totale lordo (prima del detax)', pcNoteTf:'Tax-free attivo: il prezzo definitivo lo determina il blocco detax (netto/rimborso).', needVat:'Inserisci l’aliquota IVA per salvare.', vatCountryPH:'— Paese (compila l’aliquota) —', setVat:'Aliquote IVA per Paese', setVatNote:'Modifica le percentuali quando cambiano. Restano su questo dispositivo.', setVatSave:'Salva aliquote', setVatReset:'Ripristina standard', setVatOk:'Aliquote salvate.', fTfRefund:'Rimborso reale che ricevi', fTfRefundPct:'oppure %', fTfFull:'IVA piena', tfrTheor:'IVA teorica', tfrReal:'Rimborso reale', tfrNet:'Costo effettivo (netto detax)', tfm1t:'Rimborso successivo', tfm1d:'paghi il lordo, rimborso dopo la dogana', tfm2t:'Netto IVA – consegna immediata', tfm2d:'paghi netto, esporti e vidimi', tfm3t:'Netto IVA – consegna in aeroporto', tfm3d:'paghi netto, ritiro in aeroporto', tfmShort_rimborso:'Rimborso successivo', tfmShort_netto_imm:'Netto IVA · immediata', tfmShort_netto_agg:'Netto IVA · aeroporto', tfAskFlagOn:'Confermi: questo orologio viene trattato in tax-free?', tfAskFlagOff:'Confermi di togliere il trattamento tax-free? In lista spariranno i bollini tax-free.', versPaid:'Versato', versLeft:'Residuo', vtAcc:'Acconto', vtPag:'Pagamento', vtSal:'Saldo', pm_misto:'misto', tfAskOn:'Confermi: il tax refund \u00e8 stato RICEVUTO? In lista l\'importo diventer\u00e0 il prezzo netto detax.', tfAskOff:'Confermi di togliere la conferma del tax refund? In lista torner\u00e0 il prezzo pagato (o il listino) con Tax-free Pending.', pm_bonifico:'Bonifico', pm_contanti:'Contanti', pm_carta:'Carta di Credito', pm_crypto:'Crypto', pm_permuta:'Permuta', pm_altro:'Altro',
     newAcq:'Nuovo acquisto', editAcq:'Modifica acquisto', sellThis:'Vendi questo orologio', newSale:'Nuova vendita', editSale:'Modifica vendita',
     newCp:'Nuova scheda', newCli:'Aggiungi cliente', newSup:'Aggiungi fornitore', editCp:'Modifica scheda',
     magEmpty:'Magazzino vuoto: nessun orologio ritirato in attesa di vendita.',
@@ -1216,7 +1239,7 @@ var I18N = {
     repSub:'Statements, sales ledger, margins. Every report opens as a preview, then prints.',
     phSearch:'Search reference, brand, supplier…', phSearchSales:'Search reference, brand, client…', phSearchMag:'Search reference, brand, serial…',
     phSearchCp:'Search name, city…', phLookup:'Boutique, jeweller, dealer name…', phPhoto:'Tap to upload a photo',
-    fPayM:'Payment method', fTaxRef:'Tax refund received', versTitle:'Payments', versAdd:'+ Add payment', tfNI:'Not initiated', tfPend:'Pending', tfOk:'Tax refund received \u2713', fTfFlag:'Tax-free treated', fDocTaxBtn:'Upload document', fDocTax:'Tax-free document', fTfMode:'Tax-free mode', fPriceMode:'The list price is…', pmIncl:'VAT included', pmEscl:'VAT excluded', fTfRefund:'Actual refund you get', fTfRefundPct:'or %', fTfFull:'Full VAT', tfrTheor:'Theoretical VAT', tfrReal:'Actual refund', tfrNet:'Effective cost (net detax)', tfm1t:'Later refund', tfm1d:'pay gross, refund after customs', tfm2t:'Net VAT – immediate delivery', tfm2d:'pay net, export and stamp', tfm3t:'Net VAT – airport delivery', tfm3d:'pay net, pick up at airport', tfmShort_rimborso:'Later refund', tfmShort_netto_imm:'Net VAT · immediate', tfmShort_netto_agg:'Net VAT · airport', tfAskFlagOn:'Confirm: this watch is handled tax-free?', tfAskFlagOff:'Remove the tax-free treatment? The tax-free badges will disappear from the list.', versPaid:'Paid in', versLeft:'Balance', vtAcc:'Deposit', vtPag:'Payment', vtSal:'Balance', pm_misto:'mixed', tfAskOn:'Confirm: the tax refund has been RECEIVED? The list amount will switch to the detax net price.', tfAskOff:'Remove the tax refund confirmation? The list will go back to the paid (or list) price with Tax-free Pending.', pm_bonifico:'Bank transfer', pm_contanti:'Cash', pm_carta:'Credit Card', pm_crypto:'Crypto', pm_permuta:'Trade-in', pm_altro:'Other',
+    fPayM:'Payment method', fTaxRef:'Tax refund received', versTitle:'Payments', versAdd:'+ Add payment', tfNI:'Not initiated', tfPend:'Pending', tfOk:'Tax refund received \u2713', fTfFlag:'Tax-free treated', fDocTaxBtn:'Upload document', fDocTax:'Tax-free document', fTfMode:'Tax-free mode', fPriceMode:'The list price is…', pmIncl:'VAT included', pmEscl:'VAT excluded', pcImp:'Taxable base', pcIva:'VAT amount', pcIvaIncl:'VAT included', pcLordo:'Gross total — final price', pcLordoTf:'Gross total (before detax)', pcNoteTf:'Tax-free on: the final price is set by the detax block (net/refund).', needVat:'Enter the VAT rate to save.', vatCountryPH:'— Country (fills the rate) —', setVat:'VAT rates by country', setVatNote:'Edit the percentages when they change. They stay on this device.', setVatSave:'Save rates', setVatReset:'Reset to standard', setVatOk:'Rates saved.', fTfRefund:'Actual refund you get', fTfRefundPct:'or %', fTfFull:'Full VAT', tfrTheor:'Theoretical VAT', tfrReal:'Actual refund', tfrNet:'Effective cost (net detax)', tfm1t:'Later refund', tfm1d:'pay gross, refund after customs', tfm2t:'Net VAT – immediate delivery', tfm2d:'pay net, export and stamp', tfm3t:'Net VAT – airport delivery', tfm3d:'pay net, pick up at airport', tfmShort_rimborso:'Later refund', tfmShort_netto_imm:'Net VAT · immediate', tfmShort_netto_agg:'Net VAT · airport', tfAskFlagOn:'Confirm: this watch is handled tax-free?', tfAskFlagOff:'Remove the tax-free treatment? The tax-free badges will disappear from the list.', versPaid:'Paid in', versLeft:'Balance', vtAcc:'Deposit', vtPag:'Payment', vtSal:'Balance', pm_misto:'mixed', tfAskOn:'Confirm: the tax refund has been RECEIVED? The list amount will switch to the detax net price.', tfAskOff:'Remove the tax refund confirmation? The list will go back to the paid (or list) price with Tax-free Pending.', pm_bonifico:'Bank transfer', pm_contanti:'Cash', pm_carta:'Credit Card', pm_crypto:'Crypto', pm_permuta:'Trade-in', pm_altro:'Other',
     newAcq:'New purchase', editAcq:'Edit purchase', sellThis:'Sell this watch', newSale:'New sale', editSale:'Edit sale',
     newCp:'New record', newCli:'Add client', newSup:'Add supplier', editCp:'Edit record',
     magEmpty:'Inventory is empty: no collected watch awaiting sale.',
@@ -2115,6 +2138,7 @@ function openAcqModal(acqId, presetWatchId){
     if(_b!=null && _nt!=null && _b-_nt>0.004) $('aTfRefund').value = Math.round((_b-_nt)*100)/100;
   }
   setPriceMode((a.price_mode)|| 'incl');
+  fillVatCountry();
   setTfMode((a.tf_mode)|| 'rimborso');
   syncTfBoxes();
   $('aDep').value = a.dep!=null&&a.dep!==0?a.dep:'';
@@ -2138,6 +2162,25 @@ function openAcqModal(acqId, presetWatchId){
 }
 
 var PMETHODS=['','bonifico','contanti','carta','crypto','permuta','altro'];
+var VAT_DEFAULTS=[
+ ['🇨🇭 Svizzera',8.1],['🇮🇹 Italia',22],['🇫🇷 Francia',20],['🇩🇪 Germania',19],['🇬🇧 Regno Unito',20],
+ ['🇪🇸 Spagna',21],['🇦🇹 Austria',20],['🇧🇪 Belgio',21],['🇳🇱 Paesi Bassi',21],['🇵🇹 Portogallo',23],['🇮🇪 Irlanda',23],
+ ['🇬🇷 Grecia',24],['🇸🇪 Svezia',25],['🇩🇰 Danimarca',25],['🇫🇮 Finlandia',25.5],['🇳🇴 Norvegia',25],['🇵🇱 Polonia',23],
+ ['🇨🇿 Rep. Ceca',21],['🇭🇺 Ungheria',27],['🇷🇴 Romania',19],['🇱🇺 Lussemburgo',17],['🇲🇨 Monaco',20],['🇸🇰 Slovacchia',23],
+ ['🇸🇮 Slovenia',22],['🇭🇷 Croazia',25],['🇧🇬 Bulgaria',20],['🇪🇪 Estonia',24],['🇱🇻 Lettonia',21],['🇱🇹 Lituania',21],
+ ['🇨🇾 Cipro',19],['🇲🇹 Malta',18],
+ ['🇺🇸 USA (no IVA)',0],['🇦🇪 Emirati',5],['🇭🇰 Hong Kong',0],['🇸🇬 Singapore',9],['🇯🇵 Giappone',10],['🇨🇳 Cina',13],
+ ['🇨🇦 Canada',5],['🇦🇺 Australia',10],['🇹🇷 Turchia',20],['🇸🇦 Arabia Saudita',15]
+]
+function vatRates(){
+  try{ var o=JSON.parse(localStorage.getItem('wd_vat')||'null'); if(Array.isArray(o)&&o.length) return o; }catch(e){}
+  return VAT_DEFAULTS.map(function(x){return x.slice();});
+}
+function fillVatCountry(){
+  var sel=$('aVatCountry'); if(!sel) return;
+  sel.innerHTML=''; var ph=document.createElement('option'); ph.value=''; ph.textContent=T('vatCountryPH'); sel.appendChild(ph);
+  vatRates().forEach(function(c,i){ var o=document.createElement('option'); o.value=i; o.textContent=c[0]+(c[1]!=null?' \u00b7 '+c[1]+'%':''); sel.appendChild(o); });
+}
 var TF_MODE='rimborso';
 var PRICE_MODE='incl';
 function setPriceMode(p){
@@ -2169,6 +2212,24 @@ function recomputeNet(){
   }
   var n=netPrice(); if(n!=null) $('aNet').value = n;
   renderRefCalc();
+  renderPriceCalc();
+}
+function renderPriceCalc(){
+  var box=$('priceCalc'); if(!box) return;
+  var b=priceTyped(), iva=num($('aVat').value);
+  if(b==null || iva==null){ box.classList.remove('on'); return; }
+  var imp, imposta, lordo;
+  if(PRICE_MODE==='escl'){ imp=b; lordo=b*(1+iva/100); imposta=lordo-imp; }
+  else { imp=b/(1+iva/100); lordo=b; imposta=lordo-imp; }
+  var cur=$('aCur').value;
+  $('pcImp').textContent=fmtN(imp,cur);
+  $('pcIva').textContent=fmtN(imposta,cur);
+  $('pcRate').textContent='('+iva+'%)';
+  $('pcLordo').textContent=fmtN(lordo,cur);
+  var tf=$('aTfFlag').checked;
+  $('pcLordoLbl').textContent = tf ? T('pcLordoTf') : T('pcLordo');
+  $('pcNote').textContent = tf ? T('pcNoteTf') : '';
+  box.classList.add('on');
 }
 function renderRefCalc(){
   var box=$('tfRefCalc'); if(!box) return;
@@ -2233,6 +2294,7 @@ function calcNetFromVat(listEl, vatEl, netEl){
 function saveAcq(){
   var brand = $('aBrand').value==='__other' ? $('aBrandOther').value.trim() : $('aBrand').value;
   if(!brand && !$('aRef').value.trim()){ showMsg('acqMsg', T('needWatch')); return; }
+  if(num($('aVat').value)==null){ showMsg('acqMsg', T('needVat')); try{ $('aVat').classList.add('errfield'); $('aVat').focus(); }catch(e){} return; }
   var wid = EDIT.watch ? EDIT.watch.id : rid();
   var aid = EDIT.acq ? EDIT.acq.id : 'acq-'+wid;
   var wBody = {
@@ -3618,7 +3680,8 @@ function bind(){
   });
   $('btnRefSearch').addEventListener('click', refSearch);
   $('aRef').addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); refSearch(); } });
-  $('aVat').addEventListener('input',function(){ recomputeNet(); });
+  $('aVat').addEventListener('input',function(){ $('aVat').classList.remove('errfield'); recomputeNet(); });
+  $('aVatCountry').addEventListener('change',function(){ var r=vatRates()[this.value]; if(r&&r[1]!=null){ $('aVat').value=r[1]; $('aVat').classList.remove('errfield'); recomputeNet(); } });
   $('aVat81').addEventListener('click',function(){ $('aVat').value='8.1'; recomputeNet(); });
   $('aVat22').addEventListener('click',function(){ $('aVat').value='22'; recomputeNet(); });
   $('aList').addEventListener('input',function(){ if($('aVat').value) calcNetFromVat('aList','aVat','aNet'); });
@@ -3779,7 +3842,19 @@ function bind(){
   $('btnDelCp').addEventListener('click', deleteCp);
 
   /* impostazioni */
-  $('btnSettings').addEventListener('click',function(){ hideMsg('setMsg'); $('ovSet').classList.add('on'); });
+  function renderVatEditor(){
+    var box=$('vatEditor'); if(!box) return; var rows=vatRates(); var h='';
+    rows.forEach(function(c,i){ h+='<div style="display:flex;gap:8px;align-items:center;margin:4px 0"><span style="flex:1;font-size:.86rem">'+c[0]+'</span><input data-vi="'+i+'" value="'+(c[1]!=null?c[1]:'')+'" inputmode="decimal" style="width:80px;text-align:right"><span style="color:var(--dim)">%</span></div>'; });
+    box.innerHTML=h;
+  }
+  $('btnSettings').addEventListener('click',function(){ hideMsg('setMsg'); renderVatEditor(); $('ovSet').classList.add('on'); });
+  $('btnVatSave').addEventListener('click',function(){
+    var rows=vatRates().map(function(c){return c.slice();});
+    $('vatEditor').querySelectorAll('[data-vi]').forEach(function(inp){ var i=+inp.getAttribute('data-vi'); var v=num(inp.value); rows[i][1]= v==null?null:v; });
+    try{ localStorage.setItem('wd_vat', JSON.stringify(rows)); }catch(e){}
+    fillVatCountry(); showMsg('setMsg', T('setVatOk'), true);
+  });
+  $('btnVatReset').addEventListener('click',function(){ try{ localStorage.removeItem('wd_vat'); }catch(e){} renderVatEditor(); fillVatCountry(); showMsg('setMsg', T('setVatOk'), true); });
   $('btnChange').addEventListener('click',function(){ location.href=PORTA; });
   $('btnMigrate').addEventListener('click',function(){
     $('btnMigrate').textContent=T('saving');
