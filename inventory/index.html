@@ -453,6 +453,8 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 @media (max-width:900px){
   #printLayer{overflow-x:auto; -webkit-overflow-scrolling:touch}
   .sheet{min-width:980px; margin:16px; font-size:12px}
+  .sheet.photosheet{min-width:0; width:auto; margin:12px; padding:18px 16px}
+  .sheet.photosheet .vtotline{max-width:none}
   .pl-bar{position:sticky; left:0}
 }
 #printLayer.on{display:block}
@@ -648,7 +650,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.22</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.23</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -1120,7 +1122,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v10.22
+   WATCHDESK — GESTIONALE UNIFICATO  v10.23
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -2871,6 +2873,7 @@ function sheetHead(title){
 }
 function openPrint(title, html){
   $('plTitle').textContent=title;
+  $('plSheet').classList.remove('photosheet');
   $('plSheet').innerHTML=html;
   $('printLayer').classList.add('on');
 }
@@ -3327,6 +3330,7 @@ function applyRepMode(){
 function buildRepPhoto(kind){
   loadFx(function(){
     $('plTitle').textContent = T('rPhoto')+' \u2014 '+({ord:T('vOrd'),acq:T('vAcq'),sal:T('vSal'),mag:T('vMag'),inv:T('vInv')})[kind];
+    $('plSheet').classList.add('photosheet');
     $('plSheet').innerHTML = visSheet(kind);
     var bar=$('plSheet').parentNode.querySelector('.vtabs'); if(bar) bar.remove();
     $('printLayer').classList.add('on');
