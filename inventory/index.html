@@ -650,7 +650,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.23</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.24</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -865,7 +865,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
       <div class="field"><label data-i18n="fSerial">Seriale</label><input type="text" id="aSerial" class="mono"></div>
     </div>
     <div class="frow3">
-      <div class="field"><label data-i18n="fYear">Anno</label><input type="text" id="aYear" inputmode="numeric"></div>
+      <div class="field"><label data-i18n="fYear">Anno</label><select id="aYear"></select></div>
       <div class="field"><label data-i18n="fCond">Condizioni</label><select id="aCond"></select></div>
       <div class="field"><label data-i18n="fSet">Corredo</label><select id="aSet"></select></div>
       <div class="field"><label data-i18n="fMkt">Valore grey USD</label>
@@ -1122,7 +1122,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v10.23
+   WATCHDESK — GESTIONALE UNIFICATO  v10.24
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -2103,6 +2103,27 @@ function renderCp(){
 /* ================================================================
    FORM ACQUISTO (orologio + acquisizione)
    ================================================================ */
+function fillYearSelect(){
+  var sel=$('aYear'); if(!sel) return;
+  var now=new Date().getFullYear();
+  var keep=sel.value;
+  var h='<option value="">\u2014</option>';
+  for(var y=now; y>=1950; y--){ h+='<option value="'+y+'">'+y+'</option>'; }
+  sel.innerHTML=h;
+  if(keep) setYear(keep);
+}
+function setYear(v){
+  var sel=$('aYear'); if(!sel) return;
+  v=(v==null?'':String(v)).trim();
+  if(v && !Array.prototype.some.call(sel.options,function(o){return o.value===v;})){
+    var o=document.createElement('option'); o.value=v; o.textContent=v;
+    // inserisco in ordine decrescente, dopo la voce vuota
+    var placed=false;
+    for(var i=1;i<sel.options.length;i++){ if(Number(v)>Number(sel.options[i].value)){ sel.add(o, sel.options[i]); placed=true; break; } }
+    if(!placed) sel.add(o);
+  }
+  sel.value=v;
+}
 function openAcqModal(acqId, presetWatchId){
   EDIT.acq = acqId ? S.acquisitions.filter(function(a){return a.id===acqId;})[0] : null;
   EDIT.watch = EDIT.acq ? watchById(EDIT.acq.watch_id) : (presetWatchId ? watchById(presetWatchId) : null);
@@ -2125,7 +2146,8 @@ function openAcqModal(acqId, presetWatchId){
   $('aSerial').value = w.serial||'';
   $('aMkt').value = (w.mkt_usd!=null && w.mkt_usd!=='') ? w.mkt_usd : '';
   $('aMktUse').checked = !!(w.mkt_lock && Number(w.mkt_lock));
-  $('aYear').value = w.year||'';
+  fillYearSelect();
+  setYear(w.year||'');
   $('aCond').value = w.cond||'';
   $('aSet').value = w.set_type||'';
   if(EDIT.photo){ $('aPhotoImg').src=EDIT.photo; $('aPhotoImg').style.display='block'; }
@@ -2492,7 +2514,8 @@ function applyScan(d, dataUrl, mime){
     else { $('aBrand').value='__other'; $('aBrandOtherBox').style.display=''; $('aBrandOther').value=d.brand; }
     letti.push('marca');
   }
-  set('aRef', d.ref); set('aModel', d.model); set('aSerial', d.serial); set('aYear', d.year);
+  set('aRef', d.ref); set('aModel', d.model); set('aSerial', d.serial);
+  if(d.year && !$('aYear').value){ setYear(d.year); letti.push('aYear'); }
   if(d.setType && $('aSet')) $('aSet').value=d.setType;
   if(d.list!=null && !num($('aList').value)){
     $('aList').value=d.list;
