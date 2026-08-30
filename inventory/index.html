@@ -488,7 +488,9 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 .sheet .ostate.s-sup{background:#fdf0dd; color:#9a6b12}
 .sheet .ostate.s-stock{background:#e6f6ec; color:#1e7a44}
 .sheet .ostate.s-sold{background:#e9eefb; color:#2e5aa8}
-.sheet .opay{font-size:9px; color:#7a8199; margin-top:3px; line-height:1.3}
+.sheet .opay{font-size:9px; color:#7a8199; margin-top:3px; line-height:1.35}
+.sheet .opayline{font-size:9px; color:#7a8199}
+.sheet .opaytot{font-size:9px; color:#3a4050; font-weight:700; margin-top:1px}
 .sheet .ocount{display:flex; flex-wrap:wrap; gap:16px; margin-top:14px; padding-top:11px; border-top:1px solid #d9dbe6; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:#666e85}
 .sheet .ocount .otot{margin-left:auto; font-weight:700; color:#1a1a1f}
 .sheet .sh-meta{color:#666e85; font-size:11px; margin-bottom:16px}
@@ -650,7 +652,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.25</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.26</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -1123,7 +1125,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v10.25
+   WATCHDESK — GESTIONALE UNIFICATO  v10.26
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1362,6 +1364,24 @@ function daysBetween(a,b){
 }
 function statLabel(s){ return T('stat_'+s) !== 'stat_'+s ? T('stat_'+s) : (s||''); }
 function payLabel(s){ return T('pay_'+s) !== 'pay_'+s ? T('pay_'+s) : (s||''); }
+function payTipoLabel(t){ return t==='saldo'?T('vtSal'):(t==='pagamento'?T('vtPag'):T('vtAcc')); }
+function paymentsCell(a){
+  var vs=(typeof paysFor==='function')?paysFor(a.id):[];
+  if(vs && vs.length){
+    var tot=0;
+    var lines=vs.slice().sort(function(x,y){ return String(x.pay_date||'').localeCompare(String(y.pay_date||'')); }).map(function(p){
+      tot+=num(p.amount)||0;
+      var parts=[payTipoLabel(p.tipo)+' '+fmtN(num(p.amount)||0,a.cur)];
+      if(p.method) parts.push(T('pm_'+p.method));
+      if(p.pay_date) parts.push(fmtDate(p.pay_date));
+      return '<div class="opayline">'+esc(parts.join(' \u00b7 '))+'</div>';
+    });
+    lines.push('<div class="opaytot">'+esc(T('versPaid')+': '+fmtN(tot,a.cur))+'</div>');
+    return '<div class="opay">'+lines.join('')+'</div>';
+  }
+  var pag = payLabel(a.pay) + (a.pay==='acconto'&&a.dep?' ('+fmtN(a.dep,a.cur)+')':'') + (a.pay_method?' \u00b7 '+T('pm_'+a.pay_method):'');
+  return '<div class="opay">'+esc(pag)+'</div>';
+}
 function sumByCur(rows, getCur, getVal){
   var out = {};
   rows.forEach(function(r){
@@ -3085,7 +3105,7 @@ function buildRepOrders(onlyOpen){
     else if(a.stat==='ordinato'){ dove=T('oOrdered'); cls='s-ord'; conta.ord++; }
     else { dove=T('oAtSup'); cls='s-sup'; conta.sup++; }
     /* il pagamento e' un fatto a parte: un pezzo puo' essere arrivato e non pagato */
-    var pag = payLabel(a.pay) + (a.pay==='acconto'&&a.dep?' ('+fmtN(a.dep,a.cur)+')':'') + (a.pay_method?' \u00b7 '+T('pm_'+a.pay_method):'');
+
     h+='<tr>'+
       '<td class="mini">'+(w.photo?'<img src="'+w.photo+'">':'<div class="noph">\u231a</div>')+'</td>'+
       '<td>'+fmtDate(a.d_ord)+'</td>'+
@@ -3095,7 +3115,7 @@ function buildRepOrders(onlyOpen){
       '<td>'+esc(cp?cp.name:'')+'</td>'+
       '<td>'+(a.d_rec?fmtDate(a.d_rec):'\u2014')+'</td>'+
       '<td>'+(a.d_pick?fmtDate(a.d_pick):'\u2014')+'</td>'+
-      '<td><span class="ostate '+cls+'">'+esc(dove)+'</span><div class="opay">'+esc(pag)+'</div></td>'+
+      '<td><span class="ostate '+cls+'">'+esc(dove)+'</span>'+paymentsCell(a)+'</td>'+
       '<td class="num mono2">'+fmtN(netCost(a),a.cur)+'</td>'+
       '<td>'+esc(a.cur||'')+'</td></tr>';
   });
