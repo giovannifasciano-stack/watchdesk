@@ -650,7 +650,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.24</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.25</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -820,6 +820,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
       </div>
       <div class="repgrid">
         <div class="repcard" id="repOrders"><div class="ri">📋</div><div class="rt" data-i18n="rOrdT">Orologi ordinati</div><div class="rd" data-i18n="rOrdD">Tutti gli ordini, dal primo all'ultimo: pagati o no, arrivati o no, ritirati o no, venduti o no.</div></div>
+        <div class="repcard" id="repOrdersOpen"><div class="ri">⏳</div><div class="rt" data-i18n="rOrdOpenT">Ordinati non ritirati</div><div class="rd" data-i18n="rOrdOpenD">Ordini ancora aperti: ordinati o arrivati dal fornitore ma non ancora ritirati.</div></div>
         <div class="repcard" id="repAcq"><div class="ri">📥</div><div class="rt" data-i18n="rAcqT">Estratto conto acquisti</div><div class="rd" data-i18n="rAcqD">Tutte le acquisizioni del periodo, con costi netti e stato pagamenti.</div></div>
         <div class="repcard" id="repSales"><div class="ri">📤</div><div class="rt" data-i18n="rSalesT">Estratto conto vendite</div><div class="rd" data-i18n="rSalesD">Le vendite del periodo con regime IVA, permute e incassi.</div></div>
         <div class="repcard" id="repMargin"><div class="ri">📈</div><div class="rt" data-i18n="rMarT">Margini</div><div class="rd" data-i18n="rMarD">Margine per pezzo con giorni di giacenza, più totali per marca e cliente.</div></div>
@@ -1122,7 +1123,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v10.24
+   WATCHDESK — GESTIONALE UNIFICATO  v10.25
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1178,7 +1179,7 @@ var I18N = {
     fYear:'Anno', fCond:'Condizioni', fSet:'Corredo', fMkt:'Valore grey USD', fMktUse:'Usa questo valore invece della quotazione trovata', mktMan:'mio', fPhoto:'Foto', fCp:'Cliente / Fornitore', fSup:'Fornitore', fCpSell:'Cliente',
     fCur:'Valuta', fList:'Prezzo listino', fAgreed:'Prezzo pagato se applicato sconto', fVat:'IVA/Tasse %', fNet:'Prezzo netto detax',
     fPay:'Pagamento', fDep:'Acconto versato', fPayDate:'Data pagamento', fStat:'Stato', fDOrd:'Data ordine',
-    fDRec:'Arrivato dal fornitore il', fDPick:'Data ritiro', fNotes:'Note', fDocs:'Documenti / fatture', fDocDep:'Copia pagamento acconto', fDocBal:'Copia pagamento saldo', fDocWar:'Certificato di garanzia', printCard:'Stampa scheda', rWatchT:'Scheda orologio', rOrdT:'Orologi ordinati', rOrdD:"Tutti gli ordini, dal primo all'ultimo: pagati o no, arrivati o no, ritirati o no, venduti o no.", oArr:'Arrivato', oPick:'Ritirato', oState:'Dove si trova', oOrdered:'Ordinato', oAtSup:'Dal fornitore', oStock:'In magazzino', oSold:'Venduto', rWatchBuy:'Acquisto', rWatchDocs:'Allegati', rDep:'Acconto', rBal:'Saldo', toUpload:'da caricare al salvataggio', docTooBig:'File troppo grande anche dopo la compressione: massimo ~1.8MB.', noPreview:'Anteprima non disponibile per questo formato — usa Scarica.', download:'Scarica', close:'Chiudi',
+    fDRec:'Arrivato dal fornitore il', fDPick:'Data ritiro', fNotes:'Note', fDocs:'Documenti / fatture', fDocDep:'Copia pagamento acconto', fDocBal:'Copia pagamento saldo', fDocWar:'Certificato di garanzia', printCard:'Stampa scheda', rWatchT:'Scheda orologio', rOrdT:'Orologi ordinati', rOrdD:"Tutti gli ordini, dal primo all'ultimo: pagati o no, arrivati o no, ritirati o no, venduti o no.", rOrdOpenT:'Ordinati non ritirati', rOrdOpenD:'Ordini ancora aperti: ordinati o arrivati dal fornitore ma non ancora ritirati.', vOrdOpen:'Ordinati non ritirati', oArr:'Arrivato', oPick:'Ritirato', oState:'Dove si trova', oOrdered:'Ordinato', oAtSup:'Dal fornitore', oStock:'In magazzino', oSold:'Venduto', rWatchBuy:'Acquisto', rWatchDocs:'Allegati', rDep:'Acconto', rBal:'Saldo', toUpload:'da caricare al salvataggio', docTooBig:'File troppo grande anche dopo la compressione: massimo ~1.8MB.', noPreview:'Anteprima non disponibile per questo formato — usa Scarica.', download:'Scarica', close:'Chiudi',
     addDoc:'Aggiungi file', fWatch:'Orologio', fPrice:'Prezzo vendita', fNetSale:'Netto vendita',
     fVatMode:'Regime', fInvoice:'Fattura n.', fTradeDesc:'Permuta — descrizione', fTradeVal:'Permuta — valore',
     fDSale:'Data vendita', fName:'Nome / ragione sociale', fAddr:'Indirizzo', fZip:'CAP', fCity:'Città',
@@ -1260,7 +1261,7 @@ var I18N = {
     fYear:'Year', fCond:'Condition', fSet:'Set', fMkt:'Grey value USD', fMktUse:'Use this value instead of the quote found online', mktMan:'mine', fPhoto:'Photo', fCp:'Client / Supplier', fSup:'Supplier', fCpSell:'Client',
     fCur:'Currency', fList:'List price', fAgreed:'Price paid if discounted', fVat:'VAT/Taxes %', fNet:'Net detax price',
     fPay:'Payment', fDep:'Deposit paid', fPayDate:'Payment date', fStat:'Status', fDOrd:'Order date',
-    fDRec:'Arrived from supplier on', fDPick:'Collection date', fNotes:'Notes', fDocs:'Documents / invoices', fDocDep:'Deposit payment copy', fDocBal:'Balance payment copy', fDocWar:'Warranty certificate', printCard:'Print card', rWatchT:'Watch card', rOrdT:'Watches ordered', rOrdD:'Every order, first to last: paid or not, arrived or not, collected or not, sold or not.', oArr:'Arrived', oPick:'Collected', oState:'Where it is', oOrdered:'On order', oAtSup:'At supplier', oStock:'In stock', oSold:'Sold', rWatchBuy:'Purchase', rWatchDocs:'Attachments', rDep:'Deposit', rBal:'Balance', toUpload:'uploads on save', docTooBig:'File still too large after compression: max ~1.8MB.', noPreview:'No preview for this format — use Download.', download:'Download', close:'Close',
+    fDRec:'Arrived from supplier on', fDPick:'Collection date', fNotes:'Notes', fDocs:'Documents / invoices', fDocDep:'Deposit payment copy', fDocBal:'Balance payment copy', fDocWar:'Warranty certificate', printCard:'Print card', rWatchT:'Watch card', rOrdT:'Watches ordered', rOrdOpenT:'Ordered, not picked up', rOrdOpenD:'Still-open orders: ordered or arrived at the supplier but not yet picked up.', vOrdOpen:'Ordered, not picked up', rOrdD:'Every order, first to last: paid or not, arrived or not, collected or not, sold or not.', oArr:'Arrived', oPick:'Collected', oState:'Where it is', oOrdered:'On order', oAtSup:'At supplier', oStock:'In stock', oSold:'Sold', rWatchBuy:'Purchase', rWatchDocs:'Attachments', rDep:'Deposit', rBal:'Balance', toUpload:'uploads on save', docTooBig:'File still too large after compression: max ~1.8MB.', noPreview:'No preview for this format — use Download.', download:'Download', close:'Close',
     addDoc:'Add files', fWatch:'Watch', fPrice:'Sale price', fNetSale:'Net sale',
     fVatMode:'Regime', fInvoice:'Invoice no.', fTradeDesc:'Trade-in — description', fTradeVal:'Trade-in — value',
     fDSale:'Sale date', fName:'Name / company', fAddr:'Address', fZip:'ZIP', fCity:'City',
@@ -3065,10 +3066,11 @@ function buildRepWatch(){
 /* Registro degli ordini: c'e' dentro tutto, senza nessun filtro di stato —
    pagati o no, arrivati o no, ritirati o no, gia' venduti o no. Serve a vedere
    a che punto e' ogni pezzo, non a fare i conti. */
-function buildRepOrders(){
+function buildRepOrders(onlyOpen){
   var rows=repFilterRows(S.acquisitions,'d_ord');
+  if(onlyOpen) rows=rows.filter(function(a){ return a.stat!=='ritirato' && !saleByWatch(a.watch_id); });
   rows.sort(function(x,y){ return String(y.d_ord||'').localeCompare(String(x.d_ord||'')); });
-  var h=sheetHead(T('rOrdT'));
+  var h=sheetHead(onlyOpen?T('rOrdOpenT'):T('rOrdT'));
   h+='<table><colgroup><col style="width:4%"><col style="width:7%"><col style="width:10%"><col style="width:12%"><col style="width:11%"><col style="width:13%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:17%"><col style="width:5%"></colgroup>';
   h+='<tr><th></th><th>'+T('thDate')+'</th><th>'+T('thBrand')+'</th><th>'+T('thRef')+'</th><th>'+T('thModel')+'</th><th>'+T('thSup')+'</th>'+
      '<th>'+T('oArr')+'</th><th>'+T('oPick')+'</th><th>'+T('oState')+'</th><th class="num">'+T('thCost')+'</th><th>'+T('thCur')+'</th></tr>';
@@ -3305,11 +3307,12 @@ function visRows(kind){
   if(kind==='inv') return S.acquisitions.filter(isInvAcq).map(function(a){return {w:watchById(a.watch_id)||{}};});
   /* Ordinati = tutti gli ordini del periodo, come il report tabellare 'Orologi ordinati' */
   if(kind==='ord') return repFilterRows(S.acquisitions,'d_ord').map(function(a){return {w:watchById(a.watch_id)||{}};});
+  if(kind==='ordopen') return repFilterRows(S.acquisitions,'d_ord').filter(function(a){return a.stat!=='ritirato' && !saleByWatch(a.watch_id);}).map(function(a){return {w:watchById(a.watch_id)||{}};});
   if(kind==='acq') return repFilterRows(S.acquisitions,'d_ord').map(function(a){return {w:watchById(a.watch_id)||{}};});
   return repFilterRows(S.sales,'d_sale').map(function(s){return {w:watchById(s.watch_id)||{}};});
 }
 function visSheet(kind){
-  var titoli={ord:T('vOrd'),acq:T('vAcq'),sal:T('vSal'),mag:T('vMag'),inv:T('vInv')};
+  var titoli={ord:T('vOrd'),ordopen:T('vOrdOpen'),acq:T('vAcq'),sal:T('vSal'),mag:T('vMag'),inv:T('vInv')};
   var rows=visRows(kind), g=visGroup(rows), tot=0;
   g.forEach(function(x){tot+=x.q;});
   var meta = (kind==='mag'||kind==='inv') ? (T('vStockAt')+' '+fmtDate(today()))
@@ -3336,6 +3339,7 @@ function visTotals(kind){
   if(kind==='mag'){ S.watches.filter(isStock).forEach(function(w){ var a=acqByWatch(w.id); if(a){ add(a.cur, netCost(a)); } else { pieces++; } }); }
   else if(kind==='inv'){ S.acquisitions.filter(isInvAcq).forEach(function(a){ add(a.cur, num(a.list)||0); }); }
   else if(kind==='sal'){ repFilterRows(S.sales,'d_sale').forEach(function(x){ add(x.cur, netSale(x)); }); }
+  else if(kind==='ordopen'){ repFilterRows(S.acquisitions,'d_ord').filter(function(a){return a.stat!=='ritirato' && !saleByWatch(a.watch_id);}).forEach(function(a){ add(a.cur, netCost(a)); }); }
   else { repFilterRows(S.acquisitions,'d_ord').forEach(function(a){ add(a.cur, netCost(a)); }); }
   return {m:m, pieces:pieces};
 }
@@ -3352,7 +3356,7 @@ function applyRepMode(){
 }
 function buildRepPhoto(kind){
   loadFx(function(){
-    $('plTitle').textContent = T('rPhoto')+' \u2014 '+({ord:T('vOrd'),acq:T('vAcq'),sal:T('vSal'),mag:T('vMag'),inv:T('vInv')})[kind];
+    $('plTitle').textContent = T('rPhoto')+' \u2014 '+({ord:T('vOrd'),ordopen:T('vOrdOpen'),acq:T('vAcq'),sal:T('vSal'),mag:T('vMag'),inv:T('vInv')})[kind];
     $('plSheet').classList.add('photosheet');
     $('plSheet').innerHTML = visSheet(kind);
     var bar=$('plSheet').parentNode.querySelector('.vtabs'); if(bar) bar.remove();
@@ -3938,7 +3942,8 @@ function bind(){
   });
 
   /* reports */
-  $('repOrders').addEventListener('click', function(){ REP_PHOTO ? buildRepPhoto('ord') : buildRepOrders(); });
+  $('repOrders').addEventListener('click', function(){ REP_PHOTO ? buildRepPhoto('ord') : buildRepOrders(false); });
+  $('repOrdersOpen').addEventListener('click', function(){ REP_PHOTO ? buildRepPhoto('ordopen') : buildRepOrders(true); });
   $('repAcq').addEventListener('click', function(){ REP_PHOTO ? buildRepPhoto('acq') : buildRepAcq(); });
   $('repSales').addEventListener('click', function(){ REP_PHOTO ? buildRepPhoto('sal') : buildRepSales(); });
   $('repMargin').addEventListener('click', buildRepMargin);
