@@ -144,7 +144,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 .bstat{background:#10151f; border:1px solid var(--line); border-radius:12px; padding:10px 16px; text-align:center; min-width:74px}
 .bstat .n{font-size:1.35rem; font-weight:800; font-family:ui-monospace,Menlo,monospace}
 .bstat .l{font-size:.58rem; color:var(--dim); text-transform:uppercase; margin-top:2px}
-@media(max-width:600px){.bhrow,.bbrow{grid-template-columns:118px repeat(2,1fr) 46px}.bhrow .hide,.bbrow .hide{display:none}.blogo{width:110px;height:38px}.bone .blogo{width:220px;height:82px}}
+@media(max-width:600px){#brandAll{overflow-x:auto;-webkit-overflow-scrolling:touch}.bhrow,.bbrow{grid-template-columns:112px repeat(4,minmax(60px,1fr)) 52px;min-width:520px;background:#0d1119}.bhrow .hide,.bbrow .hide{display:block}.blogo{width:104px;height:38px;position:sticky;left:0;z-index:2}.bhrow .h0{position:sticky;left:0;z-index:2;background:#0d1119}.bbrow .blogo{box-shadow:8px 0 0 #0d1119}.bone .blogo{width:220px;height:82px}}
 .pipe-row{display:flex; align-items:stretch; justify-content:space-between; gap:2px}
 .pnode{flex:1; display:flex; flex-direction:column; align-items:center; position:relative; min-width:0; padding:0 4px; cursor:pointer; text-align:center}
 .pnode+.pnode::before{content:''; position:absolute; left:calc(-50% + 26px); right:calc(50% + 26px); top:26px; height:2px; background:linear-gradient(90deg,transparent,var(--line2),transparent); pointer-events:none}
@@ -681,7 +681,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.31</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.32</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -1170,7 +1170,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v10.31
+   WATCHDESK — GESTIONALE UNIFICATO  v10.32
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
