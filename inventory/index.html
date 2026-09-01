@@ -135,6 +135,8 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 .blogo.mono{display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--accent); letter-spacing:.02em; font-size:1rem}
 .bc{text-align:center; font-family:ui-monospace,Menlo,monospace; font-size:1.05rem}
 .bc-ord{color:var(--accent)}.bc-att{color:#7ab8ff}.bc-mag{color:var(--ok)}.bc-ven{color:#8b93c4}.bc.z{color:#333a48}
+.bnum{cursor:pointer; border-radius:8px}
+.bnum:hover{text-decoration:underline; background:rgba(255,255,255,.05)}
 .btot{text-align:center; font-weight:800; color:var(--accent); font-size:1.1rem}
 .bone{display:flex; gap:22px; align-items:center; flex-wrap:wrap; padding:6px 0 8px}
 .bone .blogo{width:280px; height:104px}
@@ -679,7 +681,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.30</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.31</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -1168,7 +1170,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v10.30
+   WATCHDESK — GESTIONALE UNIFICATO  v10.31
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1813,6 +1815,26 @@ function brandStats(){
   return m;
 }
 function brandTot(d){ return d.ord+d.att+d.mag+d.ven; }
+function setPurFilterBrand(which, brand){
+  PUR_ALL=(which==='all'); PUR_DUE=(which==='due'); PUR_ORD=(which==='ord');
+  PUR_ARRNP=(which==='arrnp'); PUR_ARR=(which==='arr'); PUR_PAID=(which==='atsup'); PUR_SUP=(which==='sup');
+  if($('chipPurAll')) $('chipPurAll').classList.toggle('on', PUR_ALL);
+  if($('chipDue')) $('chipDue').classList.toggle('on', PUR_DUE);
+  if($('chipOrd')) $('chipOrd').classList.toggle('on', PUR_ORD);
+  if($('chipArr')) $('chipArr').classList.toggle('on', PUR_ARR);
+  if($('chipArrNp')) $('chipArrNp').classList.toggle('on', PUR_ARRNP);
+  if($('chipPaid')) $('chipPaid').classList.toggle('on', PUR_PAID);
+  $('purSearch').value=brand||'';
+  renderPur();
+}
+function brandGoto(brand, state){
+  if(state==='mag'){ gotoView('mag'); if($('magSearch')) $('magSearch').value=brand; renderMag(); }
+  else if(state==='ven'){ gotoView('sales'); if($('salesSearch')) $('salesSearch').value=brand; renderSales(); }
+  else if(state==='ord'){ gotoView('pur'); setPurFilterBrand('ord', brand); }
+  else if(state==='att'){ gotoView('pur'); setPurFilterBrand('arr', brand); }
+  else { gotoView('pur'); setPurFilterBrand('', brand); }   /* totale: tutta la marca */
+  window.scrollTo(0,0);
+}
 function renderBrandPanel(){
   if(!$('brandAll')) return;
   var m=brandStats();
@@ -1826,11 +1848,11 @@ function renderBrandPanel(){
   var h='<div class="bhrow"><div class="h0">'+esc(T('pBrand'))+'</div><div>'+esc(T('bOrd'))+'</div><div class="hide">'+esc(T('bAtt'))+'</div><div>'+esc(T('bMag'))+'</div><div class="hide">'+esc(T('bVen'))+'</div><div>'+esc(T('bTot'))+'</div></div>';
   keys.forEach(function(b){ var d=m[b];
     h+='<div class="bbrow">'+brandLogoHtml(b)+
-      '<div class="bc bc-ord'+(d.ord?'':' z')+'">'+d.ord+'</div>'+
-      '<div class="bc bc-att hide'+(d.att?'':' z')+'">'+d.att+'</div>'+
-      '<div class="bc bc-mag'+(d.mag?'':' z')+'">'+d.mag+'</div>'+
-      '<div class="bc bc-ven hide'+(d.ven?'':' z')+'">'+d.ven+'</div>'+
-      '<div class="btot">'+brandTot(d)+'</div></div>';
+      '<div class="bc bc-ord'+(d.ord?' bnum':' z')+'" data-b="'+esc(b)+'" data-s="ord">'+d.ord+'</div>'+
+      '<div class="bc bc-att hide'+(d.att?' bnum':' z')+'" data-b="'+esc(b)+'" data-s="att">'+d.att+'</div>'+
+      '<div class="bc bc-mag'+(d.mag?' bnum':' z')+'" data-b="'+esc(b)+'" data-s="mag">'+d.mag+'</div>'+
+      '<div class="bc bc-ven hide'+(d.ven?' bnum':' z')+'" data-b="'+esc(b)+'" data-s="ven">'+d.ven+'</div>'+
+      '<div class="btot'+(brandTot(d)?' bnum':'')+'" data-b="'+esc(b)+'" data-s="tot">'+brandTot(d)+'</div></div>';
   });
   if(!keys.length) h+='<div class="bbrow"><div style="grid-column:1/-1;color:var(--dim);text-align:center;padding:10px">\u2014</div></div>';
   $('brandAll').innerHTML=h;
@@ -1839,11 +1861,11 @@ function renderBrandPanel(){
     var d=m[cur];
     $('brandSingle').innerHTML='<div class="bone">'+brandLogoHtml(cur)+
       '<div class="bstats">'+
-       '<div class="bstat"><div class="n" style="color:var(--accent)">'+d.ord+'</div><div class="l">'+esc(T('bOrd'))+'</div></div>'+
-       '<div class="bstat"><div class="n" style="color:#7ab8ff">'+d.att+'</div><div class="l">'+esc(T('bAtt'))+'</div></div>'+
-       '<div class="bstat"><div class="n" style="color:var(--ok)">'+d.mag+'</div><div class="l">'+esc(T('bMag'))+'</div></div>'+
-       '<div class="bstat"><div class="n" style="color:#8b93c4">'+d.ven+'</div><div class="l">'+esc(T('bVen'))+'</div></div>'+
-       '<div class="bstat"><div class="n" style="color:var(--accent)">'+brandTot(d)+'</div><div class="l">'+esc(T('bTotL'))+'</div></div>'+
+       '<div class="bstat"><div class="n'+(d.ord?' bnum':'')+'" style="color:var(--accent)" data-b="'+esc(cur)+'" data-s="ord">'+d.ord+'</div><div class="l">'+esc(T('bOrd'))+'</div></div>'+
+       '<div class="bstat"><div class="n'+(d.att?' bnum':'')+'" style="color:#7ab8ff" data-b="'+esc(cur)+'" data-s="att">'+d.att+'</div><div class="l">'+esc(T('bAtt'))+'</div></div>'+
+       '<div class="bstat"><div class="n'+(d.mag?' bnum':'')+'" style="color:var(--ok)" data-b="'+esc(cur)+'" data-s="mag">'+d.mag+'</div><div class="l">'+esc(T('bMag'))+'</div></div>'+
+       '<div class="bstat"><div class="n'+(d.ven?' bnum':'')+'" style="color:#8b93c4" data-b="'+esc(cur)+'" data-s="ven">'+d.ven+'</div><div class="l">'+esc(T('bVen'))+'</div></div>'+
+       '<div class="bstat"><div class="n'+(brandTot(d)?' bnum':'')+'" style="color:var(--accent)" data-b="'+esc(cur)+'" data-s="tot">'+brandTot(d)+'</div><div class="l">'+esc(T('bTotL'))+'</div></div>'+
       '</div></div>';
     $('brandSingle').classList.remove('bp-hide'); $('brandAll').classList.add('bp-hide');
   } else {
@@ -3750,6 +3772,11 @@ function bind(){
   if($('brandToggle')){
     $('brandToggle').addEventListener('click', function(){ $('brandPanel').classList.toggle('open'); });
     $('brandSel').addEventListener('change', renderBrandPanel);
+    $('brandBody').addEventListener('click', function(e){
+      var n=e.target.closest('.bnum'); if(!n) return;
+      var b=n.getAttribute('data-b'), st=n.getAttribute('data-s');
+      if(b && st) brandGoto(b, st);
+    });
   }
   $('btnUp').addEventListener('click', function(){
     MKT_CACHE = {};                              /* rilegge davvero le quotazioni */
