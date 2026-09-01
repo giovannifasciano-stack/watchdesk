@@ -678,7 +678,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.28</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.29</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -1167,7 +1167,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v10.28
+   WATCHDESK — GESTIONALE UNIFICATO  v10.29
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1793,7 +1793,7 @@ function fmtStamp(ms){
   return p(d.getDate())+'/'+p(d.getMonth()+1)+' '+p(d.getHours())+':'+p(d.getMinutes());
 }
 
-var BRAND_LOGOS={rolex:'brands/rolex.png',audemarspiguet:'brands/ap.png',ap:'brands/ap.png',patekphilippe:'brands/patek.png',patek:'brands/patek.png',omega:'brands/omega.png',cartier:'brands/cartier.png',urwerk:'brands/urwerk.png',jaegerlecoultre:'brands/jlc.png',jlc:'brands/jlc.png',girardperregaux:'brands/girard.png',girard:'brands/girard.png'};
+var BRAND_LOGOS={rolex:'brands/rolex.png',audemarspiguet:'brands/ap.png',ap:'brands/ap.png',patekphilippe:'brands/patek.png',patek:'brands/patek.png',omega:'brands/omega.png',cartier:'brands/cartier.png',urwerk:'brands/urwerk.png',jaegerlecoultre:'brands/jlc.png',jlc:'brands/jlc.png',girardperregaux:'brands/girard.png',girard:'brands/girard.png',richardmille:'brands/richard.png',richard:'brands/richard.png'};
 function brandKey(b){ return String(b||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
 function brandLogo(b){ return BRAND_LOGOS[brandKey(b)]||null; }
 function brandMono(b){ var w=String(b||'').trim().split(/[\s-]+/); return ((w[0]||'?')[0]+((w[1]||'')[0]||'')).toUpperCase(); }
