@@ -123,6 +123,7 @@ h2.sec{font-size:1.35rem; font-weight:700; letter-spacing:.02em; margin-bottom:4
 .brandpanel.open .bp-chev{transform:rotate(90deg)}
 .brand-body{display:none; padding:0 18px 16px}
 .brandpanel.open .brand-body{display:block}
+.bp-hide{display:none !important}
 .bp-head{display:flex; justify-content:flex-end; margin-bottom:12px}
 #brandSel{background:#10151f; border:1px solid var(--line); color:var(--text); border-radius:10px; padding:9px 12px; font-size:.9rem; font-family:inherit; min-width:190px}
 .bhrow,.bbrow{display:grid; grid-template-columns:172px repeat(4,1fr) 60px; gap:8px; align-items:center}
@@ -678,7 +679,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.29</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.30</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -736,7 +737,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
             <select id="brandSel"></select>
           </div>
           <div id="brandAll"></div>
-          <div id="brandSingle" class="hidden"></div>
+          <div id="brandSingle" class="bp-hide"></div>
         </div>
       </div>
 
@@ -1167,7 +1168,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v10.29
+   WATCHDESK — GESTIONALE UNIFICATO  v10.30
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1844,9 +1845,10 @@ function renderBrandPanel(){
        '<div class="bstat"><div class="n" style="color:#8b93c4">'+d.ven+'</div><div class="l">'+esc(T('bVen'))+'</div></div>'+
        '<div class="bstat"><div class="n" style="color:var(--accent)">'+brandTot(d)+'</div><div class="l">'+esc(T('bTotL'))+'</div></div>'+
       '</div></div>';
-    $('brandSingle').classList.remove('hidden'); $('brandAll').classList.add('hidden');
+    $('brandSingle').classList.remove('bp-hide'); $('brandAll').classList.add('bp-hide');
   } else {
-    $('brandSingle').classList.add('hidden'); $('brandAll').classList.remove('hidden');
+    $('brandSingle').classList.add('bp-hide'); $('brandAll').classList.remove('bp-hide');
+    $('brandSingle').innerHTML='';
   }
 }
 function renderHome(){
