@@ -681,7 +681,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 <!-- ============ APP ============ -->
 <div id="appView">
   <header class="app">
-    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.32</span></div>
+    <div class="logo">WATCH<span class="g">DESK</span><span class="pill"><span class="pw">GESTIONALE · </span>v10.33</span></div>
     <div class="spacer"></div>
     <div class="langbox">
       <button class="langbtn" id="langIt">🇮🇹 ITA</button>
@@ -1170,7 +1170,7 @@ select.mini{background:var(--bg2); border:1px solid var(--line2); border-radius:
 
 <script>
 /* ================================================================
-   WATCHDESK — GESTIONALE UNIFICATO  v10.32
+   WATCHDESK — GESTIONALE UNIFICATO  v10.33
    API: watchdesk-api.desksuite.cloud  (Worker + D1 "watchdesk")
    Accesso: porta unica DeskSuite (cookie ds_session su .desksuite.cloud)
    ================================================================ */
@@ -1224,7 +1224,7 @@ var I18N = {
     dWatch:'Orologio', dAcq:'Acquisizione',
     fBrand:'Marca', fBrandOther:'Altra marca', fRef:'Referenza', fModel:'Modello', fSerial:'Seriale',
     fYear:'Anno', fCond:'Condizioni', fSet:'Corredo', fMkt:'Valore grey USD', fMktUse:'Usa questo valore invece della quotazione trovata', mktMan:'mio', fPhoto:'Foto', fCp:'Cliente / Fornitore', fSup:'Fornitore', fCpSell:'Cliente',
-    fCur:'Valuta', fList:'Prezzo listino', fAgreed:'Prezzo pagato se applicato sconto', fVat:'IVA/Tasse %', fNet:'Prezzo netto detax',
+    fCur:'Valuta', fList:'Prezzo listino', fAgreed:'Prezzo pagato', fVat:'IVA/Tasse %', fNet:'Prezzo netto detax',
     fPay:'Pagamento', fDep:'Acconto versato', fPayDate:'Data pagamento', fStat:'Stato', fDOrd:'Data ordine',
     fDRec:'Arrivato dal fornitore il', fDPick:'Data ritiro', fNotes:'Note', fDocs:'Documenti / fatture', fDocDep:'Copia pagamento acconto', fDocBal:'Copia pagamento saldo', fDocWar:'Certificato di garanzia', printCard:'Stampa scheda', rWatchT:'Scheda orologio', rOrdT:'Orologi ordinati', rOrdD:"Tutti gli ordini, dal primo all'ultimo: pagati o no, arrivati o no, ritirati o no, venduti o no.", rOrdOpenT:'Ordinati non ritirati', rOrdOpenD:'Ordini ancora aperti: ordinati o arrivati dal fornitore ma non ancora ritirati.', vOrdOpen:'Ordinati non ritirati', oArr:'Arrivato', oPick:'Ritirato', oState:'Dove si trova', oOrdered:'Ordinato', oAtSup:'Dal fornitore', oStock:'In magazzino', oSold:'Venduto', rWatchBuy:'Acquisto', rWatchDocs:'Allegati', rDep:'Acconto', rBal:'Saldo', toUpload:'da caricare al salvataggio', docTooBig:'File troppo grande anche dopo la compressione: massimo ~1.8MB.', noPreview:'Anteprima non disponibile per questo formato — usa Scarica.', download:'Scarica', close:'Chiudi',
     addDoc:'Aggiungi file', fWatch:'Orologio', fPrice:'Prezzo vendita', fNetSale:'Netto vendita',
@@ -1306,7 +1306,7 @@ var I18N = {
     dWatch:'Watch', dAcq:'Acquisition',
     fBrand:'Brand', fBrandOther:'Other brand', fRef:'Reference', fModel:'Model', fSerial:'Serial',
     fYear:'Year', fCond:'Condition', fSet:'Set', fMkt:'Grey value USD', fMktUse:'Use this value instead of the quote found online', mktMan:'mine', fPhoto:'Photo', fCp:'Client / Supplier', fSup:'Supplier', fCpSell:'Client',
-    fCur:'Currency', fList:'List price', fAgreed:'Price paid if discounted', fVat:'VAT/Taxes %', fNet:'Net detax price',
+    fCur:'Currency', fList:'List price', fAgreed:'Price paid', fVat:'VAT/Taxes %', fNet:'Net detax price',
     fPay:'Payment', fDep:'Deposit paid', fPayDate:'Payment date', fStat:'Status', fDOrd:'Order date',
     fDRec:'Arrived from supplier on', fDPick:'Collection date', fNotes:'Notes', fDocs:'Documents / invoices', fDocDep:'Deposit payment copy', fDocBal:'Balance payment copy', fDocWar:'Warranty certificate', printCard:'Print card', rWatchT:'Watch card', rOrdT:'Watches ordered', rOrdOpenT:'Ordered, not picked up', rOrdOpenD:'Still-open orders: ordered or arrived at the supplier but not yet picked up.', vOrdOpen:'Ordered, not picked up', rOrdD:'Every order, first to last: paid or not, arrived or not, collected or not, sold or not.', oArr:'Arrived', oPick:'Collected', oState:'Where it is', oOrdered:'On order', oAtSup:'At supplier', oStock:'In stock', oSold:'Sold', rWatchBuy:'Purchase', rWatchDocs:'Attachments', rDep:'Deposit', rBal:'Balance', toUpload:'uploads on save', docTooBig:'File still too large after compression: max ~1.8MB.', noPreview:'No preview for this format — use Download.', download:'Download', close:'Close',
     addDoc:'Add files', fWatch:'Watch', fPrice:'Sale price', fNetSale:'Net sale',
